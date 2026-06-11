@@ -1,0 +1,6 @@
+@SpotTrack.Platform_HostAddress = http://localhost:5298
+
+GET {{SpotTrack.Platform_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
