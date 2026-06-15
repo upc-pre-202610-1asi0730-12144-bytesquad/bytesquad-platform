@@ -2,6 +2,8 @@ using SpotTrack.Platform.Profiles.Infrastructure.Persistence.EntityFrameworkCore
 using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Interceptors;
 using Microsoft.EntityFrameworkCore;
+using SpotTrack.Platform.Profiles.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
+using SpotTrack.Platform.Reservations.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 
 namespace SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
@@ -35,6 +37,7 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         base.OnModelCreating(builder);
 
         builder.ApplyProfilesConfiguration();
+        builder.ApplyReservationsConfiguration(); 
 
         builder.UseSnakeCaseNamingConvention();
     }
