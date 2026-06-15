@@ -1,0 +1,70 @@
+using Cortex.Mediator;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
+using SpotTrack.Platform.Reservations.Application.CommandServices;
+using SpotTrack.Platform.Reservations.Domain.Model;
+using SpotTrack.Platform.Reservations.Domain.Model.Aggregates;
+using SpotTrack.Platform.Reservations.Domain.Model.Commands;
+using SpotTrack.Platform.Reservations.Domain.Model.Events;
+using SpotTrack.Platform.Reservations.Domain.Repositories;
+using SpotTrack.Platform.Reservations.Resources;
+using SpotTrack.Platform.Shared.Application.Model;
+using SpotTrack.Platform.Shared.Domain.Repositories;
+
+namespace SpotTrack.Platform.Reservations.Application.Internal.CommandServices;
+
+public class ReservationCommandService(
+    IReservationRepository reservationRepository,
+    IUnitOfWork unitOfWork,
+    IMediator mediator,
+    IStringLocalizer<ReservationMessages> localizer)
+    : IReservationCommandService
+{
+    public async Task<Result<Reservation>> Handle(
+        CreateInitiateExpressReservationCommand command,
+        CancellationToken cancellationToken)
+    {
+        Reservation reservation;
+
+        try
+        {
+            reservation = new Reservation(command);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.InvalidReservationDates,
+                localizer[nameof(ReservationsError.InvalidReservationDates)]);
+        }
+
+        try
+        {
+            await reservationRepository.AddAsync(reservation, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+
+            await mediator.PublishAsync(
+                ExpressReservationInitiatedEvent.FromReservation(reservation),
+                cancellationToken);
+
+            return Result<Reservation>.Success(reservation);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.OperationCancelled,
+                localizer[nameof(ReservationsError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.DatabaseError,
+                localizer[nameof(ReservationsError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.InternalServerError,
+                localizer[nameof(ReservationsError.InternalServerError)]);
+        }
+    }
+}

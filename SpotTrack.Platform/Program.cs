@@ -20,6 +20,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.OpenApi;
 using ProblemDetailsFactory = SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails.ProblemDetailsFactory;
+using SpotTrack.Platform.Reservations.Application.CommandServices;
+using SpotTrack.Platform.Reservations.Application.Internal.CommandServices;
+using SpotTrack.Platform.Reservations.Application.Internal.QueryServices;
+using SpotTrack.Platform.Reservations.Application.QueryServices;
+using SpotTrack.Platform.Reservations.Domain.Repositories;
+using SpotTrack.Platform.Reservations.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using SpotTrack.Platform.Reservations.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -115,8 +122,12 @@ builder.Services.AddScoped<IAdminCommandService, AdminCommandService>();
 builder.Services.AddScoped<IClientQueryService, ClientQueryService>();
 builder.Services.AddScoped<IAdminQueryService, AdminQueryService>();
 builder.Services.AddScoped<IProfilesContextFacade, ProfilesContextFacade>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<IReservationCommandService, ReservationCommandService>();
+builder.Services.AddScoped<IReservationQueryService, ReservationQueryService>();
+builder.Services.AddSingleton<IStringLocalizer<ReservationMessages>, StringLocalizer<ReservationMessages>>();
 
-// Routines Bounded Context (se agrega al construir el contexto)
+// Routines Bounded Context 
 
 // Mediator Configuration
 builder.Services.AddScoped(typeof(ICommandPipelineBehavior<>), typeof(LoggingCommandBehavior<>));
