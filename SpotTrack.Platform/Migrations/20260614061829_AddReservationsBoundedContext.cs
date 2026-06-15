@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using MySql.EntityFrameworkCore.Metadata;
 
-
-
 namespace SpotTrack.Platform.Migrations
 {
 
