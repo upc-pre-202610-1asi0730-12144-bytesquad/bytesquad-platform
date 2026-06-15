@@ -67,4 +67,42 @@ public class ReservationCommandService(
                 localizer[nameof(ReservationsError.InternalServerError)]);
         }
     }
+
+    public async Task<Result<Reservation>> Handle(
+        CreateCancelReservationCommand command,
+        CancellationToken cancellationToken)
+    {
+
+        var reservation = await reservationRepository.FindByIdAsync(command.ReservationId,
+            cancellationToken);
+        if (reservation is null)
+            return Result<Reservation>.Failure(
+                ReservationsError.ReservationNotFound,
+                localizer[nameof(ReservationsError.ReservationNotFound)]);
+        try
+        {
+            reservation.Cancel();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.InvalidReservationStatus,
+                ex.Message);
+        }
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Reservation>.Success(reservation);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.DatabaseError,
+                localizer[nameof(ReservationsError.DatabaseError)]);
+        }
+    }
 }
+
+
+
+

@@ -28,6 +28,7 @@ public partial class Reservation
 
         Status = EReservationStatus.Initiated;
     }
+    
 
     public int Id { get; private set; }
     public int ClientId { get; private set; }

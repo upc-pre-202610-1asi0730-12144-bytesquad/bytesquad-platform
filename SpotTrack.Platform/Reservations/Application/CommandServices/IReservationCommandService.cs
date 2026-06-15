@@ -9,4 +9,5 @@ public interface IReservationCommandService
 {
   
     Task<Result<Reservation>> Handle(CreateInitiateExpressReservationCommand command, CancellationToken cancellationToken);
+    Task<Result<Reservation>>Handle(CreateCancelReservationCommand command, CancellationToken cancellationToken);
 }
