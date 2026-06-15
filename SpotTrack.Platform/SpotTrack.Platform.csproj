@@ -28,6 +28,16 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Analytics\Application\" />
+      <Folder Include="Analytics\Domain\Model\Aggregates\" />
+      <Folder Include="Analytics\Domain\Model\Errors\" />
+      <Folder Include="Analytics\Domain\Model\Events\" />
+      <Folder Include="Analytics\Domain\Model\Queries\" />
+      <Folder Include="Analytics\Domain\Model\ValueObjects\" />
+      <Folder Include="Analytics\Domain\Repositories\" />
+      <Folder Include="Analytics\Infraestructure\" />
+      <Folder Include="Analytics\Interfaces\" />
+      <Folder Include="Analytics\Resources\" />
       <Folder Include="Profiles\Application\" />
       <Folder Include="Profiles\Infrastructure\" />
       <Folder Include="Profiles\Interfaces\" />
