@@ -21,4 +21,7 @@ public static class ReservationsErrors
 
     public static Error InternalServerError(string message) =>
         new($"{nameof(ReservationsError)}.{nameof(ReservationsError.InternalServerError)}", message);
+    
+    public static Error InvalidReservationStatus(string message) =>
+        new($"{nameof(ReservationsError)}.{nameof(ReservationsError.InvalidReservationStatus)}", message);
 }
