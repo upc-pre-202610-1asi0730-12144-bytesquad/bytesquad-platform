@@ -101,6 +101,46 @@ public class ReservationCommandService(
                 localizer[nameof(ReservationsError.DatabaseError)]);
         }
     }
+
+    public async Task<Result<Reservation>> Handle(
+        CreateSubmitRequestOccupyEquipmentCommand command,
+        CancellationToken cancellationToken)
+    {
+        var reservation = await reservationRepository.FindByIdAsync(command.ReservationId, cancellationToken);
+        if (reservation is null)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.ReservationNotFound,
+                localizer [nameof(ReservationsError.ReservationNotFound)]);
+        }
+
+        try
+        {
+            reservation.SubmitRequest();
+        }
+
+        catch(InvalidOperationException ex)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.InvalidReservationStatus, ex.Message);
+        }
+
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Reservation>.Success(reservation);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.DatabaseError,
+                localizer[nameof(ReservationsError.DatabaseError)]);
+        }
+
+        await mediator.PublishAsync(RequestOccupyEquipmentSubmittedEvent.FromReservation(reservation),
+            cancellationToken);
+        return Result<Reservation>.Success(reservation);
+    }
 }
 
 
