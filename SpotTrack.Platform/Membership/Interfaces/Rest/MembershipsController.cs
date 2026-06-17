@@ -95,6 +95,31 @@ public class MembershipsController(
             this);
     }
 
+    [HttpDelete("{id:int}/cancel")]
+    [SwaggerOperation(
+        Summary = "Cancel a membership",
+        Description = "Cancels an active or suspended membership.",
+        OperationId = "CancelMembership")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Membership cancelled successfully", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Membership is already cancelled or expired")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
+    public async Task<IActionResult> CancelMembership(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateCancelMembershipCommand(id);
+        var result = await membershipCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
     [HttpPost("activate")]
     [SwaggerOperation(
         Summary = "Activate a membership",
