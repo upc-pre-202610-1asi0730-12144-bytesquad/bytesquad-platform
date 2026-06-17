@@ -67,4 +67,63 @@ public class MembershipCommandService(
                 localizer[nameof(MembershipError.InternalServerError)]);
         }
     }
+
+    public async Task<Result<Membership>> Handle(
+        CreateUpgradeMembershipPlanCommand command,
+        CancellationToken cancellationToken)
+    {
+        var membership = await membershipRepository.FindByIdAsync(command.MembershipId, cancellationToken);
+
+        if (membership is null)
+            return Result<Membership>.Failure(
+                MembershipError.MembershipNotFound,
+                localizer[nameof(MembershipError.MembershipNotFound)]);
+
+        try
+        {
+            membership.UpgradePlan(command.NewPlan);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Active"))
+        {
+            return Result<Membership>.Failure(
+                MembershipError.InvalidMembershipStatus,
+                localizer[nameof(MembershipError.InvalidMembershipStatus)]);
+        }
+        catch (InvalidOperationException)
+        {
+            return Result<Membership>.Failure(
+                MembershipError.InvalidMembershipPlan,
+                localizer[nameof(MembershipError.InvalidMembershipPlan)]);
+        }
+
+        try
+        {
+            membershipRepository.Update(membership);
+            await unitOfWork.CompleteAsync(cancellationToken);
+
+            await mediator.PublishAsync(
+                PlanUpgradedEvent.FromMembership(membership),
+                cancellationToken);
+
+            return Result<Membership>.Success(membership);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<Membership>.Failure(
+                MembershipError.OperationCancelled,
+                localizer[nameof(MembershipError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Membership>.Failure(
+                MembershipError.DatabaseError,
+                localizer[nameof(MembershipError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Membership>.Failure(
+                MembershipError.InternalServerError,
+                localizer[nameof(MembershipError.InternalServerError)]);
+        }
+    }
 }
