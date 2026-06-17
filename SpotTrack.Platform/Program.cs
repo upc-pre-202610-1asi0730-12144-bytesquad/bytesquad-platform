@@ -33,6 +33,20 @@ using SpotTrack.Platform.Routines.Application.Internal.QueryServices;
 using SpotTrack.Platform.Routines.Application.QueryServices;
 using SpotTrack.Platform.Routines.Domain.Repositories;
 using SpotTrack.Platform.Routines.Resources;
+using SpotTrack.Platform.Iam.Application.Acl;
+using SpotTrack.Platform.Iam.Application.CommandServices;
+using SpotTrack.Platform.Iam.Application.Internal.CommandServices;
+using SpotTrack.Platform.Iam.Application.Internal.QueryServices;
+using SpotTrack.Platform.Iam.Application.QueryServices;
+using SpotTrack.Platform.Iam.Domain.Repositories;
+using SpotTrack.Platform.Iam.Infrastructure.Hashing.BCrypt.Services;
+using SpotTrack.Platform.Iam.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Extensions;
+using SpotTrack.Platform.Iam.Infrastructure.Tokens.Jwt.Configuration;
+using SpotTrack.Platform.Iam.Infrastructure.Tokens.Jwt.Services;
+using SpotTrack.Platform.Iam.Application.Internal.OutboundServices;
+using SpotTrack.Platform.Iam.Interfaces.Acl;
+using SpotTrack.Platform.Iam.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -142,6 +156,16 @@ builder.Services.AddScoped<IRoutineSessionCommandService, RoutineSessionCommandS
 builder.Services.AddScoped<IRoutineSessionQueryService, RoutineSessionQueryService>();
 builder.Services.AddSingleton<IStringLocalizer<RoutinesMessages>, StringLocalizer<RoutinesMessages>>();
 
+// IAM Bounded Context
+builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IHashingService, HashingService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IUserCommandService, UserCommandService>();
+builder.Services.AddScoped<IUserQueryService, UserQueryService>();
+builder.Services.AddScoped<IIamContextFacade, IamContextFacade>();
+builder.Services.AddSingleton<IStringLocalizer<IamMessages>, StringLocalizer<IamMessages>>();
+
 // Mediator Configuration
 builder.Services.AddScoped(typeof(ICommandPipelineBehavior<>), typeof(LoggingCommandBehavior<>));
 builder.Services.AddCortexMediator([typeof(Program)]);
@@ -166,6 +190,8 @@ var localizationOptions = new RequestLocalizationOptions()
     .AddSupportedUICultures(supportedCultures);
 
 app.UseRequestLocalization(localizationOptions);
+
+app.UseRequestAuthorization();
 
 if (app.Environment.IsDevelopment())
 {

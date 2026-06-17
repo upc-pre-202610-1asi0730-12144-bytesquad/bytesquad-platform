@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>Usuario o contraseña incorrectos.</value>
+  </data>
+  <data name="UsernameAlreadyTaken" xml:space="preserve">
+    <value>El nombre de usuario {0} ya está en uso.</value>
+  </data>
+  <data name="InvalidRole" xml:space="preserve">
+    <value>Rol inválido proporcionado. Los roles válidos son: Client, Admin.</value>
+  </data>
+  <data name="OperationCancelled" xml:space="preserve">
+    <value>La operación de IAM fue cancelada.</value>
+  </data>
+  <data name="DatabaseError" xml:space="preserve">
+    <value>Ocurrió un error de base de datos durante la operación de IAM.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Ocurrió un error interno inesperado en IAM.</value>
+  </data>
+  <data name="UserCreatedSuccessfully" xml:space="preserve">
+    <value>Usuario creado exitosamente.</value>
+  </data>
+</root>
