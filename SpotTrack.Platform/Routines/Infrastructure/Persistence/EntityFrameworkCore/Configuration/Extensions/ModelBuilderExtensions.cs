@@ -23,16 +23,10 @@ public static class ModelBuilderExtensions
             {
                 name.WithOwner().HasForeignKey("Id");
                 name.Property(c => c.Value).IsRequired().HasColumnName("client_id");
+                name.HasIndex(c => c.Value).HasDatabaseName("ix_routines_client_id");
             });
 
-            /**
-             * entity.OwnsMany(c => c.ExerciseBlocks, exerciseBlock =>
-            {
-                // Configura por comando posterior
-            });
-            */
-            
-            
+            entity.Ignore(c => c.ExerciseBlocks);
         });
  
     }

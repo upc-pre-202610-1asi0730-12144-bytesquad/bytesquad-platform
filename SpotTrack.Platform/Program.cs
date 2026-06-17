@@ -27,6 +27,12 @@ using SpotTrack.Platform.Reservations.Application.QueryServices;
 using SpotTrack.Platform.Reservations.Domain.Repositories;
 using SpotTrack.Platform.Reservations.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Reservations.Resources;
+using SpotTrack.Platform.Routines.Application.CommandServices;
+using SpotTrack.Platform.Routines.Application.Internal.CommandServices;
+using SpotTrack.Platform.Routines.Application.Internal.QueryServices;
+using SpotTrack.Platform.Routines.Application.QueryServices;
+using SpotTrack.Platform.Routines.Domain.Repositories;
+using SpotTrack.Platform.Routines.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -127,7 +133,11 @@ builder.Services.AddScoped<IReservationCommandService, ReservationCommandService
 builder.Services.AddScoped<IReservationQueryService, ReservationQueryService>();
 builder.Services.AddSingleton<IStringLocalizer<ReservationMessages>, StringLocalizer<ReservationMessages>>();
 
-// Routines Bounded Context 
+// Routines Bounded Context
+builder.Services.AddScoped<IRoutineRepository, RoutineRepository>();
+builder.Services.AddScoped<IRoutineCommandService, RoutineCommandService>();
+builder.Services.AddScoped<IRoutineQueryService, RoutineQueryService>();
+builder.Services.AddSingleton<IStringLocalizer<RoutinesMessages>, StringLocalizer<RoutinesMessages>>();
 
 // Mediator Configuration
 builder.Services.AddScoped(typeof(ICommandPipelineBehavior<>), typeof(LoggingCommandBehavior<>));
