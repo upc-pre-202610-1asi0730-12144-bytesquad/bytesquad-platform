@@ -66,6 +66,35 @@ public class AdminCommandService(
         }
     }
 
+    public async Task<Result<Admin>> Handle(RegisterAdminCommand command, CancellationToken cancellationToken)
+    {
+        var admin = new Admin(command);
+        try
+        {
+            await adminRepository.AddAsync(admin, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Admin>.Success(admin);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<Admin>.Failure(
+                ProfilesError.OperationCancelled,
+                localizer[nameof(ProfilesError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Admin>.Failure(
+                ProfilesError.DatabaseError,
+                localizer[nameof(ProfilesError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Admin>.Failure(
+                ProfilesError.InternalServerError,
+                localizer[nameof(ProfilesError.InternalServerError)]);
+        }
+    }
+
     public async Task<Result<Admin>> Handle(UpdateAdminProfileCommand command, CancellationToken cancellationToken)
     {
         var admin = await adminRepository.FindByIdAsync(command.AdminId, cancellationToken);
