@@ -4,6 +4,9 @@ namespace SpotTrack.Platform.Gyms.Domain.Model.Errors;
 
 public static class GymErrors
 {
+    public static Error GymNotFound(string message) =>
+        new($"{nameof(GymError)}.{nameof(GymError.GymNotFound)}", message);
+
     public static Error InvalidData(string message) =>
         new($"{nameof(GymError)}.{nameof(GymError.InvalidData)}", message);
 
