@@ -86,6 +86,28 @@ public class RoutineSessionsController(
             this);
     }
 
+    [HttpPost("{routineSessionId:int}/missed")]
+    [SwaggerOperation(
+        Summary = "Mark a routine session as missed",
+        Description = "Marks the given routine session as missed. Returns 404 if the session is not found.",
+        OperationId = "MarkRoutineMissed")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Routine session marked as missed successfully", typeof(RoutineSessionResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Routine session not found")]
+    public async Task<IActionResult> MarkRoutineMissed(
+        [FromRoute] int routineSessionId,
+        CancellationToken cancellationToken)
+    {
+        var command = new MarkRoutineMissedCommand(routineSessionId);
+        var result = await routineSessionCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return RoutinesActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return RoutinesActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            RoutineSessionResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
     [HttpGet]
     [SwaggerOperation(
         Summary = "Get all routine sessions by client ID",
