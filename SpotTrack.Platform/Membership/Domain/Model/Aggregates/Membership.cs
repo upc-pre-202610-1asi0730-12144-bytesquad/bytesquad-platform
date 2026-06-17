@@ -63,4 +63,12 @@ public partial class Membership
 
         Status = EMembershipStatus.Suspended;
     }
+
+    public void Cancel()
+    {
+        if (Status == EMembershipStatus.Cancelled || Status == EMembershipStatus.Expired)
+            throw new InvalidOperationException("A cancelled or expired membership cannot be cancelled.");
+
+        Status = EMembershipStatus.Cancelled;
+    }
 }
