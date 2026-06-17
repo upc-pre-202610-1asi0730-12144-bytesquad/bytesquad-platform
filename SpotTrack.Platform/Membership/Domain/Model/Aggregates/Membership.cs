@@ -31,6 +31,18 @@ public partial class Membership
 
     public MembershipPeriod Period => new(StartDate, EndDate);
 
+    public void Renew(DateTimeOffset newEndDate)
+    {
+        if (Status == EMembershipStatus.Cancelled)
+            throw new InvalidOperationException("A cancelled membership cannot be renewed.");
+
+        if (newEndDate <= EndDate)
+            throw new ArgumentOutOfRangeException(nameof(newEndDate), "New end date must be after the current end date.");
+
+        EndDate = newEndDate;
+        Status = EMembershipStatus.Active;
+    }
+
     public void UpgradePlan(EMembershipPlan newPlan)
     {
         if (Status != EMembershipStatus.Active)
