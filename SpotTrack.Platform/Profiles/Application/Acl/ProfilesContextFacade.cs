@@ -29,6 +29,20 @@ public class ProfilesContextFacade(
         return result.IsFailure ? 0 : result.Value!.Id;
     }
 
+    public async Task<int> RegisterClientAsync(int userId)
+    {
+        var command = new RegisterClientCommand(userId);
+        var result = await clientCommandService.Handle(command, CancellationToken.None);
+        return result.IsFailure ? 0 : result.Value!.Id;
+    }
+
+    public async Task<int> RegisterAdminAsync(int userId)
+    {
+        var command = new RegisterAdminCommand(userId);
+        var result = await adminCommandService.Handle(command, CancellationToken.None);
+        return result.IsFailure ? 0 : result.Value!.Id;
+    }
+
     public async Task<int> FetchClientIdByEmailAsync(string email)
     {
         var client = await clientQueryService.Handle(
