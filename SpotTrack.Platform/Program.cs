@@ -137,6 +137,9 @@ builder.Services.AddSingleton<IStringLocalizer<ReservationMessages>, StringLocal
 builder.Services.AddScoped<IRoutineRepository, RoutineRepository>();
 builder.Services.AddScoped<IRoutineCommandService, RoutineCommandService>();
 builder.Services.AddScoped<IRoutineQueryService, RoutineQueryService>();
+builder.Services.AddScoped<IRoutineSessionRepository, RoutineSessionRepository>();
+builder.Services.AddScoped<IRoutineSessionCommandService, RoutineSessionCommandService>();
+builder.Services.AddScoped<IRoutineSessionQueryService, RoutineSessionQueryService>();
 builder.Services.AddSingleton<IStringLocalizer<RoutinesMessages>, StringLocalizer<RoutinesMessages>>();
 
 // Mediator Configuration
