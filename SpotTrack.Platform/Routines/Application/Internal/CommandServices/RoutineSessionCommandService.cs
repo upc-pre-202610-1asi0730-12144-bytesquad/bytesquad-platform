@@ -56,4 +56,40 @@ public class RoutineSessionCommandService(
                 localizer[nameof(RoutinesError.InternalServerError)]);
         }
     }
+
+    public async Task<Result<RoutineSession>> Handle(CompleteRoutineCommand command, CancellationToken cancellationToken)
+    {
+        var session = await routineSessionRepository.FindByIdAsync(command.RoutineSessionId, cancellationToken);
+        if (session is null)
+            return Result<RoutineSession>.Failure(
+                RoutinesError.RoutineSessionNotFound,
+                localizer[nameof(RoutinesError.RoutineSessionNotFound)]);
+
+        session.Complete();
+
+        try
+        {
+            routineSessionRepository.Update(session);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<RoutineSession>.Success(session);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<RoutineSession>.Failure(
+                RoutinesError.OperationCancelled,
+                localizer[nameof(RoutinesError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<RoutineSession>.Failure(
+                RoutinesError.DatabaseError,
+                localizer[nameof(RoutinesError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<RoutineSession>.Failure(
+                RoutinesError.InternalServerError,
+                localizer[nameof(RoutinesError.InternalServerError)]);
+        }
+    }
 }
