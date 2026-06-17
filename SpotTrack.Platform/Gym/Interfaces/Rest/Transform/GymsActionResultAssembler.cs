@@ -10,6 +10,7 @@ public static class GymsActionResultAssembler
 {
     private static int MapErrorToStatusCode(Enum error) => error switch
     {
+        GymError.GymNotFound => StatusCodes.Status404NotFound,
         GymError.InvalidData => StatusCodes.Status400BadRequest,
         _                    => StatusCodes.Status500InternalServerError
     };

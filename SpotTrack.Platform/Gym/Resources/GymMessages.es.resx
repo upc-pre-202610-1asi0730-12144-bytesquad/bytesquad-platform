@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <data name="GymNotFound" xml:space="preserve">
+    <value>Gimnasio no encontrado.</value>
+  </data>
   <data name="InvalidData" xml:space="preserve">
     <value>Datos del gimnasio inválidos.</value>
   </data>

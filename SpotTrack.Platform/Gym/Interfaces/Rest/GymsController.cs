@@ -42,4 +42,29 @@ public class GymsController(
             StatusCodes.Status201Created,
             this);
     }
+
+    [HttpPost("{gymId:int}/branches")]
+    [SwaggerOperation(
+        Summary = "Add a branch to a gym",
+        Description = "Adds a new branch to an existing gym. Returns 404 if the gym is not found, 400 if the branch data is invalid.",
+        OperationId = "CreateBranch")]
+    [SwaggerResponse(StatusCodes.Status201Created, "Branch created successfully", typeof(BranchResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid branch data provided")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    public async Task<IActionResult> CreateBranch(
+        [FromRoute] int gymId,
+        [FromBody] CreateBranchResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = CreateBranchCommandFromResourceAssembler.ToCommandFromResource(gymId, resource);
+        var result = await gymCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return GymsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return GymsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            BranchResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status201Created,
+            this);
+    }
 }
