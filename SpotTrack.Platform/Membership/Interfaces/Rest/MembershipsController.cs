@@ -17,6 +17,32 @@ public class MembershipsController(
     IMembershipCommandService membershipCommandService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpPut("{id:int}/plan")]
+    [SwaggerOperation(
+        Summary = "Upgrade a membership plan",
+        Description = "Upgrades the plan of an existing active membership to a superior plan.",
+        OperationId = "UpgradeMembershipPlan")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Membership plan upgraded successfully", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid plan or membership status")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
+    public async Task<IActionResult> UpgradeMembershipPlan(
+        [FromRoute] int id,
+        [FromBody] UpgradeMembershipPlanResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = UpgradeMembershipPlanCommandFromResourceAssembler.ToCommandFromResource(id, resource);
+        var result = await membershipCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
     [HttpPost("activate")]
     [SwaggerOperation(
         Summary = "Activate a membership",
