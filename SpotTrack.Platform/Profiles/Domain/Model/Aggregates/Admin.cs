@@ -7,13 +7,18 @@ public partial class Admin
 {
     public int Id { get; private set; }
     public int UserId { get; private set; }
-    public PersonName Name { get; private set; } = null!;
-    public ValueObjects.EmailAddress Email { get; private set; } = null!;
-    public PhoneNumber Phone { get; private set; } = null!;
-    public ValueObjects.Dni Dni { get; private set; } = null!;
+    public PersonName? Name { get; private set; }
+    public ValueObjects.EmailAddress? Email { get; private set; }
+    public PhoneNumber? Phone { get; private set; }
+    public ValueObjects.Dni? Dni { get; private set; }
 
     // For EF Core
     private Admin() { }
+
+    public Admin(RegisterAdminCommand command)
+    {
+        UserId = command.UserId;
+    }
 
     public Admin(CreateAdminCommand command)
     {
@@ -30,6 +35,6 @@ public partial class Admin
         Phone = new PhoneNumber(command.PhoneNumber);
     }
 
-    public string FullName => Name.FullName;
-    public string EmailAddress => Email.Address;
+    public string FullName => Name?.FullName ?? string.Empty;
+    public string EmailAddress => Email?.Address ?? string.Empty;
 }
