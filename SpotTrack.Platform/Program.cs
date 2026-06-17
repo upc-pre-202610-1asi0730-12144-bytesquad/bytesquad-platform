@@ -191,6 +191,8 @@ var localizationOptions = new RequestLocalizationOptions()
 
 app.UseRequestLocalization(localizationOptions);
 
+app.UseRequestAuthorization();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
