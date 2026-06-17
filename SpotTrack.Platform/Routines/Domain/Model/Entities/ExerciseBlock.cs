@@ -12,7 +12,7 @@ public class ExerciseBlock
     
     public int Order { get; private set; }
 
-    private ExerciseBlock() { Name = null!; Type = null!; }
+    private ExerciseBlock() { Name = null!; Type = default; }
 
     public ExerciseBlock(int id, ExerciseName name, ExerciseType type, int order)
     {
