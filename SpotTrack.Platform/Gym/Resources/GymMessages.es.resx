@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <data name="BranchNotFound" xml:space="preserve">
+    <value>Sucursal no encontrada.</value>
+  </data>
   <data name="GymNotFound" xml:space="preserve">
     <value>Gimnasio no encontrado.</value>
   </data>
