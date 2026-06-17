@@ -41,4 +41,14 @@ public partial class Membership
 
         Plan = newPlan;
     }
+
+    public void Suspend()
+    {
+        if (Status == EMembershipStatus.Cancelled ||
+            Status == EMembershipStatus.Suspended ||
+            Status == EMembershipStatus.Expired)
+            throw new InvalidOperationException("Only an Active membership can be suspended.");
+
+        Status = EMembershipStatus.Suspended;
+    }
 }
