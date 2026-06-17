@@ -94,5 +94,29 @@ public class ReservationsController(
             this);
     }
     
+    [HttpPost("{id}/end")]
+    [SwaggerOperation(
+        Summary = "End a reservation",
+        Description = "End a reservation for a client",
+        OperationId = "EndReservation")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Reservation cancelled successfully", typeof(CreateReservationResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Reservation not found")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Reservation cannot be cancelled")]
+    public async Task<IActionResult> EndReservation(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateEndReservationCommand(id);
+        var result = await reservationCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return ReservationsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return ReservationsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            ReservationResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
     
 }
