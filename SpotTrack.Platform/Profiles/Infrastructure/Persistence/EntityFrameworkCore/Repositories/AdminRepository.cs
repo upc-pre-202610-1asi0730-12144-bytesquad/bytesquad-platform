@@ -12,12 +12,12 @@ public class AdminRepository(AppDbContext context)
     public async Task<Admin?> FindByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await Context.Set<Admin>()
-            .FirstOrDefaultAsync(a => a.Email.Address == email, cancellationToken);
+            .FirstOrDefaultAsync(a => a.Email != null && a.Email.Address == email, cancellationToken);
     }
 
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await Context.Set<Admin>()
-            .AnyAsync(a => a.Email.Address == email, cancellationToken);
+            .AnyAsync(a => a.Email != null && a.Email.Address == email, cancellationToken);
     }
 }

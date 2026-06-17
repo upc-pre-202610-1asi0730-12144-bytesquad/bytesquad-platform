@@ -7,5 +7,6 @@ namespace SpotTrack.Platform.Profiles.Application.CommandServices;
 public interface IClientCommandService
 {
     Task<Result<Client>> Handle(CreateClientCommand command, CancellationToken cancellationToken);
+    Task<Result<Client>> Handle(RegisterClientCommand command, CancellationToken cancellationToken);
     Task<Result<Client>> Handle(UpdateClientProfileCommand command, CancellationToken cancellationToken);
 }
