@@ -1,17 +1,17 @@
 using Cortex.Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
-//using SpotTrack.Platform.Routines.Resources;
 using SpotTrack.Platform.Routines.Application.CommandServices;
+using SpotTrack.Platform.Routines.Domain.Model;
 using SpotTrack.Platform.Routines.Domain.Model.Aggregates;
 using SpotTrack.Platform.Routines.Domain.Model.Commands;
 using SpotTrack.Platform.Routines.Domain.Repositories;
+using SpotTrack.Platform.Routines.Resources;
 using SpotTrack.Platform.Shared.Application.Model;
 using SpotTrack.Platform.Shared.Domain.Repositories;
 
 namespace SpotTrack.Platform.Routines.Application.Internal.CommandServices;
 
-/**
 public class RoutineCommandService(
     IRoutineRepository routineRepository,
     IUnitOfWork unitOfWork,
@@ -59,5 +59,3 @@ public class RoutineCommandService(
         }
     }
 }
-
-*/
