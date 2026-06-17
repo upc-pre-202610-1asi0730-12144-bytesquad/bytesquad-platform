@@ -52,5 +52,30 @@ public static class ModelBuilderExtensions
                     .IsRequired();
             });
         });
+
+        builder.Entity<RoutineSession>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.Id).ValueGeneratedOnAdd();
+
+            entity.Property(s => s.RoutineId).IsRequired().HasColumnName("routine_id");
+
+            entity.OwnsOne(s => s.ClientId, clientId =>
+            {
+                clientId.WithOwner().HasForeignKey("Id");
+                clientId.Property(c => c.Value).IsRequired().HasColumnName("client_id");
+                clientId.HasIndex(c => c.Value).HasDatabaseName("ix_routine_sessions_client_id");
+            });
+
+            entity.Property(s => s.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .HasColumnName("status")
+                .IsRequired();
+
+            entity.Property(s => s.StartedAt).IsRequired().HasColumnName("started_at");
+
+            entity.Ignore(s => s.ClientIdValue);
+        });
     }
 }
