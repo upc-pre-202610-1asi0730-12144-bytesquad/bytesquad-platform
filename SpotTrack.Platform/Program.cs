@@ -52,6 +52,13 @@ using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Gyms.Resources;
+using SpotTrack.Platform.Memberships.Application.CommandServices;
+using SpotTrack.Platform.Memberships.Application.Internal.CommandServices;
+using SpotTrack.Platform.Memberships.Application.Internal.QueryServices;
+using SpotTrack.Platform.Memberships.Application.QueryServices;
+using SpotTrack.Platform.Memberships.Domain.Repositories;
+using SpotTrack.Platform.Memberships.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using SpotTrack.Platform.Memberships.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -165,6 +172,12 @@ builder.Services.AddSingleton<IStringLocalizer<RoutinesMessages>, StringLocalize
 builder.Services.AddScoped<IGymRepository, GymRepository>();
 builder.Services.AddScoped<IGymCommandService, GymCommandService>();
 builder.Services.AddSingleton<IStringLocalizer<GymMessages>, StringLocalizer<GymMessages>>();
+
+// Membership Bounded Context
+builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
+builder.Services.AddScoped<IMembershipCommandService, MembershipCommandService>();
+builder.Services.AddScoped<IMembershipQueryService, MembershipQueryService>();
+builder.Services.AddSingleton<IStringLocalizer<MembershipMessages>, StringLocalizer<MembershipMessages>>();
 
 // IAM Bounded Context
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
