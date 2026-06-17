@@ -12,12 +12,12 @@ public class ClientRepository(AppDbContext context)
     public async Task<Client?> FindByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await Context.Set<Client>()
-            .FirstOrDefaultAsync(c => c.Email.Address == email, cancellationToken);
+            .FirstOrDefaultAsync(c => c.Email != null && c.Email.Address == email, cancellationToken);
     }
 
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await Context.Set<Client>()
-            .AnyAsync(c => c.Email.Address == email, cancellationToken);
+            .AnyAsync(c => c.Email != null && c.Email.Address == email, cancellationToken);
     }
 }
