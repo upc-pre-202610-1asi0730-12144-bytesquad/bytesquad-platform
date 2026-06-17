@@ -29,5 +29,20 @@ public static class ModelBuilderExtensions
 
             entity.Ignore(m => m.Period);
         });
+
+        builder.Entity<BranchAccess>(entity =>
+        {
+            entity.HasKey(b => b.Id);
+            entity.Property(b => b.Id).ValueGeneratedOnAdd();
+
+            entity.Property(b => b.MembershipId).IsRequired();
+            entity.Property(b => b.BranchId).IsRequired();
+            entity.Property(b => b.GrantedByAdminId).IsRequired();
+
+            entity.Property(b => b.Status)
+                .IsRequired()
+                .HasConversion<string>()
+                .HasMaxLength(10);
+        });
     }
 }

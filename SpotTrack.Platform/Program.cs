@@ -177,6 +177,8 @@ builder.Services.AddSingleton<IStringLocalizer<GymMessages>, StringLocalizer<Gym
 builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
 builder.Services.AddScoped<IMembershipCommandService, MembershipCommandService>();
 builder.Services.AddScoped<IMembershipQueryService, MembershipQueryService>();
+builder.Services.AddScoped<IBranchAccessRepository, BranchAccessRepository>();
+builder.Services.AddScoped<IBranchAccessCommandService, BranchAccessCommandService>();
 builder.Services.AddSingleton<IStringLocalizer<MembershipMessages>, StringLocalizer<MembershipMessages>>();
 
 // IAM Bounded Context
