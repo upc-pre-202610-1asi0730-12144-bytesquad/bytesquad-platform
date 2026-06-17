@@ -68,4 +68,31 @@ public class ReservationsController(
             StatusCodes.Status200OK,
             this);
     }
+
+    [HttpPost("{id}/submit-request")]
+    [SwaggerOperation(
+        Summary = "Submit a request reservation",
+        Description = "Submit a request reservation for a client",
+        OperationId = "SubmitReservation")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Reservation submitted successfully", typeof(CreateReservationResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Reservation not found")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Reservation cannot be submitted")]
+    public async Task<IActionResult> SubmitReservation(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateSubmitRequestOccupyEquipmentCommand(id);
+        var result = await reservationCommandService.Handle(command, cancellationToken);
+        
+        if (result.IsFailure)
+            return ReservationsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return ReservationsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            ReservationResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+    
+    
 }
