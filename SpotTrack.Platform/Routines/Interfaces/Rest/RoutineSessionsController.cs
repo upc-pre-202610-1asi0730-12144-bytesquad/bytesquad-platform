@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Routines.Application.CommandServices;
 using SpotTrack.Platform.Routines.Application.QueryServices;
 using SpotTrack.Platform.Routines.Domain.Model;
+using SpotTrack.Platform.Routines.Domain.Model.Commands;
 using SpotTrack.Platform.Routines.Domain.Model.Queries;
 using SpotTrack.Platform.Routines.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Routines.Interfaces.Rest.Transform;
@@ -61,6 +62,28 @@ public class RoutineSessionsController(
                 this, StatusCodes.Status404NotFound,
                 RoutinesError.RoutineSessionNotFound, "Routine session not found.");
         return Ok(RoutineSessionResourceFromEntityAssembler.ToResourceFromEntity(session));
+    }
+
+    [HttpPost("{routineSessionId:int}/completions")]
+    [SwaggerOperation(
+        Summary = "Complete a routine session",
+        Description = "Marks the given routine session as completed. Returns 404 if the session is not found.",
+        OperationId = "CompleteRoutine")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Routine session completed successfully", typeof(RoutineSessionResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Routine session not found")]
+    public async Task<IActionResult> CompleteRoutine(
+        [FromRoute] int routineSessionId,
+        CancellationToken cancellationToken)
+    {
+        var command = new CompleteRoutineCommand(routineSessionId);
+        var result = await routineSessionCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return RoutinesActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return RoutinesActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            RoutineSessionResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
     }
 
     [HttpGet]
