@@ -8,4 +8,5 @@ public interface IRoutineSessionCommandService
 {
     Task<Result<RoutineSession>> Handle(StartRoutineCommand command, CancellationToken cancellationToken);
     Task<Result<RoutineSession>> Handle(CompleteRoutineCommand command, CancellationToken cancellationToken);
+    Task<Result<RoutineSession>> Handle(MarkRoutineMissedCommand command, CancellationToken cancellationToken);
 }
