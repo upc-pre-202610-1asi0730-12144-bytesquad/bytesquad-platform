@@ -2,9 +2,9 @@ namespace SpotTrack.Platform.Routines.Domain.Model.ValueObjects;
 
 public record ExerciseName
 {
-    public string Value { get; init; }
+    public string Value { get; init; } = null!;
     
-    public ExerciseName() : this(string.Empty) { }
+    public ExerciseName() { }
 
     public ExerciseName(string value)
     {

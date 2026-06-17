@@ -2,9 +2,9 @@ namespace SpotTrack.Platform.Routines.Domain.Model.ValueObjects;
 
 public record RoutineName
 {
-    public string Value { get; init; }
+    public string Value { get; init; } = null!;
     
-    public RoutineName() : this(string.Empty) { }
+    public RoutineName()  { }
 
     public RoutineName(string value)
     {
