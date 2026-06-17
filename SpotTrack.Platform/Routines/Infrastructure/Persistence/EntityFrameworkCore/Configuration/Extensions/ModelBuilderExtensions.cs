@@ -25,14 +25,7 @@ public static class ModelBuilderExtensions
                 name.Property(c => c.Value).IsRequired().HasColumnName("client_id");
             });
 
-            /**
-             * entity.OwnsMany(c => c.ExerciseBlocks, exerciseBlock =>
-            {
-                // Configura por comando posterior
-            });
-            */
-            
-            
+            entity.Ignore(c => c.ExerciseBlocks);
         });
  
     }
