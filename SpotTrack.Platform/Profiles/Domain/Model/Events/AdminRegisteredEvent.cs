@@ -15,9 +15,9 @@ public record AdminRegisteredEvent(
     public static AdminRegisteredEvent FromAdmin(Admin admin) =>
         new(admin.Id,
             admin.UserId,
-            admin.Name.FirstName,
-            admin.Name.LastName,
-            admin.Email.Address,
-            admin.Phone.Number,
-            admin.Dni.Value);
+            admin.Name!.FirstName,
+            admin.Name!.LastName,
+            admin.Email!.Address,
+            admin.Phone!.Number,
+            admin.Dni!.Value);
 }
