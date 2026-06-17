@@ -9,4 +9,7 @@ public interface IProfilesContextFacade
         string dni);
     Task<int> CreateAdminAsync(int userId, string email, string firstName, string lastName, string phoneNumber,
         string dni);
+
+    Task<int> RegisterClientAsync(int userId);
+    Task<int> RegisterAdminAsync(int userId);
 }
