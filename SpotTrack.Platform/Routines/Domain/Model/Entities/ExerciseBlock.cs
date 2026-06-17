@@ -12,6 +12,8 @@ public class ExerciseBlock
     
     public int Order { get; private set; }
 
+    private ExerciseBlock() { Name = null!; Type = null!; }
+
     public ExerciseBlock(int id, ExerciseName name, ExerciseType type, int order)
     {
         if (order <= 0)
