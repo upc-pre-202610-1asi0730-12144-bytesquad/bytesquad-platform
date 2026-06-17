@@ -7,4 +7,5 @@ namespace SpotTrack.Platform.Memberships.Application.CommandServices;
 public interface IMembershipCommandService
 {
     Task<Result<Membership>> Handle(CreateActivateMembershipCommand command, CancellationToken cancellationToken);
+    Task<Result<Membership>> Handle(CreateUpgradeMembershipPlanCommand command, CancellationToken cancellationToken);
 }
