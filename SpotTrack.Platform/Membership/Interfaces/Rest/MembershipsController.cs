@@ -1,0 +1,43 @@
+using System.Net.Mime;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Memberships.Application.CommandServices;
+using SpotTrack.Platform.Memberships.Interfaces.Rest.Resources;
+using SpotTrack.Platform.Memberships.Interfaces.Rest.Transform;
+using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
+using Swashbuckle.AspNetCore.Annotations;
+
+namespace SpotTrack.Platform.Memberships.Interfaces.Rest;
+
+[ApiController]
+[Route("api/v1/memberships")]
+[Produces(MediaTypeNames.Application.Json)]
+[SwaggerTag("Membership management endpoints")]
+public class MembershipsController(
+    IMembershipCommandService membershipCommandService,
+    ProblemDetailsFactory problemDetailsFactory) : ControllerBase
+{
+    [HttpPost("activate")]
+    [SwaggerOperation(
+        Summary = "Activate a membership",
+        Description = "Creates and activates a new membership for a client with the given plan and period.",
+        OperationId = "ActivateMembership")]
+    [SwaggerResponse(StatusCodes.Status201Created, "Membership activated successfully", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid membership data provided")]
+    public async Task<IActionResult> ActivateMembership(
+        [FromBody] ActivateMembershipResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = ActivateMembershipCommandFromResourceAssembler.ToCommandFromResource(resource);
+        var result = await membershipCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status201Created,
+            this);
+    }
+}

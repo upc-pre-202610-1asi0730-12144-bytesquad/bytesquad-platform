@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
@@ -10,9 +11,11 @@ using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.C
 namespace SpotTrack.Platform.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260617140912_AddMembershipsBoundedContext")]
+    partial class AddMembershipsBoundedContext
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,26 +41,6 @@ namespace SpotTrack.Platform.Migrations
                         .HasName("p_k_gyms");
 
                     b.ToTable("gyms");
-                });
-
-            modelBuilder.Entity("SpotTrack.Platform.Gyms.Domain.Model.Entities.Branch", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<int>("gym_id")
-                        .HasColumnType("int")
-                        .HasColumnName("gym_id");
-
-                    b.HasKey("Id")
-                        .HasName("p_k_branches");
-
-                    b.HasIndex("gym_id")
-                        .HasDatabaseName("i_x_branches_gym_id");
-
-                    b.ToTable("branches", (string)null);
                 });
 
             modelBuilder.Entity("SpotTrack.Platform.Iam.Domain.Model.Aggregates.User", b =>
@@ -379,78 +362,6 @@ namespace SpotTrack.Platform.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("Id")
                                 .HasConstraintName("f_k_gyms_gyms_id");
-                        });
-
-                    b.Navigation("Address")
-                        .IsRequired();
-
-                    b.Navigation("Name")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("SpotTrack.Platform.Gyms.Domain.Model.Entities.Branch", b =>
-                {
-                    b.HasOne("SpotTrack.Platform.Gyms.Domain.Model.Aggregates.Gym", null)
-                        .WithMany("Branches")
-                        .HasForeignKey("gym_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("f_k_branches_gyms_gym_id");
-
-                    b.OwnsOne("SpotTrack.Platform.Gyms.Domain.Model.ValueObjects.Address", "Address", b1 =>
-                        {
-                            b1.Property<int>("Id")
-                                .HasColumnType("int")
-                                .HasColumnName("id");
-
-                            b1.Property<string>("City")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("varchar(100)")
-                                .HasColumnName("city");
-
-                            b1.Property<string>("District")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("varchar(100)")
-                                .HasColumnName("district");
-
-                            b1.Property<string>("Street")
-                                .IsRequired()
-                                .HasMaxLength(200)
-                                .HasColumnType("varchar(200)")
-                                .HasColumnName("street");
-
-                            b1.HasKey("Id")
-                                .HasName("p_k_branches");
-
-                            b1.ToTable("branches");
-
-                            b1.WithOwner()
-                                .HasForeignKey("Id")
-                                .HasConstraintName("f_k_branches_branches_id");
-                        });
-
-                    b.OwnsOne("SpotTrack.Platform.Gyms.Domain.Model.ValueObjects.BranchName", "Name", b1 =>
-                        {
-                            b1.Property<int>("Id")
-                                .HasColumnType("int")
-                                .HasColumnName("id");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("varchar(100)")
-                                .HasColumnName("name");
-
-                            b1.HasKey("Id")
-                                .HasName("p_k_branches");
-
-                            b1.ToTable("branches");
-
-                            b1.WithOwner()
-                                .HasForeignKey("Id")
-                                .HasConstraintName("f_k_branches_branches_id");
                         });
 
                     b.Navigation("Address")
@@ -828,11 +739,6 @@ namespace SpotTrack.Platform.Migrations
 
                     b.Navigation("ClientId")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("SpotTrack.Platform.Gyms.Domain.Model.Aggregates.Gym", b =>
-                {
-                    b.Navigation("Branches");
                 });
 
             modelBuilder.Entity("SpotTrack.Platform.Reservations.Domain.Model.Aggregates.Reservation", b =>

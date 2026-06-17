@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="MembershipNotFound" xml:space="preserve">
+    <value>Membresía no encontrada.</value>
+  </data>
+  <data name="InvalidMembershipPeriod" xml:space="preserve">
+    <value>La fecha de fin debe ser estrictamente posterior a la fecha de inicio.</value>
+  </data>
+  <data name="InvalidMembershipPlan" xml:space="preserve">
+    <value>El plan de membresía especificado no es válido.</value>
+  </data>
+  <data name="InvalidMembershipStatus" xml:space="preserve">
+    <value>La transición de estado de la membresía no está permitida.</value>
+  </data>
+  <data name="OperationCancelled" xml:space="preserve">
+    <value>La operación de membresía fue cancelada.</value>
+  </data>
+  <data name="DatabaseError" xml:space="preserve">
+    <value>Ocurrió un error de base de datos durante la operación de membresía.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Ocurrió un error interno inesperado en Memberships.</value>
+  </data>
+</root>
