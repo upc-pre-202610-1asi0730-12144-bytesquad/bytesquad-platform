@@ -8,7 +8,7 @@ namespace SpotTrack.Platform.Gyms.Infrastructure.Persistence.EntityFrameworkCore
 
 public class GymRepository(AppDbContext context) : BaseRepository<Gym>(context), IGymRepository
 {
-    public override async Task<Gym?> FindByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Gym?> FindByIdWithBranchesAsync(int id, CancellationToken cancellationToken = default)
     {
         return await Context.Set<Gym>()
             .Include(g => g.Branches)

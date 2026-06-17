@@ -60,7 +60,7 @@ public class GymCommandService(
 
     public async Task<Result<Branch>> Handle(CreateBranchCommand command, CancellationToken cancellationToken)
     {
-        var gym = await gymRepository.FindByIdAsync(command.GymId, cancellationToken);
+        var gym = await gymRepository.FindByIdWithBranchesAsync(command.GymId, cancellationToken);
         if (gym is null)
             return Result<Branch>.Failure(
                 GymError.GymNotFound,
