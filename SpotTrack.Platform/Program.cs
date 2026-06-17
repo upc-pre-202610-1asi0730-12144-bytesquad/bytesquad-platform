@@ -47,6 +47,11 @@ using SpotTrack.Platform.Iam.Infrastructure.Tokens.Jwt.Services;
 using SpotTrack.Platform.Iam.Application.Internal.OutboundServices;
 using SpotTrack.Platform.Iam.Interfaces.Acl;
 using SpotTrack.Platform.Iam.Resources;
+using SpotTrack.Platform.Gyms.Application.Internal.CommandServices;
+using SpotTrack.Platform.Gyms.Domain.Repositories;
+using SpotTrack.Platform.Gyms.Domain.Services;
+using SpotTrack.Platform.Gyms.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using SpotTrack.Platform.Gyms.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -155,6 +160,11 @@ builder.Services.AddScoped<IRoutineSessionRepository, RoutineSessionRepository>(
 builder.Services.AddScoped<IRoutineSessionCommandService, RoutineSessionCommandService>();
 builder.Services.AddScoped<IRoutineSessionQueryService, RoutineSessionQueryService>();
 builder.Services.AddSingleton<IStringLocalizer<RoutinesMessages>, StringLocalizer<RoutinesMessages>>();
+
+// Gym Bounded Context
+builder.Services.AddScoped<IGymRepository, GymRepository>();
+builder.Services.AddScoped<IGymCommandService, GymCommandService>();
+builder.Services.AddSingleton<IStringLocalizer<GymMessages>, StringLocalizer<GymMessages>>();
 
 // IAM Bounded Context
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
