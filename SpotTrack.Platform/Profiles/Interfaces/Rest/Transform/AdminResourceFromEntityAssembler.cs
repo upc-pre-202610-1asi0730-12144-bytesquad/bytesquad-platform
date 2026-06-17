@@ -6,6 +6,6 @@ namespace SpotTrack.Platform.Profiles.Interfaces.Rest.Transform;
 public static class AdminResourceFromEntityAssembler
 {
     public static AdminResource ToResourceFromEntity(Admin admin) =>
-        new(admin.Id, admin.UserId, admin.FullName, admin.Email.Address,
-            admin.Phone.Number, admin.Dni.Value);
+        new(admin.Id, admin.UserId, admin.FullName, admin.Email?.Address ?? string.Empty,
+            admin.Phone?.Number ?? string.Empty, admin.Dni?.Value ?? string.Empty);
 }
