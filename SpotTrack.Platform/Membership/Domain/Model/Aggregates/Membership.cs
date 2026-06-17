@@ -31,5 +31,14 @@ public partial class Membership
 
     public MembershipPeriod Period => new(StartDate, EndDate);
 
-    // Future features: UpgradePlan, Suspend, Renew, Cancel
+    public void UpgradePlan(EMembershipPlan newPlan)
+    {
+        if (Status != EMembershipStatus.Active)
+            throw new InvalidOperationException("Membership must be Active to upgrade the plan.");
+
+        if (newPlan <= Plan)
+            throw new InvalidOperationException("New plan must be superior to the current plan.");
+
+        Plan = newPlan;
+    }
 }
