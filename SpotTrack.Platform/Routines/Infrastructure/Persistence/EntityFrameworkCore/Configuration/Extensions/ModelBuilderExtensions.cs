@@ -35,6 +35,7 @@ public static class ModelBuilderExtensions
 
                 eb.OwnsOne(b => b.Name, name =>
                 {
+                    name.WithOwner().HasForeignKey("Id");
                     name.Property(n => n.Value)
                         .IsRequired()
                         .HasMaxLength(100)
