@@ -43,6 +43,30 @@ public class RoutinesController(
             this);
     }
 
+    [HttpPost("{routineId:int}/exercise-blocks")]
+    [SwaggerOperation(
+        Summary = "Add an exercise block to a routine",
+        Description = "Adds a new exercise block to an existing routine. Returns 404 if the routine is not found, 400 if the exercise data is invalid.",
+        OperationId = "AddExerciseBlock")]
+    [SwaggerResponse(StatusCodes.Status201Created, "Exercise block added successfully", typeof(ExerciseBlockResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid exercise data provided")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Routine not found")]
+    public async Task<IActionResult> AddExerciseBlock(
+        [FromRoute] int routineId,
+        [FromBody] AddExerciseBlockResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = AddExerciseBlockCommandFromResourceAssembler.ToCommandFromResource(routineId, resource);
+        var result = await routineCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return RoutinesActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return RoutinesActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            ExerciseBlockResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status201Created,
+            this);
+    }
+
     [HttpGet("{routineId:int}")]
     [SwaggerOperation(
         Summary = "Get a routine by ID",

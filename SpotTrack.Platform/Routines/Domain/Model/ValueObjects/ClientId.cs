@@ -4,7 +4,7 @@ public record ClientId
 {
     public int Value { get; init; }
     
-    public ClientId() : this(0) { }
+    public ClientId() { }
 
     public  ClientId(int value)
     {
