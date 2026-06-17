@@ -1,7 +1,7 @@
-using SpotTrack.Platform.Gym.Domain.Model.Commands;
-using SpotTrack.Platform.Gym.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Gyms.Domain.Model.Commands;
+using SpotTrack.Platform.Gyms.Domain.Model.ValueObjects;
 
-namespace SpotTrack.Platform.Gym.Domain.Model.Aggregates;
+namespace SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 
 public partial class Gym
 {

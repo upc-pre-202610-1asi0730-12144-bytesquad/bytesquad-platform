@@ -1,4 +1,4 @@
-namespace SpotTrack.Platform.Gym.Domain.Model.ValueObjects;
+namespace SpotTrack.Platform.Gyms.Domain.Model.ValueObjects;
 
 public record GymName
 {

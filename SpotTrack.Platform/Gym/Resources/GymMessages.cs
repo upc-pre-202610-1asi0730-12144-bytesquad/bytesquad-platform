@@ -1,4 +1,4 @@
-namespace SpotTrack.Platform.Gym.Resources;
+namespace SpotTrack.Platform.Gyms.Resources;
 
 public class GymMessages
 {

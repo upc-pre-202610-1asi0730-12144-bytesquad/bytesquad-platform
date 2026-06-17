@@ -1,4 +1,4 @@
-namespace SpotTrack.Platform.Gym.Domain.Model;
+namespace SpotTrack.Platform.Gyms.Domain.Model;
 
 public enum GymError
 {

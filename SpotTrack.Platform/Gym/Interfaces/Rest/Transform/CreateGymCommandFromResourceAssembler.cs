@@ -1,7 +1,7 @@
-using SpotTrack.Platform.Gym.Domain.Model.Commands;
-using SpotTrack.Platform.Gym.Interfaces.Rest.Resources;
+using SpotTrack.Platform.Gyms.Domain.Model.Commands;
+using SpotTrack.Platform.Gyms.Interfaces.Rest.Resources;
 
-namespace SpotTrack.Platform.Gym.Interfaces.Rest.Transform;
+namespace SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
 
 public static class CreateGymCommandFromResourceAssembler
 {

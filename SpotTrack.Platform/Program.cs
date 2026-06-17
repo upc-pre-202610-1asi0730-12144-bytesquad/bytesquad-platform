@@ -47,11 +47,11 @@ using SpotTrack.Platform.Iam.Infrastructure.Tokens.Jwt.Services;
 using SpotTrack.Platform.Iam.Application.Internal.OutboundServices;
 using SpotTrack.Platform.Iam.Interfaces.Acl;
 using SpotTrack.Platform.Iam.Resources;
-using SpotTrack.Platform.Gym.Application.Internal.CommandServices;
-using SpotTrack.Platform.Gym.Domain.Repositories;
-using SpotTrack.Platform.Gym.Domain.Services;
-using SpotTrack.Platform.Gym.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
-using SpotTrack.Platform.Gym.Resources;
+using SpotTrack.Platform.Gyms.Application.Internal.CommandServices;
+using SpotTrack.Platform.Gyms.Domain.Repositories;
+using SpotTrack.Platform.Gyms.Domain.Services;
+using SpotTrack.Platform.Gyms.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using SpotTrack.Platform.Gyms.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 

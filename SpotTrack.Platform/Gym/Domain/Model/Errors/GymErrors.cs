@@ -1,6 +1,6 @@
 using SpotTrack.Platform.Shared.Domain.Model;
 
-namespace SpotTrack.Platform.Gym.Domain.Model.Errors;
+namespace SpotTrack.Platform.Gyms.Domain.Model.Errors;
 
 public static class GymErrors
 {

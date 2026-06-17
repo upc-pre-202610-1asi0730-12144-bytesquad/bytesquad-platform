@@ -1,6 +1,6 @@
 using SpotTrack.Platform.Shared.Domain.Model.Entities;
 
-namespace SpotTrack.Platform.Gym.Domain.Model.Aggregates;
+namespace SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 
 public partial class Gym : IAuditableEntity
 {

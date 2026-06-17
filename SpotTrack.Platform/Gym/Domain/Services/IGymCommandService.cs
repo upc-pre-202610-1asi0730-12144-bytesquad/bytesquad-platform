@@ -1,8 +1,8 @@
-using SpotTrack.Platform.Gym.Domain.Model.Aggregates;
-using SpotTrack.Platform.Gym.Domain.Model.Commands;
+using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
+using SpotTrack.Platform.Gyms.Domain.Model.Commands;
 using SpotTrack.Platform.Shared.Application.Model;
 
-namespace SpotTrack.Platform.Gym.Domain.Services;
+namespace SpotTrack.Platform.Gyms.Domain.Services;
 
 public interface IGymCommandService
 {

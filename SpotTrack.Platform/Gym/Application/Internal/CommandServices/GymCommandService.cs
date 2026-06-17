@@ -1,15 +1,15 @@
+using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
-using SpotTrack.Platform.Gym.Domain.Model;
-using SpotTrack.Platform.Gym.Domain.Model.Aggregates;
-using SpotTrack.Platform.Gym.Domain.Model.Commands;
-using SpotTrack.Platform.Gym.Domain.Repositories;
-using SpotTrack.Platform.Gym.Domain.Services;
-using SpotTrack.Platform.Gym.Resources;
+using SpotTrack.Platform.Gyms.Domain.Model;
+using SpotTrack.Platform.Gyms.Domain.Model.Commands;
+using SpotTrack.Platform.Gyms.Domain.Repositories;
+using SpotTrack.Platform.Gyms.Domain.Services;
+using SpotTrack.Platform.Gyms.Resources;
 using SpotTrack.Platform.Shared.Application.Model;
 using SpotTrack.Platform.Shared.Domain.Repositories;
 
-namespace SpotTrack.Platform.Gym.Application.Internal.CommandServices;
+namespace SpotTrack.Platform.Gyms.Application.Internal.CommandServices;
 
 public class GymCommandService(
     IGymRepository gymRepository,

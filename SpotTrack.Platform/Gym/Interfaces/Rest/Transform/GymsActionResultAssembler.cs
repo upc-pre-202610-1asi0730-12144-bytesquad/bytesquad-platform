@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SpotTrack.Platform.Gym.Domain.Model;
+using SpotTrack.Platform.Gyms.Domain.Model;
 using SpotTrack.Platform.Shared.Application.Model;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
 
-namespace SpotTrack.Platform.Gym.Interfaces.Rest.Transform;
+namespace SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
 
 public static class GymsActionResultAssembler
 {

@@ -1,7 +1,7 @@
+using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 using Microsoft.EntityFrameworkCore;
-using SpotTrack.Platform.Gym.Domain.Model.Aggregates;
 
-namespace SpotTrack.Platform.Gym.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
+namespace SpotTrack.Platform.Gyms.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 
 public static class ModelBuilderExtensions
 {
