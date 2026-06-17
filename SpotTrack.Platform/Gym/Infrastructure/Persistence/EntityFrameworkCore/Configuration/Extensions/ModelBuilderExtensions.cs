@@ -30,6 +30,7 @@ public static class ModelBuilderExtensions
             entity.HasMany(g => g.Branches)
                 .WithOne()
                 .HasForeignKey("gym_id")
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
