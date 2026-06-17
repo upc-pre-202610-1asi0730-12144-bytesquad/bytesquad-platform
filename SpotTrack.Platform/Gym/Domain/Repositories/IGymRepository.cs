@@ -6,4 +6,5 @@ namespace SpotTrack.Platform.Gyms.Domain.Repositories;
 public interface IGymRepository : IBaseRepository<Gym>
 {
     Task<Gym?> FindByIdWithBranchesAsync(int id, CancellationToken cancellationToken = default);
+    Task<Gym?> FindByIdWithBranchesAndZonesAsync(int id, CancellationToken cancellationToken = default);
 }
