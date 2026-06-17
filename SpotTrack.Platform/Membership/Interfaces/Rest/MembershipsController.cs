@@ -69,6 +69,32 @@ public class MembershipsController(
             this);
     }
 
+    [HttpPost("{id:int}/renew")]
+    [SwaggerOperation(
+        Summary = "Renew a membership",
+        Description = "Extends the end date of an active or expired membership and sets its status to Active.",
+        OperationId = "RenewMembership")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Membership renewed successfully", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid new end date or membership status")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
+    public async Task<IActionResult> RenewMembership(
+        [FromRoute] int id,
+        [FromBody] RenewMembershipResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = RenewMembershipCommandFromResourceAssembler.ToCommandFromResource(id, resource);
+        var result = await membershipCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
     [HttpPost("activate")]
     [SwaggerOperation(
         Summary = "Activate a membership",
