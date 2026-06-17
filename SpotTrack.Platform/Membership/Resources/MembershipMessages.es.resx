@@ -21,4 +21,16 @@
   <data name="InternalServerError" xml:space="preserve">
     <value>Ocurrió un error interno inesperado en Memberships.</value>
   </data>
+  <data name="BranchAccessNotFound" xml:space="preserve">
+    <value>Registro de acceso a sede no encontrado.</value>
+  </data>
+  <data name="BranchAccessOperationCancelled" xml:space="preserve">
+    <value>La operación de acceso a sede fue cancelada.</value>
+  </data>
+  <data name="BranchAccessDatabaseError" xml:space="preserve">
+    <value>Ocurrió un error de base de datos durante la operación de acceso a sede.</value>
+  </data>
+  <data name="BranchAccessInternalServerError" xml:space="preserve">
+    <value>Ocurrió un error interno inesperado en acceso a sede.</value>
+  </data>
 </root>
