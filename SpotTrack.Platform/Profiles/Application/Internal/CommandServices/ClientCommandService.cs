@@ -66,6 +66,35 @@ public class ClientCommandService(
         }
     }
 
+    public async Task<Result<Client>> Handle(RegisterClientCommand command, CancellationToken cancellationToken)
+    {
+        var client = new Client(command);
+        try
+        {
+            await clientRepository.AddAsync(client, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Client>.Success(client);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<Client>.Failure(
+                ProfilesError.OperationCancelled,
+                localizer[nameof(ProfilesError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Client>.Failure(
+                ProfilesError.DatabaseError,
+                localizer[nameof(ProfilesError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Client>.Failure(
+                ProfilesError.InternalServerError,
+                localizer[nameof(ProfilesError.InternalServerError)]);
+        }
+    }
+
     public async Task<Result<Client>> Handle(UpdateClientProfileCommand command, CancellationToken cancellationToken)
     {
         var client = await clientRepository.FindByIdAsync(command.ClientId, cancellationToken);
