@@ -2,6 +2,7 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Memberships.Application.CommandServices;
+using SpotTrack.Platform.Memberships.Domain.Model.Commands;
 using SpotTrack.Platform.Memberships.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Memberships.Interfaces.Rest.Transform;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
@@ -31,6 +32,31 @@ public class MembershipsController(
         CancellationToken cancellationToken)
     {
         var command = UpgradeMembershipPlanCommandFromResourceAssembler.ToCommandFromResource(id, resource);
+        var result = await membershipCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
+    [HttpPost("{id:int}/suspend")]
+    [SwaggerOperation(
+        Summary = "Suspend a membership",
+        Description = "Suspends an active membership.",
+        OperationId = "SuspendMembership")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Membership suspended successfully", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Membership is not in a suspendable state")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
+    public async Task<IActionResult> SuspendMembership(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateSuspendMembershipCommand(id);
         var result = await membershipCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)
