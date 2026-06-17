@@ -10,11 +10,20 @@ public class Branch
 
     public Address Address { get; private set; } = null!;
 
+    private List<Zone> _zones = new();
+    public IReadOnlyCollection<Zone> Zones => _zones.AsReadOnly();
+
     private Branch() { }
 
     public Branch(BranchName name, Address address)
     {
         Name = name;
         Address = address;
+    }
+
+    public void AddZone(string name)
+    {
+        var zoneName = new ZoneName(name);
+        _zones.Add(new Zone(zoneName));
     }
 }
