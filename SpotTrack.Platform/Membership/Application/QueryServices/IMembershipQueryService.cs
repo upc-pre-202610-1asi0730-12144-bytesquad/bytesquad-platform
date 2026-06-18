@@ -6,4 +6,5 @@ namespace SpotTrack.Platform.Memberships.Application.QueryServices;
 public interface IMembershipQueryService
 {
     Task<IEnumerable<Membership>> Handle(GetAllMembershipsByClientIdQuery query, CancellationToken cancellationToken);
+    Task<Membership?> Handle(GetMembershipByIdQuery query, CancellationToken cancellationToken);
 }
