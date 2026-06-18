@@ -27,4 +27,7 @@ public static class ReservationsErrors
 
     public static Error EquipmentOccupyFailed(string message) =>
         new($"{nameof(ReservationsError)}.{nameof(ReservationsError.EquipmentOccupyFailed)}", message);
+
+    public static Error EquipmentReleaseFailed(string message) =>
+        new($"{nameof(ReservationsError)}.{nameof(ReservationsError.EquipmentReleaseFailed)}", message);
 }

@@ -216,4 +216,45 @@ public class ReservationCommandService(
 
         return Result<Reservation>.Success(reservation);
     }
+
+    public async Task<Result<Reservation>> Handle(
+        CreateRequestEquipmentStatusChangeToAvailableCommand command, CancellationToken cancellationToken)
+    {
+        var reservation = await reservationRepository.FindByIdAsync(command.ReservationId,
+            cancellationToken);
+        if (reservation is null)
+            return Result<Reservation>.Failure(
+                ReservationsError.ReservationNotFound,
+                localizer[nameof(ReservationsError.ReservationNotFound)]);
+
+        try
+        {
+            reservation.RequestEquipmentAvailable();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.InvalidReservationStatus,
+                ex.Message);
+        }
+
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.DatabaseError,
+                localizer[nameof(ReservationsError.DatabaseError)]);
+        }
+
+        var released = await gymContextFacade.ReleaseEquipmentAsync(reservation.EquipmentId);
+        if (!released)
+            return Result<Reservation>.Failure(
+                ReservationsError.EquipmentReleaseFailed,
+                localizer[nameof(ReservationsError.EquipmentReleaseFailed)]);
+
+        return Result<Reservation>.Success(reservation);
+    }
 }
