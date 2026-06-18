@@ -119,6 +119,31 @@ public class ReservationsController(
             this);
     }
 
+    [HttpPost("{id}/request-equipment-available")]
+    [SwaggerOperation(
+        Summary = "Request equipment status change to available",
+        Description = "Signals that the equipment should be released back to available in the Gym context.",
+        OperationId = "RequestEquipmentAvailable")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Equipment release requested successfully", typeof(CreateReservationResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Reservation not found")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Reservation status does not allow this operation or equipment release failed")]
+    public async Task<IActionResult> RequestEquipmentAvailable(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateRequestEquipmentStatusChangeToAvailableCommand(id);
+        var result = await reservationCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return ReservationsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return ReservationsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            ReservationResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
     [HttpPost("{id}/start-timer")]
     [SwaggerOperation(
         Summary = "Start the reservation timer",
