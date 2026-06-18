@@ -2,7 +2,10 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Memberships.Application.CommandServices;
+using SpotTrack.Platform.Memberships.Application.QueryServices;
+using SpotTrack.Platform.Memberships.Domain.Model;
 using SpotTrack.Platform.Memberships.Domain.Model.Commands;
+using SpotTrack.Platform.Memberships.Domain.Model.Queries;
 using SpotTrack.Platform.Memberships.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Memberships.Interfaces.Rest.Transform;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
@@ -16,8 +19,36 @@ namespace SpotTrack.Platform.Memberships.Interfaces.Rest;
 [SwaggerTag("Membership management endpoints")]
 public class MembershipsController(
     IMembershipCommandService membershipCommandService,
+    IMembershipQueryService membershipQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet("{id:int}")]
+    [SwaggerOperation(
+        Summary = "Get membership by id",
+        Description = "Returns the membership matching the given id.",
+        OperationId = "GetMembershipById")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Membership found", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
+    public async Task<IActionResult> GetMembershipById(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var membership = await membershipQueryService.Handle(new GetMembershipByIdQuery(id), cancellationToken);
+
+        if (membership is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this,
+                StatusCodes.Status404NotFound,
+                MembershipError.MembershipNotFound,
+                "Membership not found.");
+
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            membership,
+            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
     [HttpPut("{id:int}/plan")]
     [SwaggerOperation(
         Summary = "Upgrade a membership plan",
