@@ -66,6 +66,16 @@ public partial class Reservation
         Status = EReservationStatus.Cancelled;
     }
 
+    public void StartTimer()
+    {
+        if (Status is not EReservationStatus.Reserved)
+            throw new InvalidOperationException(
+                $"Cannot start the timer for a reservation in '{Status}' status.");
+
+        _request!.ConfirmEquipmentOccupied();
+        Status = EReservationStatus.Active;
+    }
+
     public void End()
     {
         if (Status is EReservationStatus.Ended or EReservationStatus.Cancelled)
