@@ -1,11 +1,40 @@
 using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 using SpotTrack.Platform.Gyms.Domain.Model.Entities;
+using SpotTrack.Platform.Gyms.Domain.Model.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace SpotTrack.Platform.Gyms.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 
 public static class ModelBuilderExtensions
 {
+    public static void ApplyEquipmentConfiguration(this ModelBuilder builder)
+    {
+        builder.Entity<Equipment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.ToTable("equipment");
+
+            entity.OwnsOne(e => e.Name, name =>
+            {
+                name.WithOwner().HasForeignKey("Id");
+                name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
+            });
+
+            entity.OwnsOne(e => e.ZoneId, zoneId =>
+            {
+                zoneId.WithOwner().HasForeignKey("Id");
+                zoneId.Property(z => z.Value).IsRequired().HasColumnName("zone_id");
+            });
+
+            entity.Property(e => e.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .HasColumnName("status")
+                .IsRequired();
+        });
+    }
+
     public static void ApplyGymConfiguration(this ModelBuilder builder)
     {
         builder.Entity<Gym>(entity =>
