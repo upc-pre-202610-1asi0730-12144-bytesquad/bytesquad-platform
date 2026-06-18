@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="ZoneNotFound" xml:space="preserve">
+    <value>Zona no encontrada.</value>
+  </data>
+  <data name="InvalidData" xml:space="preserve">
+    <value>Datos del equipo inválidos.</value>
+  </data>
+  <data name="OperationCancelled" xml:space="preserve">
+    <value>La operación del equipo fue cancelada.</value>
+  </data>
+  <data name="DatabaseError" xml:space="preserve">
+    <value>Ocurrió un error de base de datos durante la operación del equipo.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Ocurrió un error interno inesperado.</value>
+  </data>
+</root>

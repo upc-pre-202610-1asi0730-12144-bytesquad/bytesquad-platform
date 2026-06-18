@@ -44,6 +44,7 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         builder.ApplyReservationsConfiguration();
         builder.ApplyIamConfiguration();
         builder.ApplyGymConfiguration();
+        builder.ApplyEquipmentConfiguration();
         builder.ApplyMembershipsConfiguration();
 
         builder.UseSnakeCaseNamingConvention();
