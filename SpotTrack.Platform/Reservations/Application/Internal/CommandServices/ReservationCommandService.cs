@@ -1,6 +1,7 @@
 using Cortex.Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using SpotTrack.Platform.Gyms.Interfaces.Acl;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
 using SpotTrack.Platform.Reservations.Domain.Model;
 using SpotTrack.Platform.Reservations.Domain.Model.Aggregates;
@@ -17,7 +18,8 @@ public class ReservationCommandService(
     IReservationRepository reservationRepository,
     IUnitOfWork unitOfWork,
     IMediator mediator,
-    IStringLocalizer<ReservationMessages> localizer)
+    IStringLocalizer<ReservationMessages> localizer,
+    IGymContextFacade gymContextFacade)
     : IReservationCommandService
 {
     public async Task<Result<Reservation>> Handle(
@@ -173,8 +175,45 @@ public class ReservationCommandService(
                 localizer[nameof(ReservationsError.DatabaseError)]);
         }
     }
+
+    public async Task<Result<Reservation>> Handle(
+        CreateStartReservationTimerCommand command, CancellationToken cancellationToken)
+    {
+        var reservation = await reservationRepository.FindByIdAsync(command.ReservationId,
+            cancellationToken);
+        if (reservation is null)
+            return Result<Reservation>.Failure(
+                ReservationsError.ReservationNotFound,
+                localizer[nameof(ReservationsError.ReservationNotFound)]);
+
+        try
+        {
+            reservation.StartTimer();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.InvalidReservationStatus,
+                ex.Message);
+        }
+
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.DatabaseError,
+                localizer[nameof(ReservationsError.DatabaseError)]);
+        }
+
+        var occupied = await gymContextFacade.OccupyEquipmentAsync(reservation.EquipmentId);
+        if (!occupied)
+            return Result<Reservation>.Failure(
+                ReservationsError.EquipmentOccupyFailed,
+                localizer[nameof(ReservationsError.EquipmentOccupyFailed)]);
+
+        return Result<Reservation>.Success(reservation);
+    }
 }
-
-
-
-
