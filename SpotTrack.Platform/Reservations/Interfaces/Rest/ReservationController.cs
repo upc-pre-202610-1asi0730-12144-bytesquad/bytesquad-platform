@@ -2,8 +2,10 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
+using SpotTrack.Platform.Reservations.Application.QueryServices;
 using SpotTrack.Platform.Reservations.Domain.Model;
 using SpotTrack.Platform.Reservations.Domain.Model.Commands;
+using SpotTrack.Platform.Reservations.Domain.Model.Queries;
 using SpotTrack.Platform.Reservations.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Reservations.Interfaces.Rest.Transform;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
@@ -17,6 +19,7 @@ namespace SpotTrack.Platform.Reservations.Interfaces.Rest;
 [SwaggerTag("Reservation management endpoints")]
 public class ReservationsController(
     IReservationCommandService reservationCommandService,
+    IReservationQueryService reservationQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
     [HttpPost("express")]
@@ -142,6 +145,56 @@ public class ReservationsController(
             ReservationResourceFromEntityAssembler.ToResourceFromEntity,
             StatusCodes.Status200OK,
             this);
+    }
+
+    [HttpGet("{id:int}")]
+    [SwaggerOperation(
+        Summary = "Get a reservation by ID",
+        Description = "Returns the reservation matching the given ID, or 404 if not found.",
+        OperationId = "GetReservationById")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Reservation found", typeof(CreateReservationResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Reservation not found")]
+    public async Task<IActionResult> GetReservationById(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var reservation = await reservationQueryService.Handle(new GetReservationByIdQuery(id), cancellationToken);
+        if (reservation is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ReservationsError.ReservationNotFound, "Reservation not found.");
+        return Ok(ReservationResourceFromEntityAssembler.ToResourceFromEntity(reservation));
+    }
+
+    [HttpGet("by-client/{clientId:int}")]
+    [SwaggerOperation(
+        Summary = "Get all reservations by client ID",
+        Description = "Returns all reservations for the given client.",
+        OperationId = "GetReservationsByClientId")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of reservations for the client", typeof(IEnumerable<CreateReservationResource>))]
+    public async Task<IActionResult> GetReservationsByClientId(
+        [FromRoute] int clientId,
+        CancellationToken cancellationToken)
+    {
+        var reservations = await reservationQueryService.Handle(
+            new GetAllReservationsByClientIdQuery(clientId), cancellationToken);
+        var resources = reservations.Select(ReservationResourceFromEntityAssembler.ToResourceFromEntity);
+        return Ok(resources);
+    }
+
+    [HttpGet("by-equipment/{equipmentId:int}")]
+    [SwaggerOperation(
+        Summary = "Get all reservations by equipment ID",
+        Description = "Returns all reservations for the given equipment.",
+        OperationId = "GetReservationsByEquipmentId")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of reservations for the equipment", typeof(IEnumerable<CreateReservationResource>))]
+    public async Task<IActionResult> GetReservationsByEquipmentId(
+        [FromRoute] int equipmentId,
+        CancellationToken cancellationToken)
+    {
+        var reservations = await reservationQueryService.Handle(
+            new GetAllReservationsByEquipmentIdQuery(equipmentId), cancellationToken);
+        var resources = reservations.Select(ReservationResourceFromEntityAssembler.ToResourceFromEntity);
+        return Ok(resources);
     }
 
     [HttpPost("{id}/start-timer")]
