@@ -171,7 +171,10 @@ builder.Services.AddSingleton<IStringLocalizer<RoutinesMessages>, StringLocalize
 // Gym Bounded Context
 builder.Services.AddScoped<IGymRepository, GymRepository>();
 builder.Services.AddScoped<IGymCommandService, GymCommandService>();
+builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
+builder.Services.AddScoped<IEquipmentCommandService, EquipmentCommandService>();
 builder.Services.AddSingleton<IStringLocalizer<GymMessages>, StringLocalizer<GymMessages>>();
+builder.Services.AddSingleton<IStringLocalizer<EquipmentMessages>, StringLocalizer<EquipmentMessages>>();
 
 // Membership Bounded Context
 builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
