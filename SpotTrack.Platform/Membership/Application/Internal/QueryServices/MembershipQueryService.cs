@@ -17,3 +17,5 @@ public class MembershipQueryService(IMembershipRepository membershipRepository)
     public async Task<Membership?> Handle(GetMembershipByIdQuery query, CancellationToken cancellationToken)
         => await membershipRepository.FindByIdAsync(query.MembershipId, cancellationToken);
 }
+
+

@@ -22,11 +22,42 @@ public class MembershipsController(
     IMembershipQueryService membershipQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpPost("activate")]
+    [SwaggerOperation(Summary = "Activate a membership", OperationId = "ActivateMembership")]
+    [SwaggerResponse(StatusCodes.Status201Created, "Membership activated successfully", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid membership data provided")]
+    public async Task<IActionResult> ActivateMembership(
+        [FromBody] ActivateMembershipResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = ActivateMembershipCommandFromResourceAssembler.ToCommandFromResource(resource);
+        var result = await membershipCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status201Created, this);
+    }
+
+    [HttpGet("{id:int}")]
+    [SwaggerOperation(Summary = "Get membership by id", OperationId = "GetMembershipById")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Membership found", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
+    public async Task<IActionResult> GetMembershipById(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var membership = await membershipQueryService.Handle(new GetMembershipByIdQuery(id), cancellationToken);
+        if (membership is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, MembershipError.MembershipNotFound, "Membership not found.");
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            membership, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK, this);
+    }
+
     [HttpGet("by-client/{clientId:int}")]
-    [SwaggerOperation(
-        Summary = "Get all memberships by client id",
-        Description = "Returns all memberships belonging to the specified client.",
-        OperationId = "GetAllMembershipsByClientId")]
+    [SwaggerOperation(Summary = "Get all memberships by client id", OperationId = "GetAllMembershipsByClientId")]
     [SwaggerResponse(StatusCodes.Status200OK, "Memberships retrieved successfully", typeof(IEnumerable<MembershipResource>))]
     public async Task<IActionResult> GetAllMembershipsByClientId(
         [FromRoute] int clientId,
@@ -34,68 +65,11 @@ public class MembershipsController(
     {
         var memberships = await membershipQueryService.Handle(
             new GetAllMembershipsByClientIdQuery(clientId), cancellationToken);
-
-        var resources = memberships.Select(MembershipResourceFromEntityAssembler.ToResourceFromEntity);
-        return Ok(resources);
-    [HttpGet("{id:int}")]
-    [SwaggerOperation(
-        Summary = "Get membership by id",
-        Description = "Returns the membership matching the given id.",
-        OperationId = "GetMembershipById")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Membership found", typeof(MembershipResource))]
-    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
-    public async Task<IActionResult> GetMembershipById(
-        [FromRoute] int id,
-        CancellationToken cancellationToken)
-    {
-        var membership = await membershipQueryService.Handle(new GetMembershipByIdQuery(id), cancellationToken);
-
-        if (membership is null)
-            return problemDetailsFactory.CreateProblemDetails(
-                this,
-                StatusCodes.Status404NotFound,
-                MembershipError.MembershipNotFound,
-                "Membership not found.");
-
-        return MembershipsActionResultAssembler.ToSuccessActionResult(
-            membership,
-            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
-            StatusCodes.Status200OK,
-            this);
-    }
-
-    [HttpGet("{id:int}")]
-    [SwaggerOperation(
-        Summary = "Get membership by id",
-        Description = "Returns the membership matching the given id.",
-        OperationId = "GetMembershipById")]
-    [SwaggerResponse(StatusCodes.Status200OK, "Membership found", typeof(MembershipResource))]
-    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
-    public async Task<IActionResult> GetMembershipById(
-        [FromRoute] int id,
-        CancellationToken cancellationToken)
-    {
-        var membership = await membershipQueryService.Handle(new GetMembershipByIdQuery(id), cancellationToken);
-
-        if (membership is null)
-            return problemDetailsFactory.CreateProblemDetails(
-                this,
-                StatusCodes.Status404NotFound,
-                MembershipError.MembershipNotFound,
-                "Membership not found.");
-
-        return MembershipsActionResultAssembler.ToSuccessActionResult(
-            membership,
-            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
-            StatusCodes.Status200OK,
-            this);
+        return Ok(memberships.Select(MembershipResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     [HttpPut("{id:int}/plan")]
-    [SwaggerOperation(
-        Summary = "Upgrade a membership plan",
-        Description = "Upgrades the plan of an existing active membership to a superior plan.",
-        OperationId = "UpgradeMembershipPlan")]
+    [SwaggerOperation(Summary = "Upgrade a membership plan", OperationId = "UpgradeMembershipPlan")]
     [SwaggerResponse(StatusCodes.Status200OK, "Membership plan upgraded successfully", typeof(MembershipResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid plan or membership status")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
@@ -106,22 +80,15 @@ public class MembershipsController(
     {
         var command = UpgradeMembershipPlanCommandFromResourceAssembler.ToCommandFromResource(id, resource);
         var result = await membershipCommandService.Handle(command, cancellationToken);
-
         if (result.IsFailure)
             return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
-
         return MembershipsActionResultAssembler.ToSuccessActionResult(
-            result.Value!,
-            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
-            StatusCodes.Status200OK,
-            this);
+            result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK, this);
     }
 
     [HttpPost("{id:int}/suspend")]
-    [SwaggerOperation(
-        Summary = "Suspend a membership",
-        Description = "Suspends an active membership.",
-        OperationId = "SuspendMembership")]
+    [SwaggerOperation(Summary = "Suspend a membership", OperationId = "SuspendMembership")]
     [SwaggerResponse(StatusCodes.Status200OK, "Membership suspended successfully", typeof(MembershipResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Membership is not in a suspendable state")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
@@ -131,22 +98,15 @@ public class MembershipsController(
     {
         var command = new CreateSuspendMembershipCommand(id);
         var result = await membershipCommandService.Handle(command, cancellationToken);
-
         if (result.IsFailure)
             return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
-
         return MembershipsActionResultAssembler.ToSuccessActionResult(
-            result.Value!,
-            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
-            StatusCodes.Status200OK,
-            this);
+            result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK, this);
     }
 
     [HttpPost("{id:int}/renew")]
-    [SwaggerOperation(
-        Summary = "Renew a membership",
-        Description = "Extends the end date of an active or expired membership and sets its status to Active.",
-        OperationId = "RenewMembership")]
+    [SwaggerOperation(Summary = "Renew a membership", OperationId = "RenewMembership")]
     [SwaggerResponse(StatusCodes.Status200OK, "Membership renewed successfully", typeof(MembershipResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid new end date or membership status")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
@@ -157,22 +117,15 @@ public class MembershipsController(
     {
         var command = RenewMembershipCommandFromResourceAssembler.ToCommandFromResource(id, resource);
         var result = await membershipCommandService.Handle(command, cancellationToken);
-
         if (result.IsFailure)
             return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
-
         return MembershipsActionResultAssembler.ToSuccessActionResult(
-            result.Value!,
-            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
-            StatusCodes.Status200OK,
-            this);
+            result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK, this);
     }
 
     [HttpDelete("{id:int}/cancel")]
-    [SwaggerOperation(
-        Summary = "Cancel a membership",
-        Description = "Cancels an active or suspended membership.",
-        OperationId = "CancelMembership")]
+    [SwaggerOperation(Summary = "Cancel a membership", OperationId = "CancelMembership")]
     [SwaggerResponse(StatusCodes.Status200OK, "Membership cancelled successfully", typeof(MembershipResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Membership is already cancelled or expired")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
@@ -182,38 +135,10 @@ public class MembershipsController(
     {
         var command = new CreateCancelMembershipCommand(id);
         var result = await membershipCommandService.Handle(command, cancellationToken);
-
         if (result.IsFailure)
             return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
-
         return MembershipsActionResultAssembler.ToSuccessActionResult(
-            result.Value!,
-            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
-            StatusCodes.Status200OK,
-            this);
-    }
-
-    [HttpPost("activate")]
-    [SwaggerOperation(
-        Summary = "Activate a membership",
-        Description = "Creates and activates a new membership for a client with the given plan and period.",
-        OperationId = "ActivateMembership")]
-    [SwaggerResponse(StatusCodes.Status201Created, "Membership activated successfully", typeof(MembershipResource))]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid membership data provided")]
-    public async Task<IActionResult> ActivateMembership(
-        [FromBody] ActivateMembershipResource resource,
-        CancellationToken cancellationToken)
-    {
-        var command = ActivateMembershipCommandFromResourceAssembler.ToCommandFromResource(resource);
-        var result = await membershipCommandService.Handle(command, cancellationToken);
-
-        if (result.IsFailure)
-            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
-
-        return MembershipsActionResultAssembler.ToSuccessActionResult(
-            result.Value!,
-            MembershipResourceFromEntityAssembler.ToResourceFromEntity,
-            StatusCodes.Status201Created,
-            this);
+            result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK, this);
     }
 }
