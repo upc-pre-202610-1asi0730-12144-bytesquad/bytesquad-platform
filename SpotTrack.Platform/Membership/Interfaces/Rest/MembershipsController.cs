@@ -2,7 +2,9 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Memberships.Application.CommandServices;
+using SpotTrack.Platform.Memberships.Application.QueryServices;
 using SpotTrack.Platform.Memberships.Domain.Model.Commands;
+using SpotTrack.Platform.Memberships.Domain.Model.Queries;
 using SpotTrack.Platform.Memberships.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Memberships.Interfaces.Rest.Transform;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
@@ -16,8 +18,26 @@ namespace SpotTrack.Platform.Memberships.Interfaces.Rest;
 [SwaggerTag("Membership management endpoints")]
 public class MembershipsController(
     IMembershipCommandService membershipCommandService,
+    IMembershipQueryService membershipQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet("by-client/{clientId:int}")]
+    [SwaggerOperation(
+        Summary = "Get all memberships by client id",
+        Description = "Returns all memberships belonging to the specified client.",
+        OperationId = "GetAllMembershipsByClientId")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Memberships retrieved successfully", typeof(IEnumerable<MembershipResource>))]
+    public async Task<IActionResult> GetAllMembershipsByClientId(
+        [FromRoute] int clientId,
+        CancellationToken cancellationToken)
+    {
+        var memberships = await membershipQueryService.Handle(
+            new GetAllMembershipsByClientIdQuery(clientId), cancellationToken);
+
+        var resources = memberships.Select(MembershipResourceFromEntityAssembler.ToResourceFromEntity);
+        return Ok(resources);
+    }
+
     [HttpPut("{id:int}/plan")]
     [SwaggerOperation(
         Summary = "Upgrade a membership plan",
