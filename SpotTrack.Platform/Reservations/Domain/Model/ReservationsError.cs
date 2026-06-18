@@ -9,4 +9,5 @@ public enum ReservationsError
     DatabaseError,
     InternalServerError,
     InvalidReservationStatus,
+    EquipmentOccupyFailed,
 }

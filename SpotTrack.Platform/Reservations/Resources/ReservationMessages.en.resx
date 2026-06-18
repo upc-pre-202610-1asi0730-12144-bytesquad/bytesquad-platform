@@ -18,4 +18,7 @@
     <data name="InternalServerError" xml:space="preserve">
     <value>An unexpected internal error occurred in Reservations.</value>
   </data>
+    <data name="EquipmentOccupyFailed" xml:space="preserve">
+    <value>Failed to mark the equipment as occupied in the Gym context.</value>
+  </data>
 </root>

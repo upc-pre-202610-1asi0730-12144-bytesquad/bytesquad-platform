@@ -118,5 +118,29 @@ public class ReservationsController(
             StatusCodes.Status200OK,
             this);
     }
-    
+
+    [HttpPost("{id}/start-timer")]
+    [SwaggerOperation(
+        Summary = "Start the reservation timer",
+        Description = "Transitions a Reserved reservation to Active and marks the equipment as occupied.",
+        OperationId = "StartReservationTimer")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Reservation timer started successfully", typeof(CreateReservationResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Reservation not found")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Reservation cannot be started or equipment occupy failed")]
+    public async Task<IActionResult> StartReservationTimer(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateStartReservationTimerCommand(id);
+        var result = await reservationCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return ReservationsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return ReservationsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            ReservationResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
 }
