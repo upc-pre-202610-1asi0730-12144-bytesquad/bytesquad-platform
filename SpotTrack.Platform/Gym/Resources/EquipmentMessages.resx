@@ -15,4 +15,10 @@
   <data name="InternalServerError" xml:space="preserve">
     <value>An unexpected internal error occurred.</value>
   </data>
+  <data name="EquipmentNotFound" xml:space="preserve">
+    <value>Equipment not found.</value>
+  </data>
+  <data name="InvalidEquipmentStatus" xml:space="preserve">
+    <value>The equipment status does not allow this operation.</value>
+  </data>
 </root>
