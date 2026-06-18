@@ -6,5 +6,7 @@ public enum EquipmentError
     InvalidData,
     OperationCancelled,
     DatabaseError,
-    InternalServerError
+    InternalServerError,
+    EquipmentNotFound,
+    InvalidEquipmentStatus
 }

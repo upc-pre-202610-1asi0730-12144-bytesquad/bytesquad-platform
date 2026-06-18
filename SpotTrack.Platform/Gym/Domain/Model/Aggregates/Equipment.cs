@@ -21,4 +21,22 @@ public partial class Equipment
         ZoneId = new ZoneId(command.ZoneId);
         Status = EquipmentStatus.Available;
     }
+
+    public void Occupy()
+    {
+        if (Status is not EquipmentStatus.Available)
+            throw new InvalidOperationException(
+                $"Cannot occupy equipment that is in '{Status}' status.");
+
+        Status = EquipmentStatus.Occupied;
+    }
+
+    public void Release()
+    {
+        if (Status is not EquipmentStatus.Occupied)
+            throw new InvalidOperationException(
+                $"Cannot release equipment that is in '{Status}' status.");
+
+        Status = EquipmentStatus.Available;
+    }
 }
