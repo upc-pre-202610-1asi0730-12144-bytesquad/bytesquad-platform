@@ -22,6 +22,21 @@ public class MembershipsController(
     IMembershipQueryService membershipQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet("by-client/{clientId:int}")]
+    [SwaggerOperation(
+        Summary = "Get all memberships by client id",
+        Description = "Returns all memberships belonging to the specified client.",
+        OperationId = "GetAllMembershipsByClientId")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Memberships retrieved successfully", typeof(IEnumerable<MembershipResource>))]
+    public async Task<IActionResult> GetAllMembershipsByClientId(
+        [FromRoute] int clientId,
+        CancellationToken cancellationToken)
+    {
+        var memberships = await membershipQueryService.Handle(
+            new GetAllMembershipsByClientIdQuery(clientId), cancellationToken);
+
+        var resources = memberships.Select(MembershipResourceFromEntityAssembler.ToResourceFromEntity);
+        return Ok(resources);
     [HttpGet("{id:int}")]
     [SwaggerOperation(
         Summary = "Get membership by id",
