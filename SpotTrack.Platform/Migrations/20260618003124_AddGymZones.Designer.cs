@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
@@ -10,9 +11,11 @@ using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.C
 namespace SpotTrack.Platform.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260618003124_AddGymZones")]
+    partial class AddGymZones
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,45 +123,6 @@ namespace SpotTrack.Platform.Migrations
                         .HasDatabaseName("i_x_users_username");
 
                     b.ToTable("users");
-                });
-
-            modelBuilder.Entity("SpotTrack.Platform.Memberships.Domain.Model.Aggregates.BranchAccess", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int")
-                        .HasColumnName("branch_id");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("created_at");
-
-                    b.Property<int>("GrantedByAdminId")
-                        .HasColumnType("int")
-                        .HasColumnName("granted_by_admin_id");
-
-                    b.Property<int>("MembershipId")
-                        .HasColumnType("int")
-                        .HasColumnName("membership_id");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("status");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("p_k_branch_accesses");
-
-                    b.ToTable("branch_accesses");
                 });
 
             modelBuilder.Entity("SpotTrack.Platform.Memberships.Domain.Model.Aggregates.Membership", b =>

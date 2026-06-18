@@ -53,6 +53,25 @@ public static class ModelBuilderExtensions
                 address.Property(a => a.District).IsRequired().HasMaxLength(100).HasColumnName("district");
                 address.Property(a => a.City).IsRequired().HasMaxLength(100).HasColumnName("city");
             });
+
+            entity.HasMany(b => b.Zones)
+                .WithOne()
+                .HasForeignKey("branch_id")
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Zone>(entity =>
+        {
+            entity.HasKey(z => z.Id);
+            entity.Property(z => z.Id).ValueGeneratedOnAdd();
+            entity.ToTable("zones");
+
+            entity.OwnsOne(z => z.Name, name =>
+            {
+                name.WithOwner().HasForeignKey("Id");
+                name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
+            });
         });
     }
 }

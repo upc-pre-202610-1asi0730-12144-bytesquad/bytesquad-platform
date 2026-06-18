@@ -67,4 +67,30 @@ public class GymsController(
             StatusCodes.Status201Created,
             this);
     }
+
+    [HttpPost("{gymId:int}/branches/{branchId:int}/zones")]
+    [SwaggerOperation(
+        Summary = "Add a zone to a branch",
+        Description = "Adds a new zone to an existing branch within a gym. Returns 404 if the gym or branch is not found, 400 if the zone data is invalid.",
+        OperationId = "CreateZone")]
+    [SwaggerResponse(StatusCodes.Status201Created, "Zone created successfully", typeof(ZoneResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid zone data provided")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym or branch not found")]
+    public async Task<IActionResult> CreateZone(
+        [FromRoute] int gymId,
+        [FromRoute] int branchId,
+        [FromBody] CreateZoneResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = CreateZoneCommandFromResourceAssembler.ToCommandFromResource(gymId, branchId, resource);
+        var result = await gymCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return GymsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return GymsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            ZoneResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status201Created,
+            this);
+    }
 }

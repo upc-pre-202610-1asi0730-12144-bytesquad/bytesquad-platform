@@ -14,4 +14,12 @@ public class GymRepository(AppDbContext context) : BaseRepository<Gym>(context),
             .Include(g => g.Branches)
             .FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
     }
+
+    public async Task<Gym?> FindByIdWithBranchesAndZonesAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<Gym>()
+            .Include(g => g.Branches)
+            .ThenInclude(b => b.Zones)
+            .FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+    }
 }

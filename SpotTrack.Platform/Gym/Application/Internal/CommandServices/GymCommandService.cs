@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using SpotTrack.Platform.Gyms.Domain.Model;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
+using SpotTrack.Platform.Gyms.Domain.Model.Errors;
 using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Resources;
@@ -98,6 +99,57 @@ public class GymCommandService(
         catch (Exception)
         {
             return Result<Branch>.Failure(
+                GymError.InternalServerError,
+                localizer[nameof(GymError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result<Zone>> Handle(CreateZoneCommand command, CancellationToken cancellationToken)
+    {
+        var gym = await gymRepository.FindByIdWithBranchesAndZonesAsync(command.GymId, cancellationToken);
+        if (gym is null)
+            return Result<Zone>.Failure(
+                GymError.GymNotFound,
+                localizer[nameof(GymError.GymNotFound)]);
+
+        var branch = gym.Branches.FirstOrDefault(b => b.Id == command.BranchId);
+        if (branch is null)
+            return Result<Zone>.Failure(
+                BranchError.BranchNotFound,
+                localizer[nameof(BranchError.BranchNotFound)]);
+
+        try
+        {
+            branch.AddZone(command.Name);
+        }
+        catch (ArgumentException)
+        {
+            return Result<Zone>.Failure(
+                GymError.InvalidData,
+                localizer[nameof(GymError.InvalidData)]);
+        }
+
+        try
+        {
+            gymRepository.Update(gym);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Zone>.Success(branch.Zones.Last());
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<Zone>.Failure(
+                GymError.OperationCancelled,
+                localizer[nameof(GymError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Zone>.Failure(
+                GymError.DatabaseError,
+                localizer[nameof(GymError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Zone>.Failure(
                 GymError.InternalServerError,
                 localizer[nameof(GymError.InternalServerError)]);
         }

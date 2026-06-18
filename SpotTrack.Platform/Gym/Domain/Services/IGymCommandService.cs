@@ -9,4 +9,5 @@ public interface IGymCommandService
 {
     Task<Result<Gym>> Handle(CreateGymCommand command, CancellationToken cancellationToken);
     Task<Result<Branch>> Handle(CreateBranchCommand command, CancellationToken cancellationToken);
+    Task<Result<Zone>> Handle(CreateZoneCommand command, CancellationToken cancellationToken);
 }

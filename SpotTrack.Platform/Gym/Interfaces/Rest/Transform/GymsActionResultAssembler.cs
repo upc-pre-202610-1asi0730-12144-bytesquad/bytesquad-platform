@@ -10,9 +10,10 @@ public static class GymsActionResultAssembler
 {
     private static int MapErrorToStatusCode(Enum error) => error switch
     {
-        GymError.GymNotFound => StatusCodes.Status404NotFound,
-        GymError.InvalidData => StatusCodes.Status400BadRequest,
-        _                    => StatusCodes.Status500InternalServerError
+        GymError.GymNotFound    => StatusCodes.Status404NotFound,
+        GymError.InvalidData    => StatusCodes.Status400BadRequest,
+        BranchError.BranchNotFound => StatusCodes.Status404NotFound,
+        _                       => StatusCodes.Status500InternalServerError
     };
 
     public static IActionResult ToSuccessActionResult<TEntity, TResource>(
