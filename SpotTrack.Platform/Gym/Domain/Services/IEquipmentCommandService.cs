@@ -7,4 +7,6 @@ namespace SpotTrack.Platform.Gyms.Domain.Services;
 public interface IEquipmentCommandService
 {
     Task<Result<Equipment>> Handle(RegisterEquipmentCommand command, CancellationToken cancellationToken);
+    Task<Result<Equipment>> Handle(OccupyEquipmentCommand command, CancellationToken cancellationToken);
+    Task<Result<Equipment>> Handle(ReleaseEquipmentCommand command, CancellationToken cancellationToken);
 }
