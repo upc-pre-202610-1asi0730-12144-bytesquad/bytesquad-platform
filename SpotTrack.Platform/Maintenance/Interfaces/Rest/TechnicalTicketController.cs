@@ -70,4 +70,31 @@ public class TechnicalTicketController(
             StatusCodes.Status200OK,
             this);
     }
+
+    [HttpPut("{id:int}/status")]
+    [SwaggerOperation(
+        Summary = "Modify a technical ticket status",
+        Description = "Transitions an existing technical ticket to a new status. Cannot revert to Created or modify a Resolved ticket.",
+        OperationId = "ModifyTicketStatus")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Technical ticket status modified successfully",
+        typeof(TechnicalTicketResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Technical ticket not found")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid status transition")]
+    public async Task<IActionResult> ModifyTicketStatus(
+        [FromRoute] int id,
+        [FromBody] ModifyTicketStatusResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = ModifyTicketStatusCommandFromResourceAssembler.ToCommandFromResource(id, resource);
+        var result = await technicalTicketCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return TechnicalTicketActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return TechnicalTicketActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            TechnicalTicketResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
 }
