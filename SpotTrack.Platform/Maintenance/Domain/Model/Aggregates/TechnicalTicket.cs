@@ -42,6 +42,14 @@ public partial class TechnicalTicket
         Status = ETechnicalTicketStatus.Assigned;
     }
 
-    // Lifecycle methods for future features (ModifyStatus, RequestUpdateMaintenanceStatus,
-    // UpdateMaintenanceStatus, Complete) will be added here.
+    public void ModifyStatus(ETechnicalTicketStatus newStatus)
+    {
+        if (Status is ETechnicalTicketStatus.Resolved)
+            throw new InvalidOperationException("Cannot modify the status of a resolved technical ticket.");
+
+        if (newStatus is ETechnicalTicketStatus.Created)
+            throw new InvalidOperationException("Cannot transition a technical ticket back to 'Created' status.");
+
+        Status = newStatus;
+    }
 }
