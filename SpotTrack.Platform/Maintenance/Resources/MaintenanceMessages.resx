@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <data name="MaintenanceNotFound" xml:space="preserve">
+    <value>Maintenance record not found.</value>
+  </data>
+    <data name="InvalidMaintenanceData" xml:space="preserve">
+    <value>The maintenance data provided is invalid.</value>
+  </data>
+    <data name="InvalidMaintenanceStatus" xml:space="preserve">
+    <value>The current maintenance status does not allow this operation.</value>
+  </data>
+    <data name="OperationCancelled" xml:space="preserve">
+    <value>The maintenance operation was cancelled.</value>
+  </data>
+    <data name="DatabaseError" xml:space="preserve">
+    <value>A database error occurred during the maintenance operation.</value>
+  </data>
+    <data name="InternalServerError" xml:space="preserve">
+    <value>An unexpected internal error occurred in Maintenance.</value>
+  </data>
+</root>
