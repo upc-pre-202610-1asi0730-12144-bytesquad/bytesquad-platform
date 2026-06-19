@@ -199,6 +199,8 @@ builder.Services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
 builder.Services.AddScoped<IMaintenanceCommandService, MaintenanceCommandService>();
 builder.Services.AddScoped<IMaintenanceQueryService, MaintenanceQueryService>();
 builder.Services.AddSingleton<IStringLocalizer<MaintenanceMessages>, StringLocalizer<MaintenanceMessages>>();
+builder.Services.AddScoped<ITechnicalTicketRepository, TechnicalTicketRepository>();
+builder.Services.AddScoped<ITechnicalTicketCommandService, TechnicalTicketCommandService>();
 
 // IAM Bounded Context
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));

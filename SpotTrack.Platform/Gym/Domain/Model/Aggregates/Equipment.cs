@@ -39,4 +39,13 @@ public partial class Equipment
 
         Status = EquipmentStatus.Available;
     }
+
+    public void MarkOutOfService()
+    {
+        if (Status is EquipmentStatus.OutOfService or EquipmentStatus.Decommissioned)
+            throw new InvalidOperationException(
+                $"Cannot mark equipment out of service that is already in '{Status}' status.");
+
+        Status = EquipmentStatus.OutOfService;
+    }
 }

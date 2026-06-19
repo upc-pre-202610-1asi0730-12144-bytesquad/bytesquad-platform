@@ -24,5 +24,30 @@ public static class ModelBuilderExtensions
                 .HasConversion<string>()
                 .HasMaxLength(20);
         });
+
+        builder.Entity<TechnicalTicket>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+            entity.Property(t => t.Id).ValueGeneratedOnAdd();
+
+            entity.Property(t => t.MaintenanceId).IsRequired();
+            entity.Property(t => t.EquipmentId).IsRequired();
+
+            entity.Property(t => t.Description)
+                .IsRequired()
+                .HasMaxLength(1000);
+
+            entity.Property(t => t.AssignedTechnicianId).IsRequired(false);
+
+            entity.Property(t => t.Status)
+                .IsRequired()
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            entity.Property(t => t.MaintenanceProgress)
+                .IsRequired()
+                .HasConversion<string>()
+                .HasMaxLength(20);
+        });
     }
 }
