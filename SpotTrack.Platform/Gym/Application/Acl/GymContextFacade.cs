@@ -19,4 +19,11 @@ public class GymContextFacade(IEquipmentCommandService equipmentCommandService) 
         var result = await equipmentCommandService.Handle(command, CancellationToken.None);
         return !result.IsFailure;
     }
+
+    public async Task<bool> MarkEquipmentOutOfServiceAsync(int equipmentId)
+    {
+        var command = new MarkEquipmentOutOfServiceCommand(equipmentId);
+        var result = await equipmentCommandService.Handle(command, CancellationToken.None);
+        return !result.IsFailure;
+    }
 }
