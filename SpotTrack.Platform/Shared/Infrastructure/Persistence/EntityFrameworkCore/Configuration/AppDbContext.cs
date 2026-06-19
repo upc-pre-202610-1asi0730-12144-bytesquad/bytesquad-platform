@@ -6,6 +6,7 @@ using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.C
 using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using SpotTrack.Platform.Iam.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
+using SpotTrack.Platform.Maintenances.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 using SpotTrack.Platform.Reservations.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 
 namespace SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
@@ -46,6 +47,7 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         builder.ApplyGymConfiguration();
         builder.ApplyEquipmentConfiguration();
         builder.ApplyMembershipsConfiguration();
+        builder.ApplyMaintenanceConfiguration();
 
         builder.UseSnakeCaseNamingConvention();
     }
