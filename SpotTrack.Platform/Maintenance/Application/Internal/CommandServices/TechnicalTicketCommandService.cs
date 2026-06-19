@@ -81,4 +81,49 @@ public class TechnicalTicketCommandService(
 
         return Result<TechnicalTicket>.Success(ticket);
     }
+
+    public async Task<Result<TechnicalTicket>> Handle(
+        AssignTechnicalTicketCommand command,
+        CancellationToken cancellationToken)
+    {
+        var ticket = await technicalTicketRepository.FindByIdAsync(command.TechnicalTicketId, cancellationToken);
+        if (ticket is null)
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.TechnicalTicketNotFound,
+                localizer[nameof(TechnicalTicketError.TechnicalTicketNotFound)]);
+
+        try
+        {
+            ticket.Assign(command.TechnicianId);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.InvalidTechnicalTicketStatus,
+                ex.Message);
+        }
+
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+
+            await mediator.PublishAsync(
+                TechnicalTicketAssignedEvent.FromTechnicalTicket(ticket),
+                cancellationToken);
+
+            return Result<TechnicalTicket>.Success(ticket);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.DatabaseError,
+                localizer[nameof(TechnicalTicketError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.InternalServerError,
+                localizer[nameof(TechnicalTicketError.InternalServerError)]);
+        }
+    }
 }

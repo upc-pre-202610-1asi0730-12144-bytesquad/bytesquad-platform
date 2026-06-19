@@ -32,6 +32,16 @@ public partial class TechnicalTicket
     public int? AssignedTechnicianId { get; private set; }
     public string Description { get; private set; } = string.Empty;
 
-    // Lifecycle methods for future features (Assign, ModifyStatus, RequestUpdateMaintenanceStatus,
+    public void Assign(int technicianId)
+    {
+        if (Status is not ETechnicalTicketStatus.Created)
+            throw new InvalidOperationException(
+                $"Cannot assign a technical ticket that is in '{Status}' status.");
+
+        AssignedTechnicianId = technicianId;
+        Status = ETechnicalTicketStatus.Assigned;
+    }
+
+    // Lifecycle methods for future features (ModifyStatus, RequestUpdateMaintenanceStatus,
     // UpdateMaintenanceStatus, Complete) will be added here.
 }
