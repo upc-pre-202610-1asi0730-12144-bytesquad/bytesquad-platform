@@ -49,5 +49,19 @@ public static class ModelBuilderExtensions
                 .HasConversion<string>()
                 .HasMaxLength(20);
         });
+
+        builder.Entity<MaintenanceJob>(entity =>
+        {
+            entity.HasKey(j => j.Id);
+            entity.Property(j => j.Id).ValueGeneratedOnAdd();
+
+            entity.Property(j => j.TechnicalTicketId).IsRequired();
+            entity.Property(j => j.TechnicianId).IsRequired();
+
+            entity.Property(j => j.Status)
+                .IsRequired()
+                .HasConversion<string>()
+                .HasMaxLength(20);
+        });
     }
 }
