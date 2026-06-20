@@ -150,4 +150,30 @@ public class TechnicalTicketController(
             StatusCodes.Status200OK,
             this);
     }
+
+    [HttpPost("{id:int}/complete")]
+    [SwaggerOperation(
+        Summary = "Complete a technical ticket",
+        Description = "Marks the ticket as Resolved and returns the equipment to service. Requires maintenance progress to be Completed first.",
+        OperationId = "CompleteMaintenance")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Technical ticket completed and equipment returned to service",
+        typeof(TechnicalTicketResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Technical ticket not found")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Maintenance progress is not Completed or equipment update failed")]
+    public async Task<IActionResult> CompleteMaintenance(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new CompleteMaintenanceCommand(id);
+        var result = await technicalTicketCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return TechnicalTicketActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return TechnicalTicketActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            TechnicalTicketResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
 }
