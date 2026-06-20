@@ -10,4 +10,5 @@ public interface IEquipmentCommandService
     Task<Result<Equipment>> Handle(OccupyEquipmentCommand command, CancellationToken cancellationToken);
     Task<Result<Equipment>> Handle(ReleaseEquipmentCommand command, CancellationToken cancellationToken);
     Task<Result<Equipment>> Handle(MarkEquipmentOutOfServiceCommand command, CancellationToken cancellationToken);
+    Task<Result<Equipment>> Handle(MarkEquipmentAvailableCommand command, CancellationToken cancellationToken);
 }
