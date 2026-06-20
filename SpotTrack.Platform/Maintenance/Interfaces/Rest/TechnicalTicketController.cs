@@ -2,7 +2,10 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Maintenances.Application.CommandServices;
+using SpotTrack.Platform.Maintenances.Application.QueryServices;
+using SpotTrack.Platform.Maintenances.Domain.Model;
 using SpotTrack.Platform.Maintenances.Domain.Model.Commands;
+using SpotTrack.Platform.Maintenances.Domain.Model.Queries;
 using SpotTrack.Platform.Maintenances.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Maintenances.Interfaces.Rest.Transform;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
@@ -16,8 +19,29 @@ namespace SpotTrack.Platform.Maintenances.Interfaces.Rest;
 [SwaggerTag("Technical ticket management endpoints")]
 public class TechnicalTicketController(
     ITechnicalTicketCommandService technicalTicketCommandService,
+    ITechnicalTicketQueryService technicalTicketQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet("{id:int}")]
+    [SwaggerOperation(
+        Summary = "Get a technical ticket by id",
+        OperationId = "GetTechnicalTicketById")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Technical ticket found", typeof(TechnicalTicketResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Technical ticket not found")]
+    public async Task<IActionResult> GetTechnicalTicketById(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var ticket = await technicalTicketQueryService.Handle(new GetTechnicalTicketByIdQuery(id), cancellationToken);
+        if (ticket is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, TechnicalTicketError.TechnicalTicketNotFound,
+                "Technical ticket not found.");
+        return TechnicalTicketActionResultAssembler.ToSuccessActionResult(
+            ticket, TechnicalTicketResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK, this);
+    }
+
     [HttpPost]
     [SwaggerOperation(
         Summary = "Create a technical ticket",
