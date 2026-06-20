@@ -70,4 +70,13 @@ public partial class TechnicalTicket
 
         MaintenanceProgress = newProgress;
     }
+
+    public void Complete()
+    {
+        if (MaintenanceProgress is not EMaintenanceProgress.Completed)
+            throw new InvalidOperationException(
+                "Cannot complete a technical ticket whose maintenance progress is not Completed.");
+
+        Status = ETechnicalTicketStatus.Resolved;
+    }
 }
