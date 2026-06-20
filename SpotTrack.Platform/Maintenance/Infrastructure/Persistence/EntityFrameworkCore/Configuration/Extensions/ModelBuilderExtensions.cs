@@ -63,5 +63,23 @@ public static class ModelBuilderExtensions
                 .HasConversion<string>()
                 .HasMaxLength(20);
         });
+
+        builder.Entity<MaintenanceLog>(entity =>
+        {
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.Id).ValueGeneratedOnAdd();
+
+            entity.ToTable("maintenance_logs");
+
+            entity.Property(l => l.TechnicalTicketId).IsRequired();
+            entity.Property(l => l.EquipmentId).IsRequired();
+            entity.Property(l => l.CompletedByAdminId).IsRequired();
+
+            entity.Property(l => l.CompletedAt).IsRequired();
+
+            entity.Property(l => l.Notes)
+                .IsRequired()
+                .HasMaxLength(1000);
+        });
     }
 }
