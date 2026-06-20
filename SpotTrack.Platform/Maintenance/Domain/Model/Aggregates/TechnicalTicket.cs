@@ -52,4 +52,13 @@ public partial class TechnicalTicket
 
         Status = newStatus;
     }
+
+    public void RequestMaintenanceStatusUpdate()
+    {
+        if (Status is not (ETechnicalTicketStatus.Assigned or ETechnicalTicketStatus.InProgress))
+            throw new InvalidOperationException(
+                $"Cannot request a maintenance status update for a ticket in '{Status}' status.");
+
+        MaintenanceProgress = EMaintenanceProgress.InProgress;
+    }
 }

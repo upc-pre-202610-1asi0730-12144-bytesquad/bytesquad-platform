@@ -71,6 +71,32 @@ public class TechnicalTicketController(
             this);
     }
 
+    [HttpPost("{id:int}/request-status-update")]
+    [SwaggerOperation(
+        Summary = "Request a maintenance status update",
+        Description = "Marks the maintenance progress of the ticket as InProgress, signalling that a status update has been requested.",
+        OperationId = "RequestStatusUpdate")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Maintenance status update requested successfully",
+        typeof(TechnicalTicketResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Technical ticket not found")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Ticket is not in a valid status to request a status update")]
+    public async Task<IActionResult> RequestStatusUpdate(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new RequestUpdateMaintenanceStatusCommand(id);
+        var result = await technicalTicketCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return TechnicalTicketActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return TechnicalTicketActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            TechnicalTicketResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
     [HttpPut("{id:int}/status")]
     [SwaggerOperation(
         Summary = "Modify a technical ticket status",
