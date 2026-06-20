@@ -201,6 +201,7 @@ builder.Services.AddScoped<IMaintenanceQueryService, MaintenanceQueryService>();
 builder.Services.AddSingleton<IStringLocalizer<MaintenanceMessages>, StringLocalizer<MaintenanceMessages>>();
 builder.Services.AddScoped<ITechnicalTicketRepository, TechnicalTicketRepository>();
 builder.Services.AddScoped<ITechnicalTicketCommandService, TechnicalTicketCommandService>();
+builder.Services.AddScoped<ITechnicalTicketQueryService, TechnicalTicketQueryService>();
 builder.Services.AddScoped<IMaintenanceJobRepository, MaintenanceJobRepository>();
 builder.Services.AddScoped<IMaintenanceJobCommandService, MaintenanceJobCommandService>();
 builder.Services.AddScoped<IMaintenanceLogRepository, MaintenanceLogRepository>();
