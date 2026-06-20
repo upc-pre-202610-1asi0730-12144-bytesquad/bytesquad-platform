@@ -61,4 +61,13 @@ public partial class TechnicalTicket
 
         MaintenanceProgress = EMaintenanceProgress.InProgress;
     }
+
+    public void UpdateMaintenanceProgress(EMaintenanceProgress newProgress)
+    {
+        if (Status is ETechnicalTicketStatus.Resolved)
+            throw new InvalidOperationException(
+                "Cannot update maintenance progress of a resolved technical ticket.");
+
+        MaintenanceProgress = newProgress;
+    }
 }
