@@ -163,4 +163,39 @@ public class EquipmentCommandService(
                 localizer[nameof(EquipmentError.InternalServerError)]);
         }
     }
+
+    public async Task<Result<Equipment>> Handle(MarkEquipmentAvailableCommand command, CancellationToken cancellationToken)
+    {
+        var equipment = await equipmentRepository.FindByIdAsync(command.EquipmentId, cancellationToken);
+        if (equipment is null)
+            return Result<Equipment>.Failure(
+                EquipmentError.EquipmentNotFound,
+                localizer[nameof(EquipmentError.EquipmentNotFound)]);
+
+        try
+        {
+            equipment.MarkAvailable();
+            equipmentRepository.Update(equipment);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Equipment>.Success(equipment);
+        }
+        catch (InvalidOperationException)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.InvalidEquipmentStatus,
+                localizer[nameof(EquipmentError.InvalidEquipmentStatus)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.DatabaseError,
+                localizer[nameof(EquipmentError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.InternalServerError,
+                localizer[nameof(EquipmentError.InternalServerError)]);
+        }
+    }
 }
