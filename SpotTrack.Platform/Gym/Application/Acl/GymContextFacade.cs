@@ -26,4 +26,11 @@ public class GymContextFacade(IEquipmentCommandService equipmentCommandService) 
         var result = await equipmentCommandService.Handle(command, CancellationToken.None);
         return !result.IsFailure;
     }
+
+    public async Task<bool> MarkEquipmentAvailableAsync(int equipmentId)
+    {
+        var command = new MarkEquipmentAvailableCommand(equipmentId);
+        var result = await equipmentCommandService.Handle(command, CancellationToken.None);
+        return !result.IsFailure;
+    }
 }
