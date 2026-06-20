@@ -261,4 +261,55 @@ public class TechnicalTicketCommandService(
                 localizer[nameof(TechnicalTicketError.InternalServerError)]);
         }
     }
+
+    public async Task<Result<TechnicalTicket>> Handle(
+        CompleteMaintenanceCommand command,
+        CancellationToken cancellationToken)
+    {
+        var ticket = await technicalTicketRepository.FindByIdAsync(command.TechnicalTicketId, cancellationToken);
+        if (ticket is null)
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.TechnicalTicketNotFound,
+                localizer[nameof(TechnicalTicketError.TechnicalTicketNotFound)]);
+
+        try
+        {
+            ticket.Complete();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.InvalidTechnicalTicketStatus,
+                ex.Message);
+        }
+
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.DatabaseError,
+                localizer[nameof(TechnicalTicketError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.InternalServerError,
+                localizer[nameof(TechnicalTicketError.InternalServerError)]);
+        }
+
+        var marked = await gymContextFacade.MarkEquipmentAvailableAsync(ticket.EquipmentId);
+        if (!marked)
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.EquipmentUpdateFailed,
+                localizer[nameof(TechnicalTicketError.EquipmentUpdateFailed)]);
+
+        await mediator.PublishAsync(
+            TicketStatusMarkedAsResolvedEvent.FromTechnicalTicket(ticket),
+            cancellationToken);
+
+        return Result<TechnicalTicket>.Success(ticket);
+    }
 }

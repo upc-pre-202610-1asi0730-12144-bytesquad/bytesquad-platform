@@ -48,4 +48,13 @@ public partial class Equipment
 
         Status = EquipmentStatus.OutOfService;
     }
+
+    public void MarkAvailable()
+    {
+        if (Status is not (EquipmentStatus.OutOfService or EquipmentStatus.Maintenance))
+            throw new InvalidOperationException(
+                $"Cannot mark equipment available from '{Status}' status.");
+
+        Status = EquipmentStatus.Available;
+    }
 }
