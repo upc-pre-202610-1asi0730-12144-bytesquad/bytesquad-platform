@@ -27,4 +27,14 @@ public class ActivityReportsController : ControllerBase
         var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(activityReport);
         return StatusCode(201, resource);
     }
+
+    [HttpPost("total-usage-time")]
+    public async Task<IActionResult> UpdateTotalUsageTime([FromBody] RequestTotalUsageTimeCommand command)
+    {
+        var activityReport = await _activityReportCommandService.Handle(command);
+        if (activityReport == null) return NotFound();
+
+        var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(activityReport);
+        return Ok(resource);
+    }
 }

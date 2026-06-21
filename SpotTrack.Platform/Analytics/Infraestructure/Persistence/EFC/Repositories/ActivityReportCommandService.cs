@@ -26,4 +26,10 @@ public class ActivityReportRepository : IActivityReportRepository
         return await _context.Set<ActivityReport>()
             .FirstOrDefaultAsync(r => r.ActivityReportId == activityReportId);
     }
+
+    public async Task UpdateAsync(ActivityReport activityReport)
+    {
+        _context.Set<ActivityReport>().Update(activityReport);
+        await _context.SaveChangesAsync();
+    }
 }
