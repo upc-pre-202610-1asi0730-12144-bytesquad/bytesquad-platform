@@ -37,4 +37,14 @@ public class ActivityReportsController : ControllerBase
         var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(activityReport);
         return Ok(resource);
     }
+
+    [HttpPost("downtime-cost")]
+    public async Task<IActionResult> UpdateDowntimeCost([FromBody] RequestDowntimeCostCommand command)
+    {
+        var activityReport = await _activityReportCommandService.Handle(command);
+        if (activityReport == null) return NotFound();
+
+        var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(activityReport);
+        return Ok(resource);
+    }
 }

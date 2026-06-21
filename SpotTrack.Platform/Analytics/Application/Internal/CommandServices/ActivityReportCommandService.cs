@@ -32,4 +32,16 @@ public class ActivityReportCommandService : IActivityReportCommandService
         await _activityReportRepository.UpdateAsync(activityReport); // Usamos un método de actualización
         return activityReport;
     }
+
+    public async Task<ActivityReport?> Handle(RequestDowntimeCostCommand command)
+    {
+        var activityReportId = new ActivityReportId(command.ActivityReportId);
+        var activityReport = await _activityReportRepository.FindByActivityReportIdAsync(activityReportId);
+        
+        if (activityReport == null) return null;
+
+        activityReport.UpdateDowntimeCost(command.DowntimeCost);
+        await _activityReportRepository.UpdateAsync(activityReport);
+        return activityReport;
+    }
 }
