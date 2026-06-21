@@ -15,7 +15,6 @@ public class ROIProjection
 
     protected ROIProjection() { }
 
-    // Constructor para la Feature 9 (Inicia la proyección con el costo de inactividad)
     public ROIProjection(RequestDowntimeCostProjectionCommand command)
     {
         RoiProjectionId = new ROIProjectionId(new Random().Next(1000, 100000));
@@ -25,9 +24,23 @@ public class ROIProjection
         DemandStatus = "UNDER_REVIEW";
     }
 
-    // Método de negocio para la Feature 10
     public void UpdateProjectedEarnings(double projectedEarnings)
     {
         ProjectedEarnings = projectedEarnings;
     }
+    
+    public void GenerateFinalProjection()
+    {
+        if (ProjectedDowntimeCost > 0)
+        {
+            RoiIndex = (ProjectedEarnings - ProjectedDowntimeCost) / ProjectedDowntimeCost;
+        }
+        else
+        {
+            RoiIndex = ProjectedEarnings;
+        }
+
+        DemandStatus = RoiIndex > 0.5 ? "HIGH_DEMAND" : "STABLE_DEMAND";
+    }
+
 }

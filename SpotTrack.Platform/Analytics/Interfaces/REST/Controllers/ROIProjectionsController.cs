@@ -37,5 +37,16 @@ public class ROIProjectionsController : ControllerBase
         var resource = ROIProjectionResourceFromEntityAssembler.ToResourceFromEntity(roiProjection);
         return Ok(resource);
     }
+    
+    [HttpPost("generate")]
+    public async Task<IActionResult> GenerateROIProjection([FromBody] RequestROICommand command)
+    {
+        var roiProjection = await _roiProjectionCommandService.Handle(command);
+        if (roiProjection == null) return NotFound();
+
+        var resource = ROIProjectionResourceFromEntityAssembler.ToResourceFromEntity(roiProjection);
+        return Ok(resource);
+    }
+
 
 }
