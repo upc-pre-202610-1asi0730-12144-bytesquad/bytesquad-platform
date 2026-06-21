@@ -44,4 +44,17 @@ public class ActivityReportCommandService : IActivityReportCommandService
         await _activityReportRepository.UpdateAsync(activityReport);
         return activityReport;
     }
+    
+    public async Task<ActivityReport?> Handle(RequestPercentageComparisonCommand command)
+    {
+        var activityReportId = new ActivityReportId(command.ActivityReportId);
+        var activityReport = await _activityReportRepository.FindByActivityReportIdAsync(activityReportId);
+        
+        if (activityReport == null) return null;
+
+        activityReport.UpdatePercentageComparison(command.PercentageComparison);
+        await _activityReportRepository.UpdateAsync(activityReport);
+        return activityReport;
+    }
+
 }
