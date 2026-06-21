@@ -11,5 +11,6 @@ public interface IActivityReportCommandService
     
     Task<ActivityReport?> Handle(RequestDowntimeCostCommand command);
 
-    
+    Task<ActivityReport?> Handle(RequestPercentageComparisonCommand command);
+
 }

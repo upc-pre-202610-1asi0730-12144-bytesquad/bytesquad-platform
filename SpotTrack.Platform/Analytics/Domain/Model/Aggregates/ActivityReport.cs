@@ -31,5 +31,10 @@ namespace SpotTrack.Platform.Analytics.Domain.Model.Aggregates
         {
             DowntimeCost = downtimeCost;
         }
+
+        public void UpdatePercentageComparison(double percentageComparison)
+        {
+            PercentageComparison = percentageComparison;
+        }
     }
 }

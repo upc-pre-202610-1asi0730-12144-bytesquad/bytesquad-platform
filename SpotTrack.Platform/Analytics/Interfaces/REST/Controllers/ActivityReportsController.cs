@@ -47,4 +47,16 @@ public class ActivityReportsController : ControllerBase
         var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(activityReport);
         return Ok(resource);
     }
+    
+    [HttpPost("percentage-comparison")]
+    public async Task<IActionResult> UpdatePercentageComparison([FromBody] RequestPercentageComparisonCommand command)
+    {
+        var activityReport = await _activityReportCommandService.Handle(command);
+        if (activityReport == null) return NotFound();
+
+        var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(activityReport);
+        return Ok(resource);
+    }
+
+    
 }
