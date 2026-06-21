@@ -1,3 +1,7 @@
+using SpotTrack.Platform.Analytics.Application.CommandServices;
+using SpotTrack.Platform.Analytics.Application.Internal.CommandServices;
+using SpotTrack.Platform.Analytics.Domain.Repositories;
+using SpotTrack.Platform.Analytics.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Profiles.Application.Acl;
 using SpotTrack.Platform.Profiles.Application.CommandServices;
 using SpotTrack.Platform.Profiles.Application.Internal.CommandServices;
@@ -154,6 +158,14 @@ builder.Services.AddSwaggerGen(options =>
 
 // Shared Bounded Context
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Analytics Bounded Context
+builder.Services.AddScoped<IActivityReportRepository, ActivityReportRepository>();
+builder.Services.AddScoped<IMaintenanceQuoteRepository, MaintenanceQuoteRepository>();
+builder.Services.AddScoped<IROIProjectionRepository, ROIProjectionRepository>();
+builder.Services.AddScoped<IActivityReportCommandService, ActivityReportCommandService>();
+builder.Services.AddScoped<IMaintenanceQuoteCommandService, MaintenanceQuoteCommandService>();
+builder.Services.AddScoped<IROIProjectionCommandService, ROIProjectionCommandService>();
 
 // Profiles Bounded Context
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
