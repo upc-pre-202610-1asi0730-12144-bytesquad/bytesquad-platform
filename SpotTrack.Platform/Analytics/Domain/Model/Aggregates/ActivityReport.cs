@@ -22,10 +22,14 @@ namespace SpotTrack.Platform.Analytics.Domain.Model.Aggregates
             PercentageComparison = command.PercentageComparison;
         }
 
-        // Método de negocio para la Feature 2
         public void UpdateTotalUsageTime(long totalUsageTime) 
         {
             TotalUsageTime = totalUsageTime;
+        }
+
+        public void UpdateDowntimeCost(long downtimeCost)
+        {
+            DowntimeCost = downtimeCost;
         }
     }
 }

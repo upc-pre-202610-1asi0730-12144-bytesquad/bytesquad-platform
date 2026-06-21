@@ -8,4 +8,8 @@ public interface IActivityReportCommandService
     Task<ActivityReport?> Handle(RequestActivityAnalysisCommand command);
     
     Task<ActivityReport?> Handle(RequestTotalUsageTimeCommand command);
+    
+    Task<ActivityReport?> Handle(RequestDowntimeCostCommand command);
+
+    
 }
