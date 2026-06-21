@@ -30,4 +30,12 @@ public class MaintenanceQuote
         SparePartsCost = sparePartsCost;
         TotalMaintenanceCost = CorrectiveActionsCost + SparePartsCost + PreventiveCost;
     }
+    
+    // Método de negocio para la Feature 7
+    public void UpdatePreventiveCost(double preventiveCost)
+    {
+        PreventiveCost = preventiveCost;
+        TotalMaintenanceCost = CorrectiveActionsCost + SparePartsCost + PreventiveCost;
+    }
+
 }

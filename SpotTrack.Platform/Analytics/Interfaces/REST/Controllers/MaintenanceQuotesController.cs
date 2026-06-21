@@ -37,6 +37,17 @@ public class MaintenanceQuotesController : ControllerBase
         var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
         return Ok(resource);
     }
+    
+    [HttpPost("preventive-cost")]
+    public async Task<IActionResult> UpdatePreventiveCost([FromBody] RequestPreventiveCostCommand command)
+    {
+        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command);
+        if (maintenanceQuote == null) return NotFound();
+
+        var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
+        return Ok(resource);
+    }
+
 
     
     
