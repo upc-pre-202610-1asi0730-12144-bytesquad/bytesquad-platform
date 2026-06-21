@@ -37,5 +37,13 @@ public class MaintenanceQuote
         PreventiveCost = preventiveCost;
         TotalMaintenanceCost = CorrectiveActionsCost + SparePartsCost + PreventiveCost;
     }
+    
+    // Método de negocio para la Feature 8
+    public void ConsolidateTotalMaintenanceCost()
+    {
+        // Consolida la suma final de los tres conceptos analizados
+        TotalMaintenanceCost = CorrectiveActionsCost + SparePartsCost + PreventiveCost;
+    }
+
 
 }

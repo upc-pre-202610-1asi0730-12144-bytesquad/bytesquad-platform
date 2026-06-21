@@ -11,4 +11,6 @@ public interface IMaintenanceQuoteCommandService
 
     Task<MaintenanceQuote?> Handle(RequestPreventiveCostCommand command);
 
+    Task<MaintenanceQuote?> Handle(RequestMaintenanceCostCommand command);
+
 }
