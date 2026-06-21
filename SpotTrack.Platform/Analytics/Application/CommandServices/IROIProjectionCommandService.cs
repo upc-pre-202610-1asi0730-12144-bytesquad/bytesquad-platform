@@ -9,4 +9,6 @@ public interface IROIProjectionCommandService
     
     Task<ROIProjection?> Handle(RequestEarningsProjectionCommand command);
 
+    Task<ROIProjection?> Handle(RequestROICommand command);
+
 }

@@ -32,5 +32,18 @@ public class ROIProjectionCommandService : IROIProjectionCommandService
         await _roiProjectionRepository.UpdateAsync(roiProjection);
         return roiProjection;
     }
+    
+    public async Task<ROIProjection?> Handle(RequestROICommand command)
+    {
+        var roiProjectionId = new ROIProjectionId(command.RoiProjectionId);
+        var roiProjection = await _roiProjectionRepository.FindByRoiProjectionIdAsync(roiProjectionId);
+        
+        if (roiProjection == null) return null;
+
+        roiProjection.GenerateFinalProjection();
+        await _roiProjectionRepository.UpdateAsync(roiProjection);
+        return roiProjection;
+    }
+
 
 }
