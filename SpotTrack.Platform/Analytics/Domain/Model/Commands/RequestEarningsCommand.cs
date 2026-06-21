@@ -1,3 +1,3 @@
 namespace SpotTrack.Platform.Analytics.Domain.Model.Commands;
 
-public record RequestEarningsCommand();
+public record RequestEarningsProjectionCommand(long RoiProjectionId, double ProjectedEarnings);

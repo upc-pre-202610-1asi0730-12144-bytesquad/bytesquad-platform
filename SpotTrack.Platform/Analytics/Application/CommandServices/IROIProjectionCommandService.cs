@@ -6,4 +6,7 @@ namespace SpotTrack.Platform.Analytics.Application.CommandServices;
 public interface IROIProjectionCommandService
 {
     Task<ROIProjection?> Handle(RequestDowntimeCostProjectionCommand command);
+    
+    Task<ROIProjection?> Handle(RequestEarningsProjectionCommand command);
+
 }

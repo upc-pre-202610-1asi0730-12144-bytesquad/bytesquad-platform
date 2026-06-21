@@ -20,4 +20,17 @@ public class ROIProjectionCommandService : IROIProjectionCommandService
         await _roiProjectionRepository.AddAsync(roiProjection);
         return roiProjection;
     }
+    
+    public async Task<ROIProjection?> Handle(RequestEarningsProjectionCommand command)
+    {
+        var roiProjectionId = new ROIProjectionId(command.RoiProjectionId);
+        var roiProjection = await _roiProjectionRepository.FindByRoiProjectionIdAsync(roiProjectionId);
+        
+        if (roiProjection == null) return null;
+
+        roiProjection.UpdateProjectedEarnings(command.ProjectedEarnings);
+        await _roiProjectionRepository.UpdateAsync(roiProjection);
+        return roiProjection;
+    }
+
 }
