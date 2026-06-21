@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SpotTrack.Platform.Analytics.Domain.Model.Aggregates;
 using SpotTrack.Platform.Analytics.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Analytics.Domain.Repositories;
-using SpotTrack.Platform.Shared.Infrastructure.Persistence.EFC.Configuration; // Ajusta el namespace del DbContext compartido si cambia
+using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
-namespace SpotTrack.Platform.Analytics.Infrastructure.Persistence.EFC.Repositories;
+namespace SpotTrack.Platform.Analytics.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 
 public class ActivityReportRepository : IActivityReportRepository
 {
@@ -24,7 +24,7 @@ public class ActivityReportRepository : IActivityReportRepository
     public async Task<ActivityReport?> FindByActivityReportIdAsync(ActivityReportId activityReportId)
     {
         return await _context.Set<ActivityReport>()
-            .FirstOrDefaultAsync(r => r.ActivityReportId == activityReportId);
+            .FirstOrDefaultAsync(r => r.ActivityReportId.Value == activityReportId.Value);
     }
 
     public async Task UpdateAsync(ActivityReport activityReport)
