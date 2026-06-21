@@ -27,4 +27,15 @@ public class ROIProjectionsController : ControllerBase
         var resource = ROIProjectionResourceFromEntityAssembler.ToResourceFromEntity(roiProjection);
         return StatusCode(201, resource);
     }
+    
+    [HttpPost("projected-earnings")]
+    public async Task<IActionResult> UpdateProjectedEarnings([FromBody] RequestEarningsProjectionCommand command)
+    {
+        var roiProjection = await _roiProjectionCommandService.Handle(command);
+        if (roiProjection == null) return NotFound();
+
+        var resource = ROIProjectionResourceFromEntityAssembler.ToResourceFromEntity(roiProjection);
+        return Ok(resource);
+    }
+
 }

@@ -1,3 +1,4 @@
+using System;
 using SpotTrack.Platform.Analytics.Domain.Model.Commands;
 using SpotTrack.Platform.Analytics.Domain.Model.ValueObjects;
 
@@ -22,5 +23,11 @@ public class ROIProjection
         ProjectedEarnings = 0;
         RoiIndex = 0;
         DemandStatus = "UNDER_REVIEW";
+    }
+
+    // Método de negocio para la Feature 10
+    public void UpdateProjectedEarnings(double projectedEarnings)
+    {
+        ProjectedEarnings = projectedEarnings;
     }
 }
