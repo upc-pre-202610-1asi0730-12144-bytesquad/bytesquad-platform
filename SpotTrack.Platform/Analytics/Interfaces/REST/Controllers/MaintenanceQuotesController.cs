@@ -27,4 +27,17 @@ public class MaintenanceQuotesController : ControllerBase
         var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
         return StatusCode(201, resource);
     }
+    
+    [HttpPost("spare-parts-cost")]
+    public async Task<IActionResult> UpdateSparePartsCost([FromBody] RequestSparePartsCostCommand command)
+    {
+        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command);
+        if (maintenanceQuote == null) return NotFound();
+
+        var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
+        return Ok(resource);
+    }
+
+    
+    
 }

@@ -20,4 +20,17 @@ public class MaintenanceQuoteCommandService : IMaintenanceQuoteCommandService
         await _maintenanceQuoteRepository.AddAsync(maintenanceQuote);
         return maintenanceQuote;
     }
+    
+    public async Task<MaintenanceQuote?> Handle(RequestSparePartsCostCommand command)
+    {
+        var maintenanceQuoteId = new MaintenanceQuoteId(command.MaintenanceQuoteId);
+        var maintenanceQuote = await _maintenanceQuoteRepository.FindByMaintenanceQuoteIdAsync(maintenanceQuoteId);
+        
+        if (maintenanceQuote == null) return null;
+
+        maintenanceQuote.UpdateSparePartsCost(command.SparePartsCost);
+        await _maintenanceQuoteRepository.UpdateAsync(maintenanceQuote);
+        return maintenanceQuote;
+    }
+
 }

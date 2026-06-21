@@ -6,4 +6,7 @@ namespace SpotTrack.Platform.Analytics.Application.CommandServices;
 public interface IMaintenanceQuoteCommandService
 {
     Task<MaintenanceQuote?> Handle(RequestCorrectiveActionsCostCommand command);
+    
+    Task<MaintenanceQuote?> Handle(RequestSparePartsCostCommand command);
+
 }

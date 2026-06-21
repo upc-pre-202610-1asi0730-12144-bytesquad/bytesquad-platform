@@ -1,4 +1,5 @@
-﻿using SpotTrack.Platform.Analytics.Domain.Model.Commands;
+﻿using System;
+using SpotTrack.Platform.Analytics.Domain.Model.Commands;
 using SpotTrack.Platform.Analytics.Domain.Model.ValueObjects;
 
 namespace SpotTrack.Platform.Analytics.Domain.Model.Aggregates;
@@ -21,5 +22,12 @@ public class MaintenanceQuote
         SparePartsCost = 0;
         PreventiveCost = 0;
         TotalMaintenanceCost = command.CorrectiveActionsCost;
+    }
+
+    // Método de negocio para la Feature 6
+    public void UpdateSparePartsCost(double sparePartsCost)
+    {
+        SparePartsCost = sparePartsCost;
+        TotalMaintenanceCost = CorrectiveActionsCost + SparePartsCost + PreventiveCost;
     }
 }
