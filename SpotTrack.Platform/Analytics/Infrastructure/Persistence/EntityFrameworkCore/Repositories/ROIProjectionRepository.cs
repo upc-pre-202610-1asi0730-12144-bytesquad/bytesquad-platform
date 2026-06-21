@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using SpotTrack.Platform.Analytics.Domain.Model.Aggregates;
 using SpotTrack.Platform.Analytics.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Analytics.Domain.Repositories;
-using SpotTrack.Platform.Shared.Infrastructure.Persistence.EFC.Configuration;
+using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
-namespace SpotTrack.Platform.Analytics.Infrastructure.Persistence.EFC.Repositories;
+namespace SpotTrack.Platform.Analytics.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 
 public class ROIProjectionRepository : IROIProjectionRepository
 {
@@ -30,6 +30,6 @@ public class ROIProjectionRepository : IROIProjectionRepository
     public async Task<ROIProjection?> FindByRoiProjectionIdAsync(ROIProjectionId roiProjectionId)
     {
         return await _context.Set<ROIProjection>()
-            .FirstOrDefaultAsync(p => p.RoiProjectionId == roiProjectionId);
+            .FirstOrDefaultAsync(p => p.RoiProjectionId.Value == roiProjectionId.Value);
     }
 }

@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SpotTrack.Platform.Analytics.Domain.Model.Aggregates;
 using SpotTrack.Platform.Analytics.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Analytics.Domain.Repositories;
-using SpotTrack.Platform.Shared.Infrastructure.Persistence.EFC.Configuration;
+using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
-namespace SpotTrack.Platform.Analytics.Infrastructure.Persistence.EFC.Repositories;
+namespace SpotTrack.Platform.Analytics.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 
 public class MaintenanceQuoteRepository : IMaintenanceQuoteRepository
 {
@@ -30,6 +30,6 @@ public class MaintenanceQuoteRepository : IMaintenanceQuoteRepository
     public async Task<MaintenanceQuote?> FindByMaintenanceQuoteIdAsync(MaintenanceQuoteId maintenanceQuoteId)
     {
         return await _context.Set<MaintenanceQuote>()
-            .FirstOrDefaultAsync(q => q.MaintenanceQuoteId == maintenanceQuoteId);
+            .FirstOrDefaultAsync(q => q.MaintenanceQuoteId.Value == maintenanceQuoteId.Value);
     }
 }
