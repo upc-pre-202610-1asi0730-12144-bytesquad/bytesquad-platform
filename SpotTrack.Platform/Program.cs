@@ -256,7 +256,7 @@ app.UseRequestLocalization(localizationOptions);
 
 app.UseRequestAuthorization();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || Environment.GetEnvironmentVariable("ENABLE_SWAGGER") == "true")
 {
     app.UseSwagger();
     app.UseSwaggerUI();
