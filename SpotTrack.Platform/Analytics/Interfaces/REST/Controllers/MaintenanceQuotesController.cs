@@ -47,6 +47,17 @@ public class MaintenanceQuotesController : ControllerBase
         var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
         return Ok(resource);
     }
+    
+    [HttpPost("total-cost")]
+    public async Task<IActionResult> ConsolidateMaintenanceCost([FromBody] RequestMaintenanceCostCommand command)
+    {
+        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command);
+        if (maintenanceQuote == null) return NotFound();
+
+        var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
+        return Ok(resource);
+    }
+
 
 
     
