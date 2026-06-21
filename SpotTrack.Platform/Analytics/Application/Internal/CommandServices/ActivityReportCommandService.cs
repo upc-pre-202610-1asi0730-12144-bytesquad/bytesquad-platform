@@ -9,7 +9,6 @@ public class ActivityReportCommandService : IActivityReportCommandService
 {
     private readonly IActivityReportRepository _activityReportRepository;
 
-    // Inyección de dependencias por constructor nativa de C#
     public ActivityReportCommandService(IActivityReportRepository activityReportRepository)
     {
         _activityReportRepository = activityReportRepository;
@@ -19,6 +18,18 @@ public class ActivityReportCommandService : IActivityReportCommandService
     {
         var activityReport = new ActivityReport(command);
         await _activityReportRepository.AddAsync(activityReport);
+        return activityReport;
+    }
+
+    public async Task<ActivityReport?> Handle(RequestTotalUsageTimeCommand command)
+    {
+        var activityReportId = new ActivityReportId(command.ActivityReportId);
+        var activityReport = await _activityReportRepository.FindByActivityReportIdAsync(activityReportId);
+        
+        if (activityReport == null) return null;
+
+        activityReport.UpdateTotalUsageTime(command.TotalUsageTime);
+        await _activityReportRepository.UpdateAsync(activityReport); // Usamos un método de actualización
         return activityReport;
     }
 }
