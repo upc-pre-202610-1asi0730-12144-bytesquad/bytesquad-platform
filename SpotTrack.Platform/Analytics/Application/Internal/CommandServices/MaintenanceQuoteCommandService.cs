@@ -32,5 +32,18 @@ public class MaintenanceQuoteCommandService : IMaintenanceQuoteCommandService
         await _maintenanceQuoteRepository.UpdateAsync(maintenanceQuote);
         return maintenanceQuote;
     }
+    
+    public async Task<MaintenanceQuote?> Handle(RequestPreventiveCostCommand command)
+    {
+        var maintenanceQuoteId = new MaintenanceQuoteId(command.MaintenanceQuoteId);
+        var maintenanceQuote = await _maintenanceQuoteRepository.FindByMaintenanceQuoteIdAsync(maintenanceQuoteId);
+        
+        if (maintenanceQuote == null) return null;
+
+        maintenanceQuote.UpdatePreventiveCost(command.PreventiveCost);
+        await _maintenanceQuoteRepository.UpdateAsync(maintenanceQuote);
+        return maintenanceQuote;
+    }
+
 
 }
