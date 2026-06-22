@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="BranchNotFound" xml:space="preserve">
+    <value>Sucursal no encontrada.</value>
+  </data>
+  <data name="GymNotFound" xml:space="preserve">
+    <value>Gimnasio no encontrado.</value>
+  </data>
+  <data name="InvalidData" xml:space="preserve">
+    <value>Datos del gimnasio inválidos.</value>
+  </data>
+  <data name="OperationCancelled" xml:space="preserve">
+    <value>La operación del gimnasio fue cancelada.</value>
+  </data>
+  <data name="DatabaseError" xml:space="preserve">
+    <value>Ocurrió un error de base de datos durante la operación del gimnasio.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Ocurrió un error interno inesperado.</value>
+  </data>
+</root>

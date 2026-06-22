@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <data name="ReservationNotFound" xml:space="preserve">
+    <value>Reserva no encontrada.</value>
+  </data>
+    <data name="InvalidReservationDates" xml:space="preserve">
+    <value>La fecha de fin debe ser estrictamente posterior a la fecha de inicio.</value>
+  </data>
+    <data name="EquipmentNotAvailable" xml:space="preserve">
+    <value>El equipo solicitado no está disponible para el periodo seleccionado.</value>
+  </data>
+    <data name="OperationCancelled" xml:space="preserve">
+    <value>La operación de reserva fue cancelada.</value>
+  </data>
+    <data name="DatabaseError" xml:space="preserve">
+    <value>Ocurrió un error de base de datos durante la operación de reserva.</value>
+  </data>
+    <data name="InternalServerError" xml:space="preserve">
+    <value>Ocurrió un error interno inesperado en Reservations.</value>
+  </data>
+    <data name="EquipmentOccupyFailed" xml:space="preserve">
+    <value>No se pudo marcar el equipo como ocupado en el contexto de Gym.</value>
+  </data>
+    <data name="EquipmentReleaseFailed" xml:space="preserve">
+    <value>No se pudo liberar el equipo en el contexto de Gym.</value>
+  </data>
+</root>

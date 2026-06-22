@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="ClientNotFound" xml:space="preserve">
+    <value>Cliente no encontrado.</value>
+  </data>
+  <data name="AdminNotFound" xml:space="preserve">
+    <value>Administrador no encontrado.</value>
+  </data>
+  <data name="EmailAlreadyRegistered" xml:space="preserve">
+    <value>La dirección de correo {0} ya está registrada.</value>
+  </data>
+  <data name="InvalidProfileData" xml:space="preserve">
+    <value>Los datos del perfil proporcionados son inválidos.</value>
+  </data>
+  <data name="OperationCancelled" xml:space="preserve">
+    <value>La operación de perfil fue cancelada.</value>
+  </data>
+  <data name="DatabaseError" xml:space="preserve">
+    <value>Ocurrió un error de base de datos durante la operación de perfil.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Ocurrió un error interno inesperado en Profiles.</value>
+  </data>
+</root>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="ZoneNotFound" xml:space="preserve">
+    <value>Zone not found.</value>
+  </data>
+  <data name="InvalidData" xml:space="preserve">
+    <value>Invalid equipment data provided.</value>
+  </data>
+  <data name="OperationCancelled" xml:space="preserve">
+    <value>The equipment operation was cancelled.</value>
+  </data>
+  <data name="DatabaseError" xml:space="preserve">
+    <value>A database error occurred during the equipment operation.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>An unexpected internal error occurred.</value>
+  </data>
+  <data name="EquipmentNotFound" xml:space="preserve">
+    <value>Equipment not found.</value>
+  </data>
+  <data name="InvalidEquipmentStatus" xml:space="preserve">
+    <value>The equipment status does not allow this operation.</value>
+  </data>
+</root>

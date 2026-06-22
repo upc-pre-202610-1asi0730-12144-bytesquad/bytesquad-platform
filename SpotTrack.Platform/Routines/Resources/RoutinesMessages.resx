@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="RoutineNotFound" xml:space="preserve">
+    <value>Routine not found.</value>
+  </data>
+  <data name="RoutineSessionNotFound" xml:space="preserve">
+    <value>Routine session not found.</value>
+  </data>
+  <data name="ExerciseBlockNotFound" xml:space="preserve">
+    <value>Exercise block not found.</value>
+  </data>
+  <data name="InvalidRoutineData" xml:space="preserve">
+    <value>Invalid routine data provided.</value>
+  </data>
+  <data name="InvalidExerciseData" xml:space="preserve">
+    <value>Invalid exercise data provided.</value>
+  </data>
+  <data name="InvalidSessionData" xml:space="preserve">
+    <value>Invalid session data provided.</value>
+  </data>
+  <data name="OperationCancelled" xml:space="preserve">
+    <value>The routine operation was cancelled.</value>
+  </data>
+  <data name="DatabaseError" xml:space="preserve">
+    <value>A database error occurred during the routine operation.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>An unexpected internal error occurred.</value>
+  </data>
+</root>

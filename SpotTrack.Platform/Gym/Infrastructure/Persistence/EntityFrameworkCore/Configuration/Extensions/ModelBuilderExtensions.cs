@@ -1,0 +1,106 @@
+using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
+using SpotTrack.Platform.Gyms.Domain.Model.Entities;
+using SpotTrack.Platform.Gyms.Domain.Model.ValueObjects;
+using Microsoft.EntityFrameworkCore;
+
+namespace SpotTrack.Platform.Gyms.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
+
+public static class ModelBuilderExtensions
+{
+    public static void ApplyEquipmentConfiguration(this ModelBuilder builder)
+    {
+        builder.Entity<Equipment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.ToTable("equipment");
+
+            entity.OwnsOne(e => e.Name, name =>
+            {
+                name.WithOwner().HasForeignKey("Id");
+                name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
+            });
+
+            entity.OwnsOne(e => e.ZoneId, zoneId =>
+            {
+                zoneId.WithOwner().HasForeignKey("Id");
+                zoneId.Property(z => z.Value).IsRequired().HasColumnName("zone_id");
+            });
+
+            entity.Property(e => e.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .HasColumnName("status")
+                .IsRequired();
+        });
+    }
+
+    public static void ApplyGymConfiguration(this ModelBuilder builder)
+    {
+        builder.Entity<Gym>(entity =>
+        {
+            entity.HasKey(g => g.Id);
+            entity.Property(g => g.Id).ValueGeneratedOnAdd();
+
+            entity.OwnsOne(g => g.Name, name =>
+            {
+                name.WithOwner().HasForeignKey("Id");
+                name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
+            });
+
+            entity.OwnsOne(g => g.Address, address =>
+            {
+                address.WithOwner().HasForeignKey("Id");
+                address.Property(a => a.Street).IsRequired().HasMaxLength(200).HasColumnName("street");
+                address.Property(a => a.District).IsRequired().HasMaxLength(100).HasColumnName("district");
+                address.Property(a => a.City).IsRequired().HasMaxLength(100).HasColumnName("city");
+            });
+
+            entity.HasMany(g => g.Branches)
+                .WithOne()
+                .HasForeignKey("gym_id")
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Branch>(entity =>
+        {
+            entity.HasKey(b => b.Id);
+            entity.Property(b => b.Id).ValueGeneratedOnAdd();
+            entity.ToTable("branches");
+
+            entity.OwnsOne(b => b.Name, name =>
+            {
+                name.WithOwner().HasForeignKey("Id");
+                name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
+            });
+
+            entity.OwnsOne(b => b.Address, address =>
+            {
+                address.WithOwner().HasForeignKey("Id");
+                address.Property(a => a.Street).IsRequired().HasMaxLength(200).HasColumnName("street");
+                address.Property(a => a.District).IsRequired().HasMaxLength(100).HasColumnName("district");
+                address.Property(a => a.City).IsRequired().HasMaxLength(100).HasColumnName("city");
+            });
+
+            entity.HasMany(b => b.Zones)
+                .WithOne()
+                .HasForeignKey("branch_id")
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Zone>(entity =>
+        {
+            entity.HasKey(z => z.Id);
+            entity.Property(z => z.Id).ValueGeneratedOnAdd();
+            entity.ToTable("zones");
+
+            entity.OwnsOne(z => z.Name, name =>
+            {
+                name.WithOwner().HasForeignKey("Id");
+                name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
+            });
+        });
+    }
+}

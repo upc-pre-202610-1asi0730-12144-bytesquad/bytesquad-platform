@@ -4,6 +4,8 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <InvariantGlobalization>false</InvariantGlobalization>
+        <LangVersion>14</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,6 +25,23 @@
       <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10.2.0" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Analytics\Application\" />
+      <Folder Include="Analytics\Domain\Model\Aggregates\" />
+      <Folder Include="Analytics\Domain\Model\Errors\" />
+      <Folder Include="Analytics\Domain\Model\Events\" />
+      <Folder Include="Analytics\Domain\Model\Queries\" />
+      <Folder Include="Analytics\Domain\Model\ValueObjects\" />
+      <Folder Include="Analytics\Domain\Repositories\" />
+      <Folder Include="Analytics\Infraestructure\" />
+      <Folder Include="Analytics\Interfaces\" />
+      <Folder Include="Analytics\Resources\" />
+      <Folder Include="Profiles\Application\" />
+      <Folder Include="Profiles\Infrastructure\" />
+      <Folder Include="Profiles\Interfaces\" />
+      <Folder Include="Profiles\Resources\" />
     </ItemGroup>
 
 </Project>
