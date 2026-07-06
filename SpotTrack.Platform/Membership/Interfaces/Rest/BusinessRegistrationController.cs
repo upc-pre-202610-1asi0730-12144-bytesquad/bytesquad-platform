@@ -36,9 +36,9 @@ public class BusinessRegistrationController(
         CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<EMembershipPlan>(resource.MembershipTier, ignoreCase: true, out var plan))
-            return BadRequest(problemDetailsFactory.CreateProblemDetails(
-                HttpContext, StatusCodes.Status400BadRequest,
-                $"Unrecognised membership tier '{resource.MembershipTier}'. Valid values: Basic, Mid, Premium."));
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status400BadRequest, (Enum?)null,
+                $"Unrecognised membership tier '{resource.MembershipTier}'. Valid values: Basic, Mid, Premium.");
 
         var saveCommand = new SavePendingRegistrationCommand(
             resource.Email, resource.Password,
@@ -50,18 +50,16 @@ public class BusinessRegistrationController(
 
         var saveResult = await iamFacade.SavePendingRegistrationAsync(saveCommand, cancellationToken);
         if (saveResult.IsFailure)
-            return StatusCode(StatusCodes.Status409Conflict,
-                problemDetailsFactory.CreateProblemDetails(
-                    HttpContext, StatusCodes.Status409Conflict, saveResult.Message));
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status409Conflict, saveResult.Error, saveResult.Message);
 
         var (amount, currency) = plan.ToPrice();
         var paymentCommand = new InitiateBusinessPaymentCommand(saveResult.Value, plan, amount, currency);
         var paymentResult = await paymentCommandService.Handle(paymentCommand, cancellationToken);
 
         if (paymentResult.IsFailure)
-            return StatusCode(StatusCodes.Status502BadGateway,
-                problemDetailsFactory.CreateProblemDetails(
-                    HttpContext, StatusCodes.Status502BadGateway, paymentResult.Message));
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status502BadGateway, paymentResult.Error, paymentResult.Message);
 
         return StatusCode(StatusCodes.Status201Created, new BusinessRegistrationResultResource(paymentResult.Value!));
     }
