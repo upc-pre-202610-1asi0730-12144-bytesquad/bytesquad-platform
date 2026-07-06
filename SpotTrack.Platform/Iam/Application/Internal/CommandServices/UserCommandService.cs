@@ -62,6 +62,41 @@ public class UserCommandService(
         return Result.Success();
     }
 
+    public async Task<Result<User>> Handle(ProvisionIamAccountCommand command, CancellationToken cancellationToken)
+    {
+        if (await userRepository.ExistsByUsernameAsync(command.Email, cancellationToken))
+            return Result<User>.Failure(
+                IamError.UsernameAlreadyTaken,
+                localizer[nameof(IamError.UsernameAlreadyTaken), command.Email]);
+
+        var user = new User(command.Email, command.AlreadyHashedPassword, UserRole.Admin);
+
+        try
+        {
+            await userRepository.AddAsync(user, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<User>.Success(user);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<User>.Failure(
+                IamError.OperationCancelled,
+                localizer[nameof(IamError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<User>.Failure(
+                IamError.DatabaseError,
+                localizer[nameof(IamError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<User>.Failure(
+                IamError.InternalServerError,
+                localizer[nameof(IamError.InternalServerError)]);
+        }
+    }
+
     public async Task<Result<(User user, string token)>> Handle(SignInCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.FindByUsernameAsync(command.Username, cancellationToken);
