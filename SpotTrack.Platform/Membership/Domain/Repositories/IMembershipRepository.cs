@@ -7,4 +7,7 @@ public interface IMembershipRepository : IBaseRepository<Membership>
 {
     Task<IEnumerable<Membership>> FindAllByClientIdAsync(int clientId,
         CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<Membership>> FindAllExpiredAsync(DateTimeOffset asOf,
+        CancellationToken cancellationToken = default);
 }
