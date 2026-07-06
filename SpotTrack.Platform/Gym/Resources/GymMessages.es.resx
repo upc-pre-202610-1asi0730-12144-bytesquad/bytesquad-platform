@@ -9,6 +9,9 @@
   <data name="InvalidData" xml:space="preserve">
     <value>Datos del gimnasio inválidos.</value>
   </data>
+  <data name="Forbidden" xml:space="preserve">
+    <value>No tienes permisos para realizar esta operación en el gimnasio.</value>
+  </data>
   <data name="OperationCancelled" xml:space="preserve">
     <value>La operación del gimnasio fue cancelada.</value>
   </data>
