@@ -1,6 +1,7 @@
-﻿using System.Net.Mime;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Analytics.Application.CommandServices;
+using SpotTrack.Platform.Analytics.Domain.Model;
 using SpotTrack.Platform.Analytics.Domain.Model.Commands;
 using SpotTrack.Platform.Analytics.Interfaces.REST.Transform;
 using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
@@ -26,10 +27,10 @@ public class MaintenanceQuotesController : ControllerBase
     public async Task<IActionResult> CreateMaintenanceQuote([FromBody] RequestCorrectiveActionsCostCommand command)
     {
         var adminId = ((User)HttpContext.Items["User"]!).Id;
-        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
-        if (maintenanceQuote == null) return BadRequest();
+        var result = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
+        if (result.IsFailure) return BadRequest(result.Message);
 
-        var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
+        var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(result.Value!);
         return StatusCode(201, resource);
     }
 
@@ -37,10 +38,11 @@ public class MaintenanceQuotesController : ControllerBase
     public async Task<IActionResult> UpdateSparePartsCost([FromBody] RequestSparePartsCostCommand command)
     {
         var adminId = ((User)HttpContext.Items["User"]!).Id;
-        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
-        if (maintenanceQuote == null) return NotFound();
+        var result = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
+        if (result.IsFailure)
+            return result.Error is AnalyticsError.Forbidden ? Forbid() : NotFound();
 
-        var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
+        var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(result.Value!);
         return Ok(resource);
     }
 
@@ -48,10 +50,11 @@ public class MaintenanceQuotesController : ControllerBase
     public async Task<IActionResult> UpdatePreventiveCost([FromBody] RequestPreventiveCostCommand command)
     {
         var adminId = ((User)HttpContext.Items["User"]!).Id;
-        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
-        if (maintenanceQuote == null) return NotFound();
+        var result = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
+        if (result.IsFailure)
+            return result.Error is AnalyticsError.Forbidden ? Forbid() : NotFound();
 
-        var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
+        var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(result.Value!);
         return Ok(resource);
     }
 
@@ -59,10 +62,11 @@ public class MaintenanceQuotesController : ControllerBase
     public async Task<IActionResult> ConsolidateMaintenanceCost([FromBody] RequestMaintenanceCostCommand command)
     {
         var adminId = ((User)HttpContext.Items["User"]!).Id;
-        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
-        if (maintenanceQuote == null) return NotFound();
+        var result = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
+        if (result.IsFailure)
+            return result.Error is AnalyticsError.Forbidden ? Forbid() : NotFound();
 
-        var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
+        var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(result.Value!);
         return Ok(resource);
     }
 }
