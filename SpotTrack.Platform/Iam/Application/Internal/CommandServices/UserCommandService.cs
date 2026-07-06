@@ -30,13 +30,8 @@ public class UserCommandService(
                 IamError.UsernameAlreadyTaken,
                 localizer[nameof(IamError.UsernameAlreadyTaken), command.Username]);
 
-        if (!Enum.TryParse<UserRole>(command.Role, ignoreCase: true, out var role))
-            return Result.Failure(
-                IamError.InvalidRole,
-                localizer[nameof(IamError.InvalidRole)]);
-
         var passwordHash = hashingService.HashPassword(command.Password);
-        var user = new User(command.Username, passwordHash, role);
+        var user = new User(command.Username, passwordHash, UserRole.Client);
 
         try
         {
@@ -62,10 +57,7 @@ public class UserCommandService(
                 localizer[nameof(IamError.InternalServerError)]);
         }
 
-        if (role == UserRole.Client)
-            await profilesFacade.RegisterClientAsync(user.Id);
-        else
-            await profilesFacade.RegisterAdminAsync(user.Id);
+        await profilesFacade.RegisterClientAsync(user.Id);
 
         return Result.Success();
     }

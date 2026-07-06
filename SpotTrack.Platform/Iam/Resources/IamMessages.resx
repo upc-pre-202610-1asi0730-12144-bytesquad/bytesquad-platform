@@ -6,9 +6,6 @@
   <data name="UsernameAlreadyTaken" xml:space="preserve">
     <value>The username {0} is already taken.</value>
   </data>
-  <data name="InvalidRole" xml:space="preserve">
-    <value>Invalid role provided. Valid roles are: Client, Admin.</value>
-  </data>
   <data name="OperationCancelled" xml:space="preserve">
     <value>The IAM operation was cancelled.</value>
   </data>
