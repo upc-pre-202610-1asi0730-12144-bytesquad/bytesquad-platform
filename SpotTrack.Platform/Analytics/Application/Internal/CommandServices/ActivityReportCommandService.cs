@@ -28,11 +28,12 @@ public class ActivityReportCommandService : IActivityReportCommandService
     {
         var activityReportId = new ActivityReportId(command.ActivityReportId);
         var activityReport = await _activityReportRepository.FindByActivityReportIdAsync(activityReportId);
-        
+
         if (activityReport == null) return null;
+        if (activityReport.AdminId != command.AuthenticatedAdminId) return null;
 
         activityReport.UpdateTotalUsageTime(command.TotalUsageTime);
-        await _activityReportRepository.UpdateAsync(activityReport); // Usamos un método de actualización
+        await _activityReportRepository.UpdateAsync(activityReport);
         return activityReport;
     }
 
@@ -40,20 +41,22 @@ public class ActivityReportCommandService : IActivityReportCommandService
     {
         var activityReportId = new ActivityReportId(command.ActivityReportId);
         var activityReport = await _activityReportRepository.FindByActivityReportIdAsync(activityReportId);
-        
+
         if (activityReport == null) return null;
+        if (activityReport.AdminId != command.AuthenticatedAdminId) return null;
 
         activityReport.UpdateDowntimeCost(command.DowntimeCost);
         await _activityReportRepository.UpdateAsync(activityReport);
         return activityReport;
     }
-    
+
     public async Task<ActivityReport?> Handle(RequestPercentageComparisonCommand command)
     {
         var activityReportId = new ActivityReportId(command.ActivityReportId);
         var activityReport = await _activityReportRepository.FindByActivityReportIdAsync(activityReportId);
-        
+
         if (activityReport == null) return null;
+        if (activityReport.AdminId != command.AuthenticatedAdminId) return null;
 
         activityReport.UpdatePercentageComparison(command.PercentageComparison);
         await _activityReportRepository.UpdateAsync(activityReport);
