@@ -5,6 +5,8 @@ using SpotTrack.Platform.Gyms.Domain.Model.Commands;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
+using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
 using Swashbuckle.AspNetCore.Annotations;
@@ -14,7 +16,7 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/gyms")]
 [Produces(MediaTypeNames.Application.Json)]
-[Authorize]
+[Authorize(UserRole.Admin)]
 [SwaggerTag("Gym management endpoints")]
 public class GymsController(
     IGymCommandService gymCommandService,
@@ -32,7 +34,8 @@ public class GymsController(
         [FromBody] CreateGymResource resource,
         CancellationToken cancellationToken)
     {
-        var command = CreateGymCommandFromResourceAssembler.ToCommandFromResource(resource);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = CreateGymCommandFromResourceAssembler.ToCommandFromResource(adminId, resource);
         var result = await gymCommandService.Handle(command, cancellationToken);
         if (result.IsFailure)
             return GymsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
@@ -57,7 +60,8 @@ public class GymsController(
         [FromBody] CreateBranchResource resource,
         CancellationToken cancellationToken)
     {
-        var command = CreateBranchCommandFromResourceAssembler.ToCommandFromResource(gymId, resource);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = CreateBranchCommandFromResourceAssembler.ToCommandFromResource(gymId, adminId, resource);
         var result = await gymCommandService.Handle(command, cancellationToken);
         if (result.IsFailure)
             return GymsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);

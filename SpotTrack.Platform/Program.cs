@@ -24,7 +24,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.OpenApi;
 using ProblemDetailsFactory = SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails.ProblemDetailsFactory;
+using SpotTrack.Platform.Reservations.Application.Acl;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
+using SpotTrack.Platform.Reservations.Interfaces.Acl;
 using SpotTrack.Platform.Reservations.Application.Internal.CommandServices;
 using SpotTrack.Platform.Reservations.Application.Internal.QueryServices;
 using SpotTrack.Platform.Reservations.Application.QueryServices;
@@ -63,7 +65,9 @@ using SpotTrack.Platform.Memberships.Application.Internal.CommandServices;
 using SpotTrack.Platform.Memberships.Application.Internal.QueryServices;
 using SpotTrack.Platform.Memberships.Application.QueryServices;
 using SpotTrack.Platform.Memberships.Domain.Repositories;
+using SpotTrack.Platform.Memberships.Infrastructure.BackgroundServices;
 using SpotTrack.Platform.Memberships.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using SpotTrack.Platform.Memberships.Infrastructure.Stripe;
 using SpotTrack.Platform.Memberships.Resources;
 using SpotTrack.Platform.Maintenances.Application.CommandServices;
 using SpotTrack.Platform.Maintenances.Application.Internal.CommandServices;
@@ -178,6 +182,7 @@ builder.Services.AddScoped<IProfilesContextFacade, ProfilesContextFacade>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IReservationCommandService, ReservationCommandService>();
 builder.Services.AddScoped<IReservationQueryService, ReservationQueryService>();
+builder.Services.AddScoped<IReservationsMembershipContextFacade, ReservationsMembershipContextFacade>();
 builder.Services.AddSingleton<IStringLocalizer<ReservationMessages>, StringLocalizer<ReservationMessages>>();
 
 // Routines Bounded Context
@@ -195,16 +200,21 @@ builder.Services.AddScoped<IGymCommandService, GymCommandService>();
 builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 builder.Services.AddScoped<IEquipmentCommandService, EquipmentCommandService>();
 builder.Services.AddScoped<IGymContextFacade, GymContextFacade>();
+builder.Services.AddScoped<IMembershipContextFacade, MembershipContextFacade>();
 builder.Services.AddSingleton<IStringLocalizer<GymMessages>, StringLocalizer<GymMessages>>();
 builder.Services.AddSingleton<IStringLocalizer<EquipmentMessages>, StringLocalizer<EquipmentMessages>>();
 
 // Membership Bounded Context
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
 builder.Services.AddScoped<IMembershipCommandService, MembershipCommandService>();
 builder.Services.AddScoped<IMembershipQueryService, MembershipQueryService>();
 builder.Services.AddScoped<IBranchAccessRepository, BranchAccessRepository>();
 builder.Services.AddScoped<IBranchAccessCommandService, BranchAccessCommandService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentCommandService, PaymentCommandService>();
 builder.Services.AddSingleton<IStringLocalizer<MembershipMessages>, StringLocalizer<MembershipMessages>>();
+builder.Services.AddHostedService<MembershipExpirationBackgroundService>();
 
 // Maintenance Bounded Context
 builder.Services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
@@ -222,10 +232,12 @@ builder.Services.AddScoped<IMaintenanceLogCommandService, MaintenanceLogCommandS
 // IAM Bounded Context
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPendingRegistrationRepository, PendingRegistrationRepository>();
 builder.Services.AddScoped<IHashingService, HashingService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserCommandService, UserCommandService>();
 builder.Services.AddScoped<IUserQueryService, UserQueryService>();
+builder.Services.AddScoped<IPendingRegistrationCommandService, PendingRegistrationCommandService>();
 builder.Services.AddScoped<IIamContextFacade, IamContextFacade>();
 builder.Services.AddSingleton<IStringLocalizer<IamMessages>, StringLocalizer<IamMessages>>();
 

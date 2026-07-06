@@ -5,6 +5,6 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
 
 public static class CreateBranchCommandFromResourceAssembler
 {
-    public static CreateBranchCommand ToCommandFromResource(int gymId, CreateBranchResource resource) =>
-        new(gymId, resource.Name, resource.Street, resource.District, resource.City);
+    public static CreateBranchCommand ToCommandFromResource(int gymId, int adminId, CreateBranchResource resource) =>
+        new(gymId, adminId, resource.Name, resource.Street, resource.District, resource.City);
 }

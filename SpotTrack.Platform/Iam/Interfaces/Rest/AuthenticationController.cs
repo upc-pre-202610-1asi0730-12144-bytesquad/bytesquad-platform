@@ -23,10 +23,9 @@ public class AuthenticationController(
     [AllowAnonymous]
     [SwaggerOperation(
         Summary = "Sign up a new user",
-        Description = "Creates a new user account with the given username, password and role.",
+        Description = "Creates a new client user account with the given username and password.",
         OperationId = "SignUp")]
     [SwaggerResponse(StatusCodes.Status201Created, "User created successfully")]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid role provided")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "Username already taken")]
     public async Task<IActionResult> SignUp(
         [FromBody] SignUpResource resource,

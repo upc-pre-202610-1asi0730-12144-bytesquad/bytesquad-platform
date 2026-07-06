@@ -1,6 +1,9 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Maintenances.Application.CommandServices;
 using SpotTrack.Platform.Maintenances.Application.QueryServices;
 using SpotTrack.Platform.Maintenances.Domain.Model;
@@ -16,6 +19,7 @@ namespace SpotTrack.Platform.Maintenances.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/technical-tickets")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Admin)]
 [SwaggerTag("Technical ticket management endpoints")]
 public class TechnicalTicketController(
     ITechnicalTicketCommandService technicalTicketCommandService,
@@ -55,7 +59,8 @@ public class TechnicalTicketController(
         [FromBody] CreateTechnicalTicketResource resource,
         CancellationToken cancellationToken)
     {
-        var command = CreateTechnicalTicketCommandFromResourceAssembler.ToCommandFromResource(resource);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = CreateTechnicalTicketCommandFromResourceAssembler.ToCommandFromResource(adminId, resource);
         var result = await technicalTicketCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)
@@ -82,7 +87,8 @@ public class TechnicalTicketController(
         [FromBody] AssignTechnicalTicketResource resource,
         CancellationToken cancellationToken)
     {
-        var command = AssignTechnicalTicketCommandFromResourceAssembler.ToCommandFromResource(id, resource);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = AssignTechnicalTicketCommandFromResourceAssembler.ToCommandFromResource(id, adminId, resource);
         var result = await technicalTicketCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)
@@ -108,7 +114,8 @@ public class TechnicalTicketController(
         [FromRoute] int id,
         CancellationToken cancellationToken)
     {
-        var command = new RequestUpdateMaintenanceStatusCommand(id);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = new RequestUpdateMaintenanceStatusCommand(id, adminId);
         var result = await technicalTicketCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)
@@ -135,7 +142,8 @@ public class TechnicalTicketController(
         [FromBody] ModifyTicketStatusResource resource,
         CancellationToken cancellationToken)
     {
-        var command = ModifyTicketStatusCommandFromResourceAssembler.ToCommandFromResource(id, resource);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = ModifyTicketStatusCommandFromResourceAssembler.ToCommandFromResource(id, adminId, resource);
         var result = await technicalTicketCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)
@@ -162,7 +170,8 @@ public class TechnicalTicketController(
         [FromBody] UpdateMaintenanceStatusResource resource,
         CancellationToken cancellationToken)
     {
-        var command = UpdateMaintenanceStatusCommandFromResourceAssembler.ToCommandFromResource(id, resource);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = UpdateMaintenanceStatusCommandFromResourceAssembler.ToCommandFromResource(id, adminId, resource);
         var result = await technicalTicketCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)
@@ -188,7 +197,8 @@ public class TechnicalTicketController(
         [FromRoute] int id,
         CancellationToken cancellationToken)
     {
-        var command = new CompleteMaintenanceCommand(id);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = new CompleteMaintenanceCommand(id, adminId);
         var result = await technicalTicketCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)

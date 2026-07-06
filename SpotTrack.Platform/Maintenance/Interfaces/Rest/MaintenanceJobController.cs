@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Maintenances.Application.CommandServices;
 using SpotTrack.Platform.Maintenances.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Maintenances.Interfaces.Rest.Transform;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -12,6 +14,7 @@ namespace SpotTrack.Platform.Maintenances.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/maintenance-jobs")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Admin)]
 [SwaggerTag("Maintenance job management endpoints")]
 public class MaintenanceJobController(
     IMaintenanceJobCommandService maintenanceJobCommandService,

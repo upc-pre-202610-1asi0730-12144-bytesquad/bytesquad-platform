@@ -24,4 +24,7 @@
     <data name="EquipmentReleaseFailed" xml:space="preserve">
     <value>No se pudo liberar el equipo en el contexto de Gym.</value>
   </data>
+    <data name="GymMembershipInactive" xml:space="preserve">
+    <value>La membresía del gimnasio está inactiva o vencida. Las reservas no están disponibles actualmente.</value>
+  </data>
 </root>

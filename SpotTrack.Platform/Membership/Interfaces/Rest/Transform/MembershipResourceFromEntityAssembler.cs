@@ -11,5 +11,6 @@ public static class MembershipResourceFromEntityAssembler
             membership.Plan.ToString(),
             membership.StartDate,
             membership.EndDate,
-            membership.Status.ToString());
+            membership.Status.ToString(),
+            membership.PendingDowngradePlan?.ToString());
 }

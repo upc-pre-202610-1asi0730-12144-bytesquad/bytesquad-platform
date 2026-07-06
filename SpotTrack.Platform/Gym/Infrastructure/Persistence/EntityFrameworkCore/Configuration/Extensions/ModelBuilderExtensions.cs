@@ -41,6 +41,7 @@ public static class ModelBuilderExtensions
         {
             entity.HasKey(g => g.Id);
             entity.Property(g => g.Id).ValueGeneratedOnAdd();
+            entity.Property(g => g.AdminId).IsRequired().HasColumnName("admin_id");
 
             entity.OwnsOne(g => g.Name, name =>
             {

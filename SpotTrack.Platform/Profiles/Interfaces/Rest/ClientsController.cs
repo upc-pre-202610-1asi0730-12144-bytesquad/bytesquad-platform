@@ -1,6 +1,8 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Profiles.Application.CommandServices;
 using SpotTrack.Platform.Profiles.Application.QueryServices;
 using SpotTrack.Platform.Profiles.Domain.Model;
@@ -15,6 +17,7 @@ namespace SpotTrack.Platform.Profiles.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/profiles/clients")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize]
 [SwaggerTag("Client profile management endpoints")]
 public class ClientsController(
     IClientCommandService clientCommandService,
@@ -63,6 +66,7 @@ public class ClientsController(
     }
 
     [HttpGet]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Get all client profiles",
         Description = "Returns the list of all registered client profiles.",

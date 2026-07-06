@@ -1,14 +1,14 @@
 using SpotTrack.Platform.Analytics.Domain.Model.Aggregates;
 using SpotTrack.Platform.Analytics.Domain.Model.Commands;
+using SpotTrack.Platform.Shared.Application.Model;
 
 namespace SpotTrack.Platform.Analytics.Application.CommandServices;
 
 public interface IROIProjectionCommandService
 {
-    Task<ROIProjection?> Handle(RequestDowntimeCostProjectionCommand command);
-    
-    Task<ROIProjection?> Handle(RequestEarningsProjectionCommand command);
+    Task<Result<ROIProjection>> Handle(RequestDowntimeCostProjectionCommand command);
 
-    Task<ROIProjection?> Handle(RequestROICommand command);
+    Task<Result<ROIProjection>> Handle(RequestEarningsProjectionCommand command);
 
+    Task<Result<ROIProjection>> Handle(RequestROICommand command);
 }

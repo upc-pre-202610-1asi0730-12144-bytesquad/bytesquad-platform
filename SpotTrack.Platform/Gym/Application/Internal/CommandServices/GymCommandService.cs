@@ -1,3 +1,4 @@
+using Cortex.Mediator;
 using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 using SpotTrack.Platform.Gyms.Domain.Model.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -5,8 +6,10 @@ using Microsoft.Extensions.Localization;
 using SpotTrack.Platform.Gyms.Domain.Model;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
 using SpotTrack.Platform.Gyms.Domain.Model.Errors;
+using SpotTrack.Platform.Gyms.Domain.Model.Events;
 using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
+using SpotTrack.Platform.Gyms.Interfaces.Acl;
 using SpotTrack.Platform.Gyms.Resources;
 using SpotTrack.Platform.Shared.Application.Model;
 using SpotTrack.Platform.Shared.Domain.Repositories;
@@ -16,6 +19,8 @@ namespace SpotTrack.Platform.Gyms.Application.Internal.CommandServices;
 public class GymCommandService(
     IGymRepository gymRepository,
     IUnitOfWork unitOfWork,
+    IMediator mediator,
+    IMembershipContextFacade membershipContextFacade,
     IStringLocalizer<GymMessages> localizer)
     : IGymCommandService
 {
@@ -37,6 +42,7 @@ public class GymCommandService(
         {
             await gymRepository.AddAsync(gym, cancellationToken);
             await unitOfWork.CompleteAsync(cancellationToken);
+            await mediator.PublishAsync(GymCreatedEvent.FromGym(gym), cancellationToken);
             return Result<Gym>.Success(gym);
         }
         catch (OperationCanceledException)
@@ -66,6 +72,18 @@ public class GymCommandService(
             return Result<Branch>.Failure(
                 GymError.GymNotFound,
                 localizer[nameof(GymError.GymNotFound)]);
+
+        if (gym.AdminId != command.AdminId)
+            return Result<Branch>.Failure(
+                GymError.Forbidden,
+                localizer[nameof(GymError.Forbidden)]);
+
+        var branchLimit = await membershipContextFacade.GetBranchLimitForAdminAsync(
+            command.AdminId, cancellationToken);
+        if (gym.Branches.Count >= branchLimit)
+            return Result<Branch>.Failure(
+                GymError.BranchLimitExceeded,
+                localizer[nameof(GymError.BranchLimitExceeded)]);
 
         try
         {

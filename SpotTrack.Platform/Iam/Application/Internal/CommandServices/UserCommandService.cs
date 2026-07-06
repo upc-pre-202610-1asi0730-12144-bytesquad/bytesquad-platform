@@ -30,13 +30,8 @@ public class UserCommandService(
                 IamError.UsernameAlreadyTaken,
                 localizer[nameof(IamError.UsernameAlreadyTaken), command.Username]);
 
-        if (!Enum.TryParse<UserRole>(command.Role, ignoreCase: true, out var role))
-            return Result.Failure(
-                IamError.InvalidRole,
-                localizer[nameof(IamError.InvalidRole)]);
-
         var passwordHash = hashingService.HashPassword(command.Password);
-        var user = new User(command.Username, passwordHash, role);
+        var user = new User(command.Username, passwordHash, UserRole.Client);
 
         try
         {
@@ -62,12 +57,44 @@ public class UserCommandService(
                 localizer[nameof(IamError.InternalServerError)]);
         }
 
-        if (role == UserRole.Client)
-            await profilesFacade.RegisterClientAsync(user.Id);
-        else
-            await profilesFacade.RegisterAdminAsync(user.Id);
+        await profilesFacade.RegisterClientAsync(user.Id);
 
         return Result.Success();
+    }
+
+    public async Task<Result<User>> Handle(ProvisionIamAccountCommand command, CancellationToken cancellationToken)
+    {
+        if (await userRepository.ExistsByUsernameAsync(command.Email, cancellationToken))
+            return Result<User>.Failure(
+                IamError.UsernameAlreadyTaken,
+                localizer[nameof(IamError.UsernameAlreadyTaken), command.Email]);
+
+        var user = new User(command.Email, command.AlreadyHashedPassword, UserRole.Admin);
+
+        try
+        {
+            await userRepository.AddAsync(user, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<User>.Success(user);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<User>.Failure(
+                IamError.OperationCancelled,
+                localizer[nameof(IamError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<User>.Failure(
+                IamError.DatabaseError,
+                localizer[nameof(IamError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<User>.Failure(
+                IamError.InternalServerError,
+                localizer[nameof(IamError.InternalServerError)]);
+        }
     }
 
     public async Task<Result<(User user, string token)>> Handle(SignInCommand command, CancellationToken cancellationToken)

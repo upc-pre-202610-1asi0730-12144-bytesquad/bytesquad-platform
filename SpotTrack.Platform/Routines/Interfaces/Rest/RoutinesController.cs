@@ -1,6 +1,8 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Routines.Application.CommandServices;
 using SpotTrack.Platform.Routines.Application.QueryServices;
 using SpotTrack.Platform.Routines.Domain.Model;
@@ -15,6 +17,7 @@ namespace SpotTrack.Platform.Routines.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/routines")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Client)]
 [SwaggerTag("Routine management endpoints")]
 public class RoutinesController(
     IRoutineCommandService routineCommandService,
@@ -68,6 +71,7 @@ public class RoutinesController(
     }
 
     [HttpGet("{routineId:int}")]
+    [Authorize]
     [SwaggerOperation(
         Summary = "Get a routine by ID",
         Description = "Returns the routine matching the given ID, or 404 if not found.",
@@ -86,6 +90,7 @@ public class RoutinesController(
     }
 
     [HttpGet]
+    [Authorize]
     [SwaggerOperation(
         Summary = "Get all routines by client ID",
         Description = "Returns the list of routines belonging to the given client.",

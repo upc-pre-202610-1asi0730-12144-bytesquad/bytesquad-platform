@@ -26,6 +26,10 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
+
                     b.Property<long>("DowntimeCost")
                         .HasColumnType("bigint")
                         .HasColumnName("downtime_cost");
@@ -50,6 +54,10 @@ namespace SpotTrack.Platform.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("id");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
 
                     b.Property<double>("CorrectiveActionsCost")
                         .HasColumnType("double")
@@ -79,6 +87,10 @@ namespace SpotTrack.Platform.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("id");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
 
                     b.Property<string>("DemandStatus")
                         .IsRequired()
@@ -138,6 +150,10 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
+
                     b.Property<DateTimeOffset?>("CreatedAt")
                         .HasColumnType("datetime")
                         .HasColumnName("created_at");
@@ -190,6 +206,124 @@ namespace SpotTrack.Platform.Migrations
                         .HasDatabaseName("i_x_zones_branch_id");
 
                     b.ToTable("zones", (string)null);
+                });
+
+            modelBuilder.Entity("SpotTrack.Platform.Iam.Domain.Model.Aggregates.PendingRegistration", b =>
+                {
+                    b.Property<Guid>("RegistrationId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("registration_id");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("city");
+
+                    b.Property<string>("CompanyEmail")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("company_email");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("company_name");
+
+                    b.Property<string>("CompanyPhone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("company_phone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("district");
+
+                    b.Property<string>("Dni")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("dni");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("email");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("HashedPassword")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("hashed_password");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("last_name");
+
+                    b.Property<string>("LegalStructure")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("legal_structure");
+
+                    b.Property<string>("MembershipTier")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("membership_tier");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("phone_number");
+
+                    b.Property<string>("Ruc")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("ruc");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("StreetAddress")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("street_address");
+
+                    b.HasKey("RegistrationId")
+                        .HasName("p_k_pending_registrations");
+
+                    b.HasIndex("Email")
+                        .HasDatabaseName("i_x_pending_registrations_email");
+
+                    b.ToTable("pending_registrations");
                 });
 
             modelBuilder.Entity("SpotTrack.Platform.Iam.Domain.Model.Aggregates.User", b =>
@@ -462,6 +596,11 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("end_date");
 
+                    b.Property<string>("PendingDowngradePlan")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("pending_downgrade_plan");
+
                     b.Property<string>("Plan")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -486,6 +625,63 @@ namespace SpotTrack.Platform.Migrations
                         .HasName("p_k_memberships");
 
                     b.ToTable("memberships");
+                });
+
+            modelBuilder.Entity("SpotTrack.Platform.Memberships.Domain.Model.Aggregates.Payment", b =>
+                {
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("payment_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("varchar(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<string>("GatewayTransactionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("gateway_transaction_id");
+
+                    b.Property<int?>("MembershipId")
+                        .HasColumnType("int")
+                        .HasColumnName("membership_id");
+
+                    b.Property<string>("MembershipPlan")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("membership_plan");
+
+                    b.Property<Guid?>("PendingRegistrationId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("pending_registration_id");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("purpose");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("status");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("PaymentId")
+                        .HasName("p_k_payments");
+
+                    b.ToTable("payments");
                 });
 
             modelBuilder.Entity("SpotTrack.Platform.Profiles.Domain.Model.Aggregates.Admin", b =>
