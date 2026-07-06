@@ -199,7 +199,7 @@ public class ReservationsController(
                 this, StatusCodes.Status404NotFound, ReservationsError.ReservationNotFound, "Equipment not found.");
 
         var alternatives = await gymContextFacade.FindAvailableAlternativesAsync(equipment.Name.Value, equipment.Id);
-        var resources = alternatives.Select(e => new AlternativeEquipmentResource(e.Id, e.Name.Value));
+        var resources = alternatives.Select(e => new AlternativeEquipmentResource(e.Id, e.Name.Value, e.Model));
         return Ok(resources);
     }
 

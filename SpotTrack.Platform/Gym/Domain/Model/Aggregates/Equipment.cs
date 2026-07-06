@@ -9,6 +9,8 @@ public partial class Equipment
 
     public EquipmentName Name { get; private set; } = null!;
 
+    public string Model { get; private set; } = null!;
+
     public ZoneId ZoneId { get; private set; } = null!;
 
     public EquipmentStatus Status { get; private set; }
@@ -17,7 +19,11 @@ public partial class Equipment
 
     public Equipment(RegisterEquipmentCommand command)
     {
+        if (string.IsNullOrWhiteSpace(command.Model))
+            throw new ArgumentException("Model cannot be null or whitespace.", nameof(command.Model));
+
         Name = new EquipmentName(command.Name);
+        Model = command.Model;
         ZoneId = new ZoneId(command.ZoneId);
         Status = EquipmentStatus.Available;
     }

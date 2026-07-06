@@ -6,5 +6,5 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
 public static class RegisterEquipmentCommandFromResourceAssembler
 {
     public static RegisterEquipmentCommand ToCommandFromResource(RegisterEquipmentResource resource) =>
-        new(resource.Name, resource.ZoneId);
+        new(resource.Name, resource.Model, resource.ZoneId);
 }

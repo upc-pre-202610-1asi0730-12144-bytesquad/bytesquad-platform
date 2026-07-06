@@ -21,6 +21,8 @@ public static class ModelBuilderExtensions
                 name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
             });
 
+            entity.Property(e => e.Model).IsRequired().HasMaxLength(100).HasColumnName("model");
+
             entity.OwnsOne(e => e.ZoneId, zoneId =>
             {
                 zoneId.WithOwner().HasForeignKey("Id");
