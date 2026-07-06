@@ -8,5 +8,8 @@ public enum MembershipError
     InvalidMembershipStatus,
     OperationCancelled,
     DatabaseError,
-    InternalServerError
+    InternalServerError,
+    PaymentNotFound,
+    InvalidPaymentState,
+    StripeError
 }
