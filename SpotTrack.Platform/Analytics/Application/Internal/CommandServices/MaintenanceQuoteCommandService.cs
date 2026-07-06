@@ -19,6 +19,8 @@ public class MaintenanceQuoteCommandService : IMaintenanceQuoteCommandService
     {
         var maintenanceQuote = new MaintenanceQuote(command);
         await _maintenanceQuoteRepository.AddAsync(maintenanceQuote);
+        maintenanceQuote.InitializeId();
+        await _maintenanceQuoteRepository.UpdateAsync(maintenanceQuote);
         return maintenanceQuote;
     }
     
