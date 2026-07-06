@@ -1,3 +1,4 @@
+using Cortex.Mediator;
 using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 using SpotTrack.Platform.Gyms.Domain.Model.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.Localization;
 using SpotTrack.Platform.Gyms.Domain.Model;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
 using SpotTrack.Platform.Gyms.Domain.Model.Errors;
+using SpotTrack.Platform.Gyms.Domain.Model.Events;
 using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Resources;
@@ -16,6 +18,7 @@ namespace SpotTrack.Platform.Gyms.Application.Internal.CommandServices;
 public class GymCommandService(
     IGymRepository gymRepository,
     IUnitOfWork unitOfWork,
+    IMediator mediator,
     IStringLocalizer<GymMessages> localizer)
     : IGymCommandService
 {
@@ -37,6 +40,7 @@ public class GymCommandService(
         {
             await gymRepository.AddAsync(gym, cancellationToken);
             await unitOfWork.CompleteAsync(cancellationToken);
+            await mediator.PublishAsync(GymCreatedEvent.FromGym(gym), cancellationToken);
             return Result<Gym>.Success(gym);
         }
         catch (OperationCanceledException)
