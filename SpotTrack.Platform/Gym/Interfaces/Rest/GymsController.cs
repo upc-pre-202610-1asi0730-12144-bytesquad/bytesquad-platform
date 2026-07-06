@@ -25,6 +25,19 @@ public class GymsController(
     IGymQueryService gymQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet]
+    [SwaggerOperation(
+        Summary = "Get all gyms",
+        Description = "Returns a summary (id and name) of every gym registered on the platform.",
+        OperationId = "GetAllGyms")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of gyms", typeof(IEnumerable<GymSummaryResource>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    public async Task<IActionResult> GetAllGyms(CancellationToken cancellationToken)
+    {
+        var gyms = await gymQueryService.Handle(new GetAllGymsQuery(), cancellationToken);
+        return Ok(gyms.Select(GymSummaryResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpGet("{gymId:int}/branches")]
     [SwaggerOperation(
         Summary = "Get branches by gym id",

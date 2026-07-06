@@ -6,6 +6,9 @@ namespace SpotTrack.Platform.Gyms.Domain.Services;
 
 public interface IGymQueryService
 {
+    /// <returns>all gyms registered on the platform.</returns>
+    Task<IReadOnlyCollection<Gym>> Handle(GetAllGymsQuery query, CancellationToken cancellationToken);
+
     /// <returns>null if the gym does not exist, otherwise its branches (possibly empty).</returns>
     Task<IReadOnlyCollection<Branch>?> Handle(GetBranchesByGymIdQuery query, CancellationToken cancellationToken);
 

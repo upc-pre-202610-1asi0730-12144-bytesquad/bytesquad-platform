@@ -11,6 +11,13 @@ public class GymQueryService(
     IEquipmentRepository equipmentRepository)
     : IGymQueryService
 {
+    public async Task<IReadOnlyCollection<Gym>> Handle(
+        GetAllGymsQuery query, CancellationToken cancellationToken)
+    {
+        var gyms = await gymRepository.ListAsync(cancellationToken);
+        return gyms.ToList();
+    }
+
     public async Task<IReadOnlyCollection<Branch>?> Handle(
         GetBranchesByGymIdQuery query, CancellationToken cancellationToken)
     {
