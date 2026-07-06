@@ -6,5 +6,9 @@ public enum IamError
     UsernameAlreadyTaken,
     OperationCancelled,
     DatabaseError,
-    InternalServerError
+    InternalServerError,
+    PendingRegistrationEmailAlreadyRegistered,
+    PendingRegistrationNotFound,
+    PendingRegistrationExpired,
+    PendingRegistrationAlreadyConsumed
 }
