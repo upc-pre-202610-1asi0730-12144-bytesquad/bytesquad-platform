@@ -6,4 +6,5 @@ public interface IGymContextFacade
     Task<bool> ReleaseEquipmentAsync(int equipmentId);
     Task<bool> MarkEquipmentOutOfServiceAsync(int equipmentId);
     Task<bool> MarkEquipmentAvailableAsync(int equipmentId);
+    Task<int?> GetAdminIdByEquipmentIdAsync(int equipmentId, CancellationToken cancellationToken);
 }
