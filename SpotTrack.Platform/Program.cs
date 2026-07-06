@@ -195,6 +195,7 @@ builder.Services.AddScoped<IGymCommandService, GymCommandService>();
 builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 builder.Services.AddScoped<IEquipmentCommandService, EquipmentCommandService>();
 builder.Services.AddScoped<IGymContextFacade, GymContextFacade>();
+builder.Services.AddScoped<IMembershipContextFacade, MembershipContextFacade>();
 builder.Services.AddSingleton<IStringLocalizer<GymMessages>, StringLocalizer<GymMessages>>();
 builder.Services.AddSingleton<IStringLocalizer<EquipmentMessages>, StringLocalizer<EquipmentMessages>>();
 
