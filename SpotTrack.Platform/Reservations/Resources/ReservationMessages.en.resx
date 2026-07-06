@@ -24,4 +24,7 @@
     <data name="EquipmentReleaseFailed" xml:space="preserve">
     <value>Failed to release the equipment in the Gym context.</value>
   </data>
+    <data name="GymMembershipInactive" xml:space="preserve">
+    <value>The gym's membership is inactive or expired. Reservations are currently unavailable.</value>
+  </data>
 </root>
