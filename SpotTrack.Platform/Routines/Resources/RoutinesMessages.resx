@@ -9,6 +9,12 @@
   <data name="ExerciseBlockNotFound" xml:space="preserve">
     <value>Exercise block not found.</value>
   </data>
+  <data name="ClientNotFound" xml:space="preserve">
+    <value>Client not found.</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>You do not have access to this resource.</value>
+  </data>
   <data name="InvalidRoutineData" xml:space="preserve">
     <value>Invalid routine data provided.</value>
   </data>

@@ -5,6 +5,8 @@ public enum RoutinesError
     RoutineNotFound,
     RoutineSessionNotFound,
     ExerciseBlockNotFound,
+    ClientNotFound,
+    AccessDenied,
     InvalidRoutineData,
     InvalidExerciseData,
     InvalidSessionData,
