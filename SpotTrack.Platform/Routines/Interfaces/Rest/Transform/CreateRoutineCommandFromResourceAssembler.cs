@@ -5,6 +5,6 @@ namespace SpotTrack.Platform.Routines.Interfaces.Rest.Transform;
 
 public static class CreateRoutineCommandFromResourceAssembler
 {
-    public static CreateRoutineCommand ToCommandFromResource(CreateRoutineResource resource) =>
-        new(resource.ClientId, resource.RoutineName);
+    public static CreateRoutineCommand ToCommandFromResource(int clientId, CreateRoutineResource resource) =>
+        new(clientId, resource.RoutineName);
 }
