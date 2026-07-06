@@ -174,8 +174,10 @@ builder.Services.AddScoped<IROIProjectionCommandService, ROIProjectionCommandSer
 // Profiles Bounded Context
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
 builder.Services.AddScoped<IClientCommandService, ClientCommandService>();
 builder.Services.AddScoped<IAdminCommandService, AdminCommandService>();
+builder.Services.AddScoped<IBusinessCommandService, BusinessCommandService>();
 builder.Services.AddScoped<IClientQueryService, ClientQueryService>();
 builder.Services.AddScoped<IAdminQueryService, AdminQueryService>();
 builder.Services.AddScoped<IProfilesContextFacade, ProfilesContextFacade>();

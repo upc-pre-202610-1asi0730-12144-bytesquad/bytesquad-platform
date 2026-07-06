@@ -45,4 +45,7 @@ public class GymRepository(AppDbContext context) : BaseRepository<Gym>(context),
             .Select(g => (int?)g.AdminId)
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    public async Task<bool> ExistsByAdminIdAsync(int adminId, CancellationToken cancellationToken = default) =>
+        await Context.Set<Gym>().AnyAsync(g => g.AdminId == adminId, cancellationToken);
 }

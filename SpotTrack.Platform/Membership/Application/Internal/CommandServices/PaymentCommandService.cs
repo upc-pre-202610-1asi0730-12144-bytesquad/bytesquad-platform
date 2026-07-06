@@ -2,6 +2,7 @@ using Cortex.Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Stripe;
 using Stripe.Checkout;
 using SpotTrack.Platform.Memberships.Application.CommandServices;
 using SpotTrack.Platform.Memberships.Domain.Model;
@@ -44,7 +45,7 @@ public class PaymentCommandService(
             return Result<string>.Failure(MembershipError.DatabaseError, "A database error occurred.");
         }
 
-        var sessionService = new SessionService();
+        var sessionService = new SessionService(new StripeClient(Stripe.ApiKey));
         var options = new SessionCreateOptions
         {
             Mode = "payment",
