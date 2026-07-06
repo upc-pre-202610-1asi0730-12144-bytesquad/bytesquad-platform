@@ -10,7 +10,7 @@ public class MembershipContextFacade(IMembershipQueryService membershipQueryServ
     private static int PlanToBranchLimit(EMembershipPlan plan) => plan switch
     {
         EMembershipPlan.Basic => 1,
-        EMembershipPlan.Standard => 3,
+        EMembershipPlan.Mid => 3,
         EMembershipPlan.Premium => int.MaxValue,
         _ => 0
     };
