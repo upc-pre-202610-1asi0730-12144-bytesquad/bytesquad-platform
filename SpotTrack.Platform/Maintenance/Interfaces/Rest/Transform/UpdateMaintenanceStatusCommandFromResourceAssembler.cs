@@ -6,6 +6,6 @@ namespace SpotTrack.Platform.Maintenances.Interfaces.Rest.Transform;
 
 public static class UpdateMaintenanceStatusCommandFromResourceAssembler
 {
-    public static UpdateMaintenanceStatusCommand ToCommandFromResource(int ticketId, UpdateMaintenanceStatusResource resource) =>
-        new(ticketId, Enum.Parse<EMaintenanceProgress>(resource.NewProgress, ignoreCase: true));
+    public static UpdateMaintenanceStatusCommand ToCommandFromResource(int ticketId, int adminId, UpdateMaintenanceStatusResource resource) =>
+        new(ticketId, Enum.Parse<EMaintenanceProgress>(resource.NewProgress, ignoreCase: true), adminId);
 }
