@@ -149,4 +149,24 @@ public class MembershipsController(
             result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
             StatusCodes.Status200OK, this);
     }
+
+    [HttpPut("{id:int}/plan/downgrade")]
+    [Authorize(UserRole.Admin)]
+    [SwaggerOperation(Summary = "Request a membership plan downgrade", OperationId = "DowngradeMembershipPlan")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Membership plan downgrade requested successfully", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid plan or membership status")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
+    public async Task<IActionResult> DowngradeMembershipPlan(
+        [FromRoute] int id,
+        [FromBody] DowngradeMembershipPlanResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = DowngradeMembershipPlanCommandFromResourceAssembler.ToCommandFromResource(id, resource);
+        var result = await membershipCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK, this);
+    }
 }
