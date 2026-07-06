@@ -11,4 +11,5 @@ public interface IMembershipCommandService
     Task<Result<Membership>> Handle(CreateSuspendMembershipCommand command, CancellationToken cancellationToken);
     Task<Result<Membership>> Handle(CreateRenewMembershipCommand command, CancellationToken cancellationToken);
     Task<Result<Membership>> Handle(CreateCancelMembershipCommand command, CancellationToken cancellationToken);
+    Task<Result<Membership>> Handle(CreateDowngradeMembershipPlanCommand command, CancellationToken cancellationToken);
 }
