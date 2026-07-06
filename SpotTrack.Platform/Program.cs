@@ -31,6 +31,7 @@ using SpotTrack.Platform.Reservations.Application.Internal.CommandServices;
 using SpotTrack.Platform.Reservations.Application.Internal.QueryServices;
 using SpotTrack.Platform.Reservations.Application.QueryServices;
 using SpotTrack.Platform.Reservations.Domain.Repositories;
+using SpotTrack.Platform.Reservations.Infrastructure.BackgroundServices;
 using SpotTrack.Platform.Reservations.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Reservations.Resources;
 using SpotTrack.Platform.Monitoring.Application.CommandServices;
@@ -224,6 +225,7 @@ builder.Services.AddScoped<IBranchAccessRepository, BranchAccessRepository>();
 builder.Services.AddScoped<IBranchAccessCommandService, BranchAccessCommandService>();
 builder.Services.AddSingleton<IStringLocalizer<MembershipMessages>, StringLocalizer<MembershipMessages>>();
 builder.Services.AddHostedService<MembershipExpirationBackgroundService>();
+builder.Services.AddHostedService<ReservationTimerExpiryBackgroundService>();
 
 // Maintenance Bounded Context
 builder.Services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();

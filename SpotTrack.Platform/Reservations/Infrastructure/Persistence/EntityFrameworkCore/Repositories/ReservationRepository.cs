@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SpotTrack.Platform.Reservations.Domain.Model;
 using SpotTrack.Platform.Reservations.Domain.Model.Aggregates;
 using SpotTrack.Platform.Reservations.Domain.Repositories;
 using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
@@ -24,5 +25,14 @@ public class ReservationRepository(AppDbContext context)
         CancellationToken cancellationToken = default)
         => await Context.Set<Reservation>()
             .Where(r => r.EquipmentId == equipmentId)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IEnumerable<Reservation>> FindAllExpiredAsync(
+        DateTimeOffset asOf,
+        CancellationToken cancellationToken = default)
+        => await Context.Set<Reservation>()
+            .Where(r => r.Status == EReservationStatus.Active
+                        && r.TimerExpiry != null
+                        && r.TimerExpiry < asOf)
             .ToListAsync(cancellationToken);
 }

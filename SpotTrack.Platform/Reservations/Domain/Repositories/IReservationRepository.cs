@@ -13,4 +13,7 @@ public interface IReservationRepository : IBaseRepository<Reservation>
  
     Task<IEnumerable<Reservation>> FindAllByEquipmentIdAsync(int equipmentId,
         CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<Reservation>> FindAllExpiredAsync(DateTimeOffset asOf,
+        CancellationToken cancellationToken = default);
 }
