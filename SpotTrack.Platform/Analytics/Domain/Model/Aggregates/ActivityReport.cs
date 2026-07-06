@@ -7,6 +7,7 @@ namespace SpotTrack.Platform.Analytics.Domain.Model.Aggregates
     {
         public long Id { get; private set; }
         public ActivityReportId ActivityReportId { get; private set; } = null!;
+        public int AdminId { get; private set; }
         public long TotalUsageTime { get; private set; }
         public long DowntimeCost { get; private set; }
         public double PercentageComparison { get; private set; }
@@ -15,6 +16,7 @@ namespace SpotTrack.Platform.Analytics.Domain.Model.Aggregates
 
         public ActivityReport(RequestActivityAnalysisCommand command)
         {
+            AdminId = command.AuthenticatedAdminId;
             TotalUsageTime = command.TotalUsageTime;
             DowntimeCost = command.DowntimeCost;
             PercentageComparison = command.PercentageComparison;
