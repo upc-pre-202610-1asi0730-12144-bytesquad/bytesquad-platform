@@ -478,6 +478,11 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("end_date");
 
+                    b.Property<string>("PendingDowngradePlan")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("pending_downgrade_plan");
+
                     b.Property<string>("Plan")
                         .IsRequired()
                         .HasMaxLength(20)
