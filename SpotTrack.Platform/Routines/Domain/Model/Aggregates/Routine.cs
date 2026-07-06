@@ -23,11 +23,11 @@ public partial class Routine
         ExerciseBlocks = new List<ExerciseBlock>();
     }
 
-    public void AddExerciseBlock(string exerciseName, string exerciseType, int order)
+    public void AddExerciseBlock(string exerciseName, string exerciseType, int order, int sets, int reps)
     {
         if (!Enum.TryParse<ExerciseType>(exerciseType, ignoreCase: true, out var type))
             throw new ArgumentException($"Invalid exercise type: '{exerciseType}'.", nameof(exerciseType));
         var name = new ExerciseName(exerciseName);
-        ExerciseBlocks.Add(new ExerciseBlock(name, type, order));
+        ExerciseBlocks.Add(new ExerciseBlock(name, type, order, sets, reps));
     }
 }

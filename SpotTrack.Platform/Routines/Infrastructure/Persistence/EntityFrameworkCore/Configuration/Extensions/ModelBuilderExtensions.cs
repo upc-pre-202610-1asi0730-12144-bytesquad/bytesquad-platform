@@ -50,6 +50,14 @@ public static class ModelBuilderExtensions
                 eb.Property(b => b.Order)
                     .HasColumnName("block_order")
                     .IsRequired();
+
+                eb.Property(b => b.Sets)
+                    .HasColumnName("sets")
+                    .IsRequired();
+
+                eb.Property(b => b.Reps)
+                    .HasColumnName("reps")
+                    .IsRequired();
             });
         });
 

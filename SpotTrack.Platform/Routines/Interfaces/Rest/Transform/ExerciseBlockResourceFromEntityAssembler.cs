@@ -6,5 +6,6 @@ namespace SpotTrack.Platform.Routines.Interfaces.Rest.Transform;
 public static class ExerciseBlockResourceFromEntityAssembler
 {
     public static ExerciseBlockResource ToResourceFromEntity(ExerciseBlock exerciseBlock) =>
-        new(exerciseBlock.Id, exerciseBlock.Name.Value, exerciseBlock.Type.ToString(), exerciseBlock.Order);
+        new(exerciseBlock.Id, exerciseBlock.Name.Value, exerciseBlock.Type.ToString(), exerciseBlock.Order,
+            exerciseBlock.Sets, exerciseBlock.Reps);
 }

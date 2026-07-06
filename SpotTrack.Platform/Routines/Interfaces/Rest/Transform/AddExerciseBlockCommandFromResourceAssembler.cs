@@ -6,5 +6,5 @@ namespace SpotTrack.Platform.Routines.Interfaces.Rest.Transform;
 public static class AddExerciseBlockCommandFromResourceAssembler
 {
     public static AddExerciseBlockCommand ToCommandFromResource(int routineId, AddExerciseBlockResource resource) =>
-        new(routineId, resource.ExerciseName, resource.ExerciseType, resource.Order);
+        new(routineId, resource.ExerciseName, resource.ExerciseType, resource.Order, resource.Sets, resource.Reps);
 }
