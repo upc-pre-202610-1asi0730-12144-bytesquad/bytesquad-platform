@@ -1,6 +1,6 @@
 namespace SpotTrack.Platform.Profiles.Domain.Model.Entities;
 
-public class ClientGymAssociation
+public partial class ClientGymAssociation
 {
     public int Id { get; private set; }
     public int ClientId { get; private set; }
