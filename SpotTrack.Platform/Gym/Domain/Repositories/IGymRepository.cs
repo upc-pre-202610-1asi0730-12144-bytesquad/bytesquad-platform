@@ -9,4 +9,5 @@ public interface IGymRepository : IBaseRepository<Gym>
     Task<Gym?> FindByIdWithBranchesAndZonesAsync(int id, CancellationToken cancellationToken = default);
     Task<bool> ExistsZoneByIdAsync(int zoneId, CancellationToken cancellationToken = default);
     Task<int?> FindAdminIdByEquipmentIdAsync(int equipmentId, CancellationToken cancellationToken = default);
+    Task<bool> ExistsByAdminIdAsync(int adminId, CancellationToken cancellationToken = default);
 }
