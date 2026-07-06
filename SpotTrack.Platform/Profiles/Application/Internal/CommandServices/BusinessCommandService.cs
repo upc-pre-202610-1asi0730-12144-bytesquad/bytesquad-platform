@@ -4,6 +4,7 @@ using SpotTrack.Platform.Profiles.Application.CommandServices;
 using SpotTrack.Platform.Profiles.Domain.Model;
 using SpotTrack.Platform.Profiles.Domain.Model.Aggregates;
 using SpotTrack.Platform.Profiles.Domain.Model.Commands;
+using SpotTrack.Platform.Profiles.Domain.Repositories;
 using SpotTrack.Platform.Profiles.Resources;
 using SpotTrack.Platform.Shared.Application.Model;
 using SpotTrack.Platform.Shared.Domain.Repositories;
