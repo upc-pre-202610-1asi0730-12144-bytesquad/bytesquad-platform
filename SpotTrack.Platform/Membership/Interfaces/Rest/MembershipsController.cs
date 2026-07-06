@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Extensions;
 using SpotTrack.Platform.Memberships.Application.CommandServices;
@@ -19,6 +20,7 @@ namespace SpotTrack.Platform.Memberships.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/memberships")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize]
 [SwaggerTag("Membership management endpoints")]
 public class MembershipsController(
     IMembershipCommandService membershipCommandService,
@@ -46,6 +48,7 @@ public class MembershipsController(
     }
 
     [HttpPost("activate")]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(Summary = "Activate a membership", OperationId = "ActivateMembership")]
     [SwaggerResponse(StatusCodes.Status201Created, "Membership activated successfully", typeof(MembershipResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid membership data provided")]
@@ -92,6 +95,7 @@ public class MembershipsController(
     }
 
     [HttpPut("{id:int}/plan")]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(Summary = "Upgrade a membership plan", OperationId = "UpgradeMembershipPlan")]
     [SwaggerResponse(StatusCodes.Status200OK, "Membership plan upgraded successfully", typeof(MembershipResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid plan or membership status")]
@@ -111,6 +115,7 @@ public class MembershipsController(
     }
 
     [HttpPost("{id:int}/suspend")]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(Summary = "Suspend a membership", OperationId = "SuspendMembership")]
     [SwaggerResponse(StatusCodes.Status200OK, "Membership suspended successfully", typeof(MembershipResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Membership is not in a suspendable state")]
@@ -129,6 +134,7 @@ public class MembershipsController(
     }
 
     [HttpPost("{id:int}/renew")]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(Summary = "Renew a membership", OperationId = "RenewMembership")]
     [SwaggerResponse(StatusCodes.Status200OK, "Membership renewed successfully", typeof(MembershipResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid new end date or membership status")]
@@ -148,6 +154,7 @@ public class MembershipsController(
     }
 
     [HttpDelete("{id:int}/cancel")]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(Summary = "Cancel a membership", OperationId = "CancelMembership")]
     [SwaggerResponse(StatusCodes.Status200OK, "Membership cancelled successfully", typeof(MembershipResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Membership is already cancelled or expired")]
@@ -157,6 +164,26 @@ public class MembershipsController(
         CancellationToken cancellationToken)
     {
         var command = new CreateCancelMembershipCommand(id);
+        var result = await membershipCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK, this);
+    }
+
+    [HttpPut("{id:int}/plan/downgrade")]
+    [Authorize(UserRole.Admin)]
+    [SwaggerOperation(Summary = "Request a membership plan downgrade", OperationId = "DowngradeMembershipPlan")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Membership plan downgrade requested successfully", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid plan or membership status")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
+    public async Task<IActionResult> DowngradeMembershipPlan(
+        [FromRoute] int id,
+        [FromBody] DowngradeMembershipPlanResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = DowngradeMembershipPlanCommandFromResourceAssembler.ToCommandFromResource(id, resource);
         var result = await membershipCommandService.Handle(command, cancellationToken);
         if (result.IsFailure)
             return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);

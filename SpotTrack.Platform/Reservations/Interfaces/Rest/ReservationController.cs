@@ -2,6 +2,8 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Gyms.Interfaces.Acl;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
 using SpotTrack.Platform.Reservations.Application.QueryServices;
 using SpotTrack.Platform.Reservations.Domain.Model;
@@ -17,6 +19,7 @@ namespace SpotTrack.Platform.Reservations.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/reservations")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Client)]
 [SwaggerTag("Reservation management endpoints")]
 public class ReservationsController(
     IReservationCommandService reservationCommandService,

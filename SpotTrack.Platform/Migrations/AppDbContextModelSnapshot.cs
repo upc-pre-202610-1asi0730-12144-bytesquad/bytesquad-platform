@@ -26,6 +26,10 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
+
                     b.Property<long>("DowntimeCost")
                         .HasColumnType("bigint")
                         .HasColumnName("downtime_cost");
@@ -50,6 +54,10 @@ namespace SpotTrack.Platform.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("id");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
 
                     b.Property<double>("CorrectiveActionsCost")
                         .HasColumnType("double")
@@ -79,6 +87,10 @@ namespace SpotTrack.Platform.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("id");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
 
                     b.Property<string>("DemandStatus")
                         .IsRequired()
@@ -137,6 +149,10 @@ namespace SpotTrack.Platform.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("id");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
 
                     b.Property<DateTimeOffset?>("CreatedAt")
                         .HasColumnType("datetime")
@@ -461,6 +477,11 @@ namespace SpotTrack.Platform.Migrations
                     b.Property<DateTimeOffset>("EndDate")
                         .HasColumnType("datetime")
                         .HasColumnName("end_date");
+
+                    b.Property<string>("PendingDowngradePlan")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("pending_downgrade_plan");
 
                     b.Property<string>("Plan")
                         .IsRequired()

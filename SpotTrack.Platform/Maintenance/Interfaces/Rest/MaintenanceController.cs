@@ -1,6 +1,9 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Maintenances.Application.CommandServices;
 using SpotTrack.Platform.Maintenances.Application.QueryServices;
 using SpotTrack.Platform.Maintenances.Domain.Model.Queries;
@@ -14,6 +17,7 @@ namespace SpotTrack.Platform.Maintenances.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/maintenances")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Admin)]
 [SwaggerTag("Maintenance management endpoints")]
 public class MaintenanceController(
     IMaintenanceCommandService maintenanceCommandService,
@@ -47,7 +51,8 @@ public class MaintenanceController(
         [FromBody] RequestMaintenanceResource resource,
         CancellationToken cancellationToken)
     {
-        var command = RequestMaintenanceCommandFromResourceAssembler.ToCommandFromResource(resource);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = RequestMaintenanceCommandFromResourceAssembler.ToCommandFromResource(adminId, resource);
         var result = await maintenanceCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)

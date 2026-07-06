@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using SpotTrack.Platform.Gyms.Interfaces.Acl;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
+using SpotTrack.Platform.Reservations.Interfaces.Acl;
 using SpotTrack.Platform.Reservations.Domain.Model;
 using SpotTrack.Platform.Reservations.Domain.Model.Aggregates;
 using SpotTrack.Platform.Reservations.Domain.Model.Commands;
@@ -19,13 +20,21 @@ public class ReservationCommandService(
     IUnitOfWork unitOfWork,
     IMediator mediator,
     IStringLocalizer<ReservationMessages> localizer,
-    IGymContextFacade gymContextFacade)
+    IGymContextFacade gymContextFacade,
+    IReservationsMembershipContextFacade membershipContextFacade)
     : IReservationCommandService
 {
     public async Task<Result<Reservation>> Handle(
         CreateInitiateExpressReservationCommand command,
         CancellationToken cancellationToken)
     {
+        var gymIsActive = await membershipContextFacade
+            .GymHasActiveMembershipAsync(command.EquipmentId, cancellationToken);
+        if (!gymIsActive)
+            return Result<Reservation>.Failure(
+                ReservationsError.GymMembershipInactive,
+                localizer[nameof(ReservationsError.GymMembershipInactive)]);
+
         Reservation reservation;
 
         try

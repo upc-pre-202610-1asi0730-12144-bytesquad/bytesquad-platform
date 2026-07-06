@@ -10,4 +10,5 @@ public interface IGymContextFacade
     Task<bool> MarkEquipmentAvailableAsync(int equipmentId);
     Task<Equipment?> FindEquipmentByIdAsync(int equipmentId);
     Task<IEnumerable<Equipment>> FindAvailableAlternativesAsync(string equipmentName, int excludeEquipmentId);
+    Task<int?> GetAdminIdByEquipmentIdAsync(int equipmentId, CancellationToken cancellationToken);
 }

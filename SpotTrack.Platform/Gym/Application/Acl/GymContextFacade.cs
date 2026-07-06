@@ -8,7 +8,8 @@ namespace SpotTrack.Platform.Gyms.Application.Acl;
 
 public class GymContextFacade(
     IEquipmentCommandService equipmentCommandService,
-    IEquipmentRepository equipmentRepository)
+    IEquipmentRepository equipmentRepository,
+    IGymRepository gymRepository)
     : IGymContextFacade
 {
     public async Task<bool> OccupyEquipmentAsync(int equipmentId)
@@ -49,4 +50,9 @@ public class GymContextFacade(
         return await equipmentRepository.FindAvailableAlternativesAsync(
             equipmentName, excludeEquipmentId, CancellationToken.None);
     }
+
+    public async Task<int?> GetAdminIdByEquipmentIdAsync(
+        int equipmentId,
+        CancellationToken cancellationToken)
+        => await gymRepository.FindAdminIdByEquipmentIdAsync(equipmentId, cancellationToken);
 }

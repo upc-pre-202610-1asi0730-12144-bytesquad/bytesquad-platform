@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Extensions;
 using SpotTrack.Platform.Profiles.Interfaces.Acl;
@@ -20,7 +21,7 @@ namespace SpotTrack.Platform.Routines.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/routine-sessions")]
 [Produces(MediaTypeNames.Application.Json)]
-[Authorize]
+[Authorize(UserRole.Client)]
 [SwaggerTag("Routine session management endpoints")]
 public class RoutineSessionsController(
     IRoutineSessionCommandService routineSessionCommandService,

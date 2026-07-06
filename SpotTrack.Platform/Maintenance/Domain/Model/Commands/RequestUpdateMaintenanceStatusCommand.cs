@@ -1,3 +1,3 @@
 namespace SpotTrack.Platform.Maintenances.Domain.Model.Commands;
 
-public record RequestUpdateMaintenanceStatusCommand(int TechnicalTicketId);
+public record RequestUpdateMaintenanceStatusCommand(int TechnicalTicketId, int AuthenticatedAdminId);

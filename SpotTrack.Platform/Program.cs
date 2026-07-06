@@ -24,7 +24,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.OpenApi;
 using ProblemDetailsFactory = SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails.ProblemDetailsFactory;
+using SpotTrack.Platform.Reservations.Application.Acl;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
+using SpotTrack.Platform.Reservations.Interfaces.Acl;
 using SpotTrack.Platform.Reservations.Application.Internal.CommandServices;
 using SpotTrack.Platform.Reservations.Application.Internal.QueryServices;
 using SpotTrack.Platform.Reservations.Application.QueryServices;
@@ -69,6 +71,7 @@ using SpotTrack.Platform.Memberships.Application.Internal.CommandServices;
 using SpotTrack.Platform.Memberships.Application.Internal.QueryServices;
 using SpotTrack.Platform.Memberships.Application.QueryServices;
 using SpotTrack.Platform.Memberships.Domain.Repositories;
+using SpotTrack.Platform.Memberships.Infrastructure.BackgroundServices;
 using SpotTrack.Platform.Memberships.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Memberships.Resources;
 using SpotTrack.Platform.Maintenances.Application.CommandServices;
@@ -185,6 +188,7 @@ builder.Services.AddScoped<IProfilesContextFacade, ProfilesContextFacade>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IReservationCommandService, ReservationCommandService>();
 builder.Services.AddScoped<IReservationQueryService, ReservationQueryService>();
+builder.Services.AddScoped<IReservationsMembershipContextFacade, ReservationsMembershipContextFacade>();
 builder.Services.AddSingleton<IStringLocalizer<ReservationMessages>, StringLocalizer<ReservationMessages>>();
 
 // Routines Bounded Context
@@ -208,6 +212,7 @@ builder.Services.AddScoped<IGymQueryService, GymQueryService>();
 builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 builder.Services.AddScoped<IEquipmentCommandService, EquipmentCommandService>();
 builder.Services.AddScoped<IGymContextFacade, GymContextFacade>();
+builder.Services.AddScoped<IMembershipContextFacade, MembershipContextFacade>();
 builder.Services.AddSingleton<IStringLocalizer<GymMessages>, StringLocalizer<GymMessages>>();
 builder.Services.AddSingleton<IStringLocalizer<EquipmentMessages>, StringLocalizer<EquipmentMessages>>();
 
@@ -218,6 +223,7 @@ builder.Services.AddScoped<IMembershipQueryService, MembershipQueryService>();
 builder.Services.AddScoped<IBranchAccessRepository, BranchAccessRepository>();
 builder.Services.AddScoped<IBranchAccessCommandService, BranchAccessCommandService>();
 builder.Services.AddSingleton<IStringLocalizer<MembershipMessages>, StringLocalizer<MembershipMessages>>();
+builder.Services.AddHostedService<MembershipExpirationBackgroundService>();
 
 // Maintenance Bounded Context
 builder.Services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();

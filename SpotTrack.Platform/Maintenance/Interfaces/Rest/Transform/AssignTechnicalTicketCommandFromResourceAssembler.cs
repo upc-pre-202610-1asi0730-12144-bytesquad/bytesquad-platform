@@ -5,6 +5,6 @@ namespace SpotTrack.Platform.Maintenances.Interfaces.Rest.Transform;
 
 public static class AssignTechnicalTicketCommandFromResourceAssembler
 {
-    public static AssignTechnicalTicketCommand ToCommandFromResource(int ticketId, AssignTechnicalTicketResource resource) =>
-        new(ticketId, resource.TechnicianId);
+    public static AssignTechnicalTicketCommand ToCommandFromResource(int ticketId, int adminId, AssignTechnicalTicketResource resource) =>
+        new(ticketId, resource.TechnicianId, adminId);
 }

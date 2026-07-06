@@ -5,6 +5,6 @@ namespace SpotTrack.Platform.Maintenances.Interfaces.Rest.Transform;
 
 public static class RequestMaintenanceCommandFromResourceAssembler
 {
-    public static CreateRequestMaintenanceCommand ToCommandFromResource(RequestMaintenanceResource resource) =>
-        new(resource.EquipmentId, resource.RequestedByAdminId, resource.Reason);
+    public static CreateRequestMaintenanceCommand ToCommandFromResource(int adminId, RequestMaintenanceResource resource) =>
+        new(resource.EquipmentId, adminId, resource.Reason);
 }

@@ -24,6 +24,10 @@ public static class ModelBuilderExtensions
                 .HasConversion<string>()
                 .HasMaxLength(20);
 
+            entity.Property(m => m.PendingDowngradePlan)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
             entity.Property(m => m.StartDate).IsRequired();
             entity.Property(m => m.EndDate).IsRequired();
 

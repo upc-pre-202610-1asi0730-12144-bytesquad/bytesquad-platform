@@ -6,4 +6,5 @@ public record MembershipResource(
     string Plan,
     DateTimeOffset StartDate,
     DateTimeOffset EndDate,
-    string Status);
+    string Status,
+    string? PendingDowngradePlan);
