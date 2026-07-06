@@ -4,6 +4,7 @@ public enum GymError
 {
     GymNotFound,
     InvalidData,
+    Forbidden,
     OperationCancelled,
     DatabaseError,
     InternalServerError
