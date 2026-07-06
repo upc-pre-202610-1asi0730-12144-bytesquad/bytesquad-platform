@@ -13,6 +13,9 @@ public static class TechnicalTicketErrors
     public static Error InvalidTechnicalTicketStatus(string message) =>
         new($"{nameof(TechnicalTicketError)}.{nameof(TechnicalTicketError.InvalidTechnicalTicketStatus)}", message);
 
+    public static Error Forbidden(string message) =>
+        new($"{nameof(TechnicalTicketError)}.{nameof(TechnicalTicketError.Forbidden)}", message);
+
     public static Error EquipmentUpdateFailed(string message) =>
         new($"{nameof(TechnicalTicketError)}.{nameof(TechnicalTicketError.EquipmentUpdateFailed)}", message);
 
