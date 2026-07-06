@@ -8,6 +8,8 @@ using SpotTrack.Platform.Maintenances.Domain.Model.Commands;
 using SpotTrack.Platform.Maintenances.Domain.Model.Queries;
 using SpotTrack.Platform.Maintenances.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Maintenances.Interfaces.Rest.Transform;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -16,6 +18,7 @@ namespace SpotTrack.Platform.Maintenances.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/technical-tickets")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Admin)]
 [SwaggerTag("Technical ticket management endpoints")]
 public class TechnicalTicketController(
     ITechnicalTicketCommandService technicalTicketCommandService,
