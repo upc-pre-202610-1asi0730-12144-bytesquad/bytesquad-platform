@@ -18,7 +18,7 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/gyms")]
 [Produces(MediaTypeNames.Application.Json)]
-[Authorize(UserRole.Admin)]
+[Authorize]
 [SwaggerTag("Gym management endpoints")]
 public class GymsController(
     IGymCommandService gymCommandService,
@@ -83,6 +83,7 @@ public class GymsController(
     }
 
     [HttpPost]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Create a new gym",
         Description = "Creates a new gym with the given name and address. Requires Admin authentication.",
@@ -107,6 +108,7 @@ public class GymsController(
     }
 
     [HttpPost("{gymId:int}/branches")]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Add a branch to a gym",
         Description = "Adds a new branch to an existing gym. Returns 404 if the gym is not found, 400 if the branch data is invalid.",
@@ -133,6 +135,7 @@ public class GymsController(
     }
 
     [HttpPost("{gymId:int}/branches/{branchId:int}/zones")]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Add a zone to a branch",
         Description = "Adds a new zone to an existing branch within a gym. Returns 404 if the gym or branch is not found, 400 if the zone data is invalid.",

@@ -184,6 +184,7 @@ public class ClientsController(
     }
 
     [HttpGet("{clientId:int}")]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Get a client profile by ID",
         Description = "Returns the client profile matching the given ID, or 404 if not found.",
@@ -216,6 +217,7 @@ public class ClientsController(
     }
 
     [HttpPut("{clientId:int}")]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Update a client profile",
         Description = "Updates the first name, last name and phone number of the given client.",
