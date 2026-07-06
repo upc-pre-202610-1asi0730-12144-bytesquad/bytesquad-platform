@@ -63,6 +63,7 @@ using SpotTrack.Platform.Memberships.Application.Internal.CommandServices;
 using SpotTrack.Platform.Memberships.Application.Internal.QueryServices;
 using SpotTrack.Platform.Memberships.Application.QueryServices;
 using SpotTrack.Platform.Memberships.Domain.Repositories;
+using SpotTrack.Platform.Memberships.Infrastructure.BackgroundServices;
 using SpotTrack.Platform.Memberships.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Memberships.Resources;
 using SpotTrack.Platform.Maintenances.Application.CommandServices;
@@ -206,6 +207,7 @@ builder.Services.AddScoped<IMembershipQueryService, MembershipQueryService>();
 builder.Services.AddScoped<IBranchAccessRepository, BranchAccessRepository>();
 builder.Services.AddScoped<IBranchAccessCommandService, BranchAccessCommandService>();
 builder.Services.AddSingleton<IStringLocalizer<MembershipMessages>, StringLocalizer<MembershipMessages>>();
+builder.Services.AddHostedService<MembershipExpirationBackgroundService>();
 
 // Maintenance Bounded Context
 builder.Services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
