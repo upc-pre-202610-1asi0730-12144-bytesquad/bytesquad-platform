@@ -31,6 +31,11 @@ using SpotTrack.Platform.Reservations.Application.QueryServices;
 using SpotTrack.Platform.Reservations.Domain.Repositories;
 using SpotTrack.Platform.Reservations.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Reservations.Resources;
+using SpotTrack.Platform.Monitoring.Application.CommandServices;
+using SpotTrack.Platform.Monitoring.Application.Internal.CommandServices;
+using SpotTrack.Platform.Monitoring.Domain.Repositories;
+using SpotTrack.Platform.Monitoring.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using SpotTrack.Platform.Monitoring.Resources;
 using SpotTrack.Platform.Routines.Application.CommandServices;
 using SpotTrack.Platform.Routines.Application.Internal.CommandServices;
 using SpotTrack.Platform.Routines.Application.Internal.QueryServices;
@@ -190,6 +195,11 @@ builder.Services.AddScoped<IRoutineSessionRepository, RoutineSessionRepository>(
 builder.Services.AddScoped<IRoutineSessionCommandService, RoutineSessionCommandService>();
 builder.Services.AddScoped<IRoutineSessionQueryService, RoutineSessionQueryService>();
 builder.Services.AddSingleton<IStringLocalizer<RoutinesMessages>, StringLocalizer<RoutinesMessages>>();
+
+// Monitoring Bounded Context
+builder.Services.AddScoped<IAnomalyRepository, AnomalyRepository>();
+builder.Services.AddScoped<IAnomalyCommandService, AnomalyCommandService>();
+builder.Services.AddSingleton<IStringLocalizer<MonitoringMessages>, StringLocalizer<MonitoringMessages>>();
 
 // Gym Bounded Context
 builder.Services.AddScoped<IGymRepository, GymRepository>();
