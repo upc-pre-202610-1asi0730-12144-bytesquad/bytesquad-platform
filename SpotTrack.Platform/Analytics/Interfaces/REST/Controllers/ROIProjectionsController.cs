@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Analytics.Application.CommandServices;
 using SpotTrack.Platform.Analytics.Domain.Model.Commands;
 using SpotTrack.Platform.Analytics.Interfaces.REST.Transform;
+using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 
@@ -24,32 +25,33 @@ public class ROIProjectionsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateROIProjection([FromBody] RequestDowntimeCostProjectionCommand command)
     {
-        var roiProjection = await _roiProjectionCommandService.Handle(command);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var roiProjection = await _roiProjectionCommandService.Handle(command with { AuthenticatedAdminId = adminId });
         if (roiProjection == null) return BadRequest();
 
         var resource = ROIProjectionResourceFromEntityAssembler.ToResourceFromEntity(roiProjection);
         return StatusCode(201, resource);
     }
-    
+
     [HttpPost("projected-earnings")]
     public async Task<IActionResult> UpdateProjectedEarnings([FromBody] RequestEarningsProjectionCommand command)
     {
-        var roiProjection = await _roiProjectionCommandService.Handle(command);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var roiProjection = await _roiProjectionCommandService.Handle(command with { AuthenticatedAdminId = adminId });
         if (roiProjection == null) return NotFound();
 
         var resource = ROIProjectionResourceFromEntityAssembler.ToResourceFromEntity(roiProjection);
         return Ok(resource);
     }
-    
+
     [HttpPost("generate")]
     public async Task<IActionResult> GenerateROIProjection([FromBody] RequestROICommand command)
     {
-        var roiProjection = await _roiProjectionCommandService.Handle(command);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var roiProjection = await _roiProjectionCommandService.Handle(command with { AuthenticatedAdminId = adminId });
         if (roiProjection == null) return NotFound();
 
         var resource = ROIProjectionResourceFromEntityAssembler.ToResourceFromEntity(roiProjection);
         return Ok(resource);
     }
-
-
 }
