@@ -24,7 +24,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.OpenApi;
 using ProblemDetailsFactory = SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails.ProblemDetailsFactory;
+using SpotTrack.Platform.Reservations.Application.Acl;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
+using SpotTrack.Platform.Reservations.Interfaces.Acl;
 using SpotTrack.Platform.Reservations.Application.Internal.CommandServices;
 using SpotTrack.Platform.Reservations.Application.Internal.QueryServices;
 using SpotTrack.Platform.Reservations.Application.QueryServices;
@@ -179,6 +181,7 @@ builder.Services.AddScoped<IProfilesContextFacade, ProfilesContextFacade>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IReservationCommandService, ReservationCommandService>();
 builder.Services.AddScoped<IReservationQueryService, ReservationQueryService>();
+builder.Services.AddScoped<IReservationsMembershipContextFacade, ReservationsMembershipContextFacade>();
 builder.Services.AddSingleton<IStringLocalizer<ReservationMessages>, StringLocalizer<ReservationMessages>>();
 
 // Routines Bounded Context
