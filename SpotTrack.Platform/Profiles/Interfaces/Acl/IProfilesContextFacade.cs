@@ -4,6 +4,7 @@ public interface IProfilesContextFacade
 {
     Task<int> FetchClientIdByEmailAsync(string email);
     Task<int> FetchAdminIdByEmailAsync(string email);
+    Task<int> FetchClientIdByUserIdAsync(int userId);
 
     Task<int> CreateClientAsync(int userId, string email, string firstName, string lastName, string phoneNumber,
         string dni);

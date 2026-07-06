@@ -56,4 +56,11 @@ public class ProfilesContextFacade(
             new GetAdminByEmailQuery(email), CancellationToken.None);
         return admin?.Id ?? 0;
     }
+
+    public async Task<int> FetchClientIdByUserIdAsync(int userId)
+    {
+        var client = await clientQueryService.Handle(
+            new GetClientByUserIdQuery(userId), CancellationToken.None);
+        return client?.Id ?? 0;
+    }
 }
