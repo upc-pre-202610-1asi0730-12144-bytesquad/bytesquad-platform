@@ -1,3 +1,3 @@
 ﻿namespace SpotTrack.Platform.Analytics.Domain.Model.Commands;
 
-public record RequestTotalUsageTimeCommand(long ActivityReportId, long TotalUsageTime);
+public record RequestTotalUsageTimeCommand(long ActivityReportId, long TotalUsageTime, int AuthenticatedAdminId);
