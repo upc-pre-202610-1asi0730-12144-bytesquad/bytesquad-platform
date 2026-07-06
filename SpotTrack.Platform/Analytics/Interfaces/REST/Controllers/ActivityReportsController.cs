@@ -1,6 +1,7 @@
-﻿using System.Net.Mime;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Analytics.Application.CommandServices;
+using SpotTrack.Platform.Analytics.Domain.Model;
 using SpotTrack.Platform.Analytics.Domain.Model.Commands;
 using SpotTrack.Platform.Analytics.Interfaces.REST.Transform;
 using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
@@ -26,10 +27,10 @@ public class ActivityReportsController : ControllerBase
     public async Task<IActionResult> CreateActivityReport([FromBody] RequestActivityAnalysisCommand command)
     {
         var adminId = ((User)HttpContext.Items["User"]!).Id;
-        var activityReport = await _activityReportCommandService.Handle(command with { AuthenticatedAdminId = adminId });
-        if (activityReport == null) return BadRequest();
+        var result = await _activityReportCommandService.Handle(command with { AuthenticatedAdminId = adminId });
+        if (result.IsFailure) return BadRequest(result.Message);
 
-        var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(activityReport);
+        var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(result.Value!);
         return StatusCode(201, resource);
     }
 
@@ -37,10 +38,11 @@ public class ActivityReportsController : ControllerBase
     public async Task<IActionResult> UpdateTotalUsageTime([FromBody] RequestTotalUsageTimeCommand command)
     {
         var adminId = ((User)HttpContext.Items["User"]!).Id;
-        var activityReport = await _activityReportCommandService.Handle(command with { AuthenticatedAdminId = adminId });
-        if (activityReport == null) return NotFound();
+        var result = await _activityReportCommandService.Handle(command with { AuthenticatedAdminId = adminId });
+        if (result.IsFailure)
+            return result.Error is AnalyticsError.Forbidden ? Forbid() : NotFound();
 
-        var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(activityReport);
+        var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(result.Value!);
         return Ok(resource);
     }
 
@@ -48,10 +50,11 @@ public class ActivityReportsController : ControllerBase
     public async Task<IActionResult> UpdateDowntimeCost([FromBody] RequestDowntimeCostCommand command)
     {
         var adminId = ((User)HttpContext.Items["User"]!).Id;
-        var activityReport = await _activityReportCommandService.Handle(command with { AuthenticatedAdminId = adminId });
-        if (activityReport == null) return NotFound();
+        var result = await _activityReportCommandService.Handle(command with { AuthenticatedAdminId = adminId });
+        if (result.IsFailure)
+            return result.Error is AnalyticsError.Forbidden ? Forbid() : NotFound();
 
-        var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(activityReport);
+        var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(result.Value!);
         return Ok(resource);
     }
 
@@ -59,10 +62,11 @@ public class ActivityReportsController : ControllerBase
     public async Task<IActionResult> UpdatePercentageComparison([FromBody] RequestPercentageComparisonCommand command)
     {
         var adminId = ((User)HttpContext.Items["User"]!).Id;
-        var activityReport = await _activityReportCommandService.Handle(command with { AuthenticatedAdminId = adminId });
-        if (activityReport == null) return NotFound();
+        var result = await _activityReportCommandService.Handle(command with { AuthenticatedAdminId = adminId });
+        if (result.IsFailure)
+            return result.Error is AnalyticsError.Forbidden ? Forbid() : NotFound();
 
-        var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(activityReport);
+        var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(result.Value!);
         return Ok(resource);
     }
 }
