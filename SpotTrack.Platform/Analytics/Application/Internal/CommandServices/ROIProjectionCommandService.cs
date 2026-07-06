@@ -19,6 +19,8 @@ public class ROIProjectionCommandService : IROIProjectionCommandService
     {
         var roiProjection = new ROIProjection(command);
         await _roiProjectionRepository.AddAsync(roiProjection);
+        roiProjection.InitializeId();
+        await _roiProjectionRepository.UpdateAsync(roiProjection);
         return roiProjection;
     }
     
