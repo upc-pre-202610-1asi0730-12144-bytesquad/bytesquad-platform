@@ -244,10 +244,12 @@ builder.Services.AddScoped<IMaintenanceLogCommandService, MaintenanceLogCommandS
 // IAM Bounded Context
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPendingRegistrationRepository, PendingRegistrationRepository>();
 builder.Services.AddScoped<IHashingService, HashingService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserCommandService, UserCommandService>();
 builder.Services.AddScoped<IUserQueryService, UserQueryService>();
+builder.Services.AddScoped<IPendingRegistrationCommandService, PendingRegistrationCommandService>();
 builder.Services.AddScoped<IIamContextFacade, IamContextFacade>();
 builder.Services.AddSingleton<IStringLocalizer<IamMessages>, StringLocalizer<IamMessages>>();
 
