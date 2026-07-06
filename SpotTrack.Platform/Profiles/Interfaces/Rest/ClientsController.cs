@@ -1,6 +1,8 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Extensions;
 using SpotTrack.Platform.Profiles.Application.CommandServices;
 using SpotTrack.Platform.Profiles.Application.QueryServices;
 using SpotTrack.Platform.Profiles.Domain.Model;
@@ -41,6 +43,141 @@ public class ClientsController(
             result.Value!,
             ClientResourceFromEntityAssembler.ToResourceFromEntity,
             StatusCodes.Status201Created,
+            this);
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    [SwaggerOperation(
+        Summary = "Get my client profile",
+        Description = "Returns the client profile of the currently authenticated user.",
+        OperationId = "GetMyProfile")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Profile found", typeof(ClientResource))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found")]
+    public async Task<IActionResult> GetMyProfile(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetAuthenticatedUserId()!.Value;
+        var client = await clientQueryService.Handle(new GetClientByUserIdQuery(userId), cancellationToken);
+        if (client is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ProfilesError.ClientNotFound, "Client not found.");
+        return Ok(ClientResourceFromEntityAssembler.ToResourceFromEntity(client));
+    }
+
+    [HttpPut("me")]
+    [Authorize]
+    [SwaggerOperation(
+        Summary = "Update my client profile",
+        Description = "Updates personal data (first name, last name, phone number) for the currently authenticated client.",
+        OperationId = "UpdateMyProfile")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Profile updated successfully", typeof(ClientResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid profile data provided")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found")]
+    public async Task<IActionResult> UpdateMyProfile(
+        [FromBody] UpdateClientProfileResource resource,
+        CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetAuthenticatedUserId()!.Value;
+        var client = await clientQueryService.Handle(new GetClientByUserIdQuery(userId), cancellationToken);
+        if (client is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ProfilesError.ClientNotFound, "Client not found.");
+
+        var command = UpdateClientProfileCommandFromResourceAssembler.ToCommandFromResource(client.Id, resource);
+        var result = await clientCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return ProfilesActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return ProfilesActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            ClientResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
+    [HttpPost("me/gym-associations")]
+    [Authorize]
+    [SwaggerOperation(
+        Summary = "Associate myself with a gym",
+        Description = "Associates the currently authenticated client with a gym. The first association becomes the active gym automatically.",
+        OperationId = "AssociateGym")]
+    [SwaggerResponse(StatusCodes.Status201Created, "Association created successfully", typeof(ClientGymAssociationResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Client profile is incomplete")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Already associated with this gym")]
+    public async Task<IActionResult> AssociateGym(
+        [FromBody] AssociateGymResource resource,
+        CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetAuthenticatedUserId()!.Value;
+        var client = await clientQueryService.Handle(new GetClientByUserIdQuery(userId), cancellationToken);
+        if (client is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ProfilesError.ClientNotFound, "Client not found.");
+
+        var command = AssociateClientWithGymCommandFromResourceAssembler.ToCommandFromResource(client.Id, resource);
+        var result = await clientCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return ProfilesActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return ProfilesActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            ClientGymAssociationResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status201Created,
+            this);
+    }
+
+    [HttpGet("me/gym-associations")]
+    [Authorize]
+    [SwaggerOperation(
+        Summary = "Get my gym associations",
+        Description = "Returns the gyms the currently authenticated client is associated with.",
+        OperationId = "GetMyGymAssociations")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of gym associations", typeof(IEnumerable<ClientGymAssociationResource>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found")]
+    public async Task<IActionResult> GetMyGymAssociations(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetAuthenticatedUserId()!.Value;
+        var client = await clientQueryService.Handle(new GetClientByUserIdQuery(userId), cancellationToken);
+        if (client is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ProfilesError.ClientNotFound, "Client not found.");
+
+        var associations = await clientQueryService.Handle(
+            new GetClientGymAssociationsQuery(client.Id), cancellationToken);
+        var resources = associations.Select(ClientGymAssociationResourceFromEntityAssembler.ToResourceFromEntity);
+        return Ok(resources);
+    }
+
+    [HttpPatch("me/active-gym")]
+    [Authorize]
+    [SwaggerOperation(
+        Summary = "Change my active gym",
+        Description = "Switches the currently authenticated client's active gym to one they are already associated with.",
+        OperationId = "ChangeActiveGym")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Active gym changed successfully", typeof(ClientGymAssociationResource))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found, or client is not associated with that gym")]
+    public async Task<IActionResult> ChangeActiveGym(
+        [FromBody] ChangeActiveGymResource resource,
+        CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetAuthenticatedUserId()!.Value;
+        var client = await clientQueryService.Handle(new GetClientByUserIdQuery(userId), cancellationToken);
+        if (client is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ProfilesError.ClientNotFound, "Client not found.");
+
+        var command = ChangeActiveGymCommandFromResourceAssembler.ToCommandFromResource(client.Id, resource);
+        var result = await clientCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return ProfilesActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return ProfilesActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            ClientGymAssociationResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
             this);
     }
 

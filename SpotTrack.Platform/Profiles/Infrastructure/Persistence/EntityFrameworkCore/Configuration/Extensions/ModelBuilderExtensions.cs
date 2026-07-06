@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SpotTrack.Platform.Profiles.Domain.Model.Aggregates;
+using SpotTrack.Platform.Profiles.Domain.Model.Entities;
 
 namespace SpotTrack.Platform.Profiles.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 
@@ -7,6 +8,17 @@ public static class ModelBuilderExtensions
 {
     public static void ApplyProfilesConfiguration(this ModelBuilder builder)
     {
+        builder.Entity<ClientGymAssociation>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.Id).ValueGeneratedOnAdd();
+            entity.Property(a => a.ClientId).IsRequired();
+            entity.Property(a => a.GymId).IsRequired();
+            entity.Property(a => a.Active).IsRequired();
+            entity.HasIndex(a => new { a.ClientId, a.GymId }).IsUnique();
+            entity.ToTable("client_gym_associations");
+        });
+
         builder.Entity<Client>(entity =>
         {
             entity.HasKey(c => c.Id);
