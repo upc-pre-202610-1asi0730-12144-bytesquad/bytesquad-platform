@@ -1,6 +1,8 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Routines.Application.CommandServices;
 using SpotTrack.Platform.Routines.Application.QueryServices;
 using SpotTrack.Platform.Routines.Domain.Model;
@@ -16,6 +18,7 @@ namespace SpotTrack.Platform.Routines.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/routine-sessions")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Client)]
 [SwaggerTag("Routine session management endpoints")]
 public class RoutineSessionsController(
     IRoutineSessionCommandService routineSessionCommandService,
@@ -45,6 +48,7 @@ public class RoutineSessionsController(
     }
 
     [HttpGet("{routineSessionId:int}")]
+    [Authorize]
     [SwaggerOperation(
         Summary = "Get a routine session by ID",
         Description = "Returns the routine session matching the given ID, or 404 if not found.",
@@ -109,6 +113,7 @@ public class RoutineSessionsController(
     }
 
     [HttpGet]
+    [Authorize]
     [SwaggerOperation(
         Summary = "Get all routine sessions by client ID",
         Description = "Returns the list of routine sessions belonging to the given client.",
