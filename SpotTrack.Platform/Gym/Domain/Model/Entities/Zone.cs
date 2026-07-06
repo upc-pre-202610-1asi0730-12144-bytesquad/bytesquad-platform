@@ -8,10 +8,16 @@ public class Zone
 
     public ZoneName Name { get; private set; } = null!;
 
+    public int MaximumOccupancy { get; private set; }
+
     private Zone() { }
 
-    public Zone(ZoneName name)
+    public Zone(ZoneName name, int maximumOccupancy)
     {
+        if (maximumOccupancy <= 0)
+            throw new ArgumentException("MaximumOccupancy must be greater than zero.", nameof(maximumOccupancy));
+
         Name = name;
+        MaximumOccupancy = maximumOccupancy;
     }
 }

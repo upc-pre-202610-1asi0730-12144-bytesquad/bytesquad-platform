@@ -96,6 +96,7 @@ public static class ModelBuilderExtensions
             entity.HasKey(z => z.Id);
             entity.Property(z => z.Id).ValueGeneratedOnAdd();
             entity.ToTable("zones");
+            entity.Property(z => z.MaximumOccupancy).IsRequired().HasColumnName("maximum_occupancy");
 
             entity.OwnsOne(z => z.Name, name =>
             {

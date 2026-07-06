@@ -138,7 +138,7 @@ public class GymCommandService(
 
         try
         {
-            branch.AddZone(command.Name);
+            branch.AddZone(command.Name, command.MaximumOccupancy);
         }
         catch (ArgumentException)
         {

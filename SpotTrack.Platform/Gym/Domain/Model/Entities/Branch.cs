@@ -21,9 +21,9 @@ public class Branch
         Address = address;
     }
 
-    public void AddZone(string name)
+    public void AddZone(string name, int maximumOccupancy)
     {
         var zoneName = new ZoneName(name);
-        _zones.Add(new Zone(zoneName));
+        _zones.Add(new Zone(zoneName, maximumOccupancy));
     }
 }
