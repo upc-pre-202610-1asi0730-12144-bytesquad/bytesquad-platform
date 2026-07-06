@@ -10,6 +10,9 @@ public static class GymErrors
     public static Error InvalidData(string message) =>
         new($"{nameof(GymError)}.{nameof(GymError.InvalidData)}", message);
 
+    public static Error Forbidden(string message) =>
+        new($"{nameof(GymError)}.{nameof(GymError.Forbidden)}", message);
+
     public static Error OperationCancelled(string message) =>
         new($"{nameof(GymError)}.{nameof(GymError.OperationCancelled)}", message);
 
