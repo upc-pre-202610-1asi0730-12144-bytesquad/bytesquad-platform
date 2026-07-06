@@ -19,6 +19,8 @@ public class ActivityReportCommandService : IActivityReportCommandService
     {
         var activityReport = new ActivityReport(command);
         await _activityReportRepository.AddAsync(activityReport);
+        activityReport.InitializeId();
+        await _activityReportRepository.UpdateAsync(activityReport);
         return activityReport;
     }
 
