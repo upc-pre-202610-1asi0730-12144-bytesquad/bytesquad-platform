@@ -18,6 +18,7 @@ using SpotTrack.Platform.Shared.Infrastructure.Mediator.Cortex.Configuration;
 using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Shared.Infrastructure.Pipeline.Middleware.Extensions;
+using SpotTrack.Platform.Shared.Infrastructure.Seeder;
 using Cortex.Mediator.Commands;
 using Cortex.Mediator.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -263,6 +264,10 @@ using (var scope = app.Services.CreateScope())
     var context = services.GetRequiredService<AppDbContext>();
     context.Database.Migrate();
 }
+
+// Development-only demo data (one Admin with a gym + one Client ready to test)
+if (app.Environment.IsDevelopment())
+    await DevDataSeeder.SeedAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 app.UseGlobalExceptionHandler();
