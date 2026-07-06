@@ -28,4 +28,21 @@ public class GymRepository(AppDbContext context) : BaseRepository<Gym>(context),
     {
         return await Context.Set<Zone>().AnyAsync(z => z.Id == zoneId, cancellationToken);
     }
+
+    public async Task<int?> FindAdminIdByEquipmentIdAsync(
+        int equipmentId,
+        CancellationToken cancellationToken = default)
+    {
+        var zoneId = await Context.Set<Equipment>()
+            .Where(e => e.Id == equipmentId)
+            .Select(e => (int?)e.ZoneId.Value)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (zoneId is null) return null;
+
+        return await Context.Set<Gym>()
+            .Where(g => g.Branches.Any(b => b.Zones.Any(z => z.Id == zoneId.Value)))
+            .Select(g => (int?)g.AdminId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }
