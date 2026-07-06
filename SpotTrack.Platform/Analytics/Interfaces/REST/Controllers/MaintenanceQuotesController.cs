@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Analytics.Application.CommandServices;
 using SpotTrack.Platform.Analytics.Domain.Model.Commands;
 using SpotTrack.Platform.Analytics.Interfaces.REST.Transform;
+using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 
@@ -24,45 +25,44 @@ public class MaintenanceQuotesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateMaintenanceQuote([FromBody] RequestCorrectiveActionsCostCommand command)
     {
-        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
         if (maintenanceQuote == null) return BadRequest();
 
         var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
         return StatusCode(201, resource);
     }
-    
+
     [HttpPost("spare-parts-cost")]
     public async Task<IActionResult> UpdateSparePartsCost([FromBody] RequestSparePartsCostCommand command)
     {
-        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
         if (maintenanceQuote == null) return NotFound();
 
         var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
         return Ok(resource);
     }
-    
+
     [HttpPost("preventive-cost")]
     public async Task<IActionResult> UpdatePreventiveCost([FromBody] RequestPreventiveCostCommand command)
     {
-        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
         if (maintenanceQuote == null) return NotFound();
 
         var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
         return Ok(resource);
     }
-    
+
     [HttpPost("total-cost")]
     public async Task<IActionResult> ConsolidateMaintenanceCost([FromBody] RequestMaintenanceCostCommand command)
     {
-        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var maintenanceQuote = await _maintenanceQuoteCommandService.Handle(command with { AuthenticatedAdminId = adminId });
         if (maintenanceQuote == null) return NotFound();
 
         var resource = MaintenanceQuoteResourceFromEntityAssembler.ToResourceFromEntity(maintenanceQuote);
         return Ok(resource);
     }
-
-
-
-    
-    
 }
