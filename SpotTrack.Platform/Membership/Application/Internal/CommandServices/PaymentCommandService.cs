@@ -44,7 +44,7 @@ public class PaymentCommandService(
             return Result<string>.Failure(MembershipError.DatabaseError, "A database error occurred.");
         }
 
-        var sessionService = new SessionService();
+        var sessionService = new SessionService(new StripeClient(Stripe.ApiKey));
         var options = new SessionCreateOptions
         {
             Mode = "payment",
