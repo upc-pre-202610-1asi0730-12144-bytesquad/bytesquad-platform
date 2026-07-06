@@ -7,7 +7,8 @@ namespace SpotTrack.Platform.Gyms.Application.Acl;
 
 public class GymContextFacade(
     IEquipmentCommandService equipmentCommandService,
-    IGymRepository gymRepository) : IGymContextFacade
+    IGymRepository gymRepository,
+    IGymCommandService gymCommandService) : IGymContextFacade
 {
     public async Task<bool> OccupyEquipmentAsync(int equipmentId)
     {
@@ -41,4 +42,15 @@ public class GymContextFacade(
         int equipmentId,
         CancellationToken cancellationToken)
         => await gymRepository.FindAdminIdByEquipmentIdAsync(equipmentId, cancellationToken);
+
+    public async Task<int> CreateGymAsync(int adminId, string name, string street, string district, string city,
+        CancellationToken cancellationToken = default)
+    {
+        if (await gymRepository.ExistsByAdminIdAsync(adminId, cancellationToken))
+            return 0;
+
+        var command = new CreateGymCommand(adminId, name, street, district, city);
+        var result = await gymCommandService.Handle(command, cancellationToken);
+        return result.IsFailure ? 0 : result.Value!.Id;
+    }
 }
