@@ -3,12 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Analytics.Application.CommandServices;
 using SpotTrack.Platform.Analytics.Domain.Model.Commands;
 using SpotTrack.Platform.Analytics.Interfaces.REST.Transform;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 
 namespace SpotTrack.Platform.Analytics.Interfaces.REST.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Admin)]
 public class ROIProjectionsController : ControllerBase
 {
     private readonly IROIProjectionCommandService _roiProjectionCommandService;
