@@ -13,6 +13,7 @@ namespace SpotTrack.Platform.Routines.Application.Internal.CommandServices;
 
 public class RoutineSessionCommandService(
     IRoutineSessionRepository routineSessionRepository,
+    IRoutineRepository routineRepository,
     IUnitOfWork unitOfWork,
     IStringLocalizer<RoutinesMessages> localizer)
     : IRoutineSessionCommandService
@@ -111,6 +112,57 @@ public class RoutineSessionCommandService(
         try
         {
             session.MarkMissed();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<RoutineSession>.Failure(RoutinesError.InvalidSessionData, ex.Message);
+        }
+
+        try
+        {
+            routineSessionRepository.Update(session);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<RoutineSession>.Success(session);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<RoutineSession>.Failure(
+                RoutinesError.OperationCancelled,
+                localizer[nameof(RoutinesError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<RoutineSession>.Failure(
+                RoutinesError.DatabaseError,
+                localizer[nameof(RoutinesError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<RoutineSession>.Failure(
+                RoutinesError.InternalServerError,
+                localizer[nameof(RoutinesError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result<RoutineSession>> Handle(
+        SetExerciseBlockCompletionCommand command, CancellationToken cancellationToken)
+    {
+        var session = await routineSessionRepository.FindByIdAsync(command.RoutineSessionId, cancellationToken);
+        if (session is null)
+            return Result<RoutineSession>.Failure(
+                RoutinesError.RoutineSessionNotFound,
+                localizer[nameof(RoutinesError.RoutineSessionNotFound)]);
+
+        var routine = await routineRepository.FindByIdAsync(session.RoutineId, cancellationToken);
+        var belongsToRoutine = routine?.ExerciseBlocks.Any(b => b.Id == command.ExerciseBlockId) ?? false;
+        if (!belongsToRoutine)
+            return Result<RoutineSession>.Failure(
+                RoutinesError.ExerciseBlockNotFound,
+                localizer[nameof(RoutinesError.ExerciseBlockNotFound)]);
+
+        try
+        {
+            session.SetExerciseCompletion(command.ExerciseBlockId, command.Completed);
         }
         catch (InvalidOperationException ex)
         {
