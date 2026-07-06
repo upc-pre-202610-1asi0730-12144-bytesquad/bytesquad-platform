@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Iam.Application.QueryServices;
 using SpotTrack.Platform.Iam.Domain.Model.Queries;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Iam.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Iam.Interfaces.Rest.Transform;
@@ -13,7 +14,7 @@ namespace SpotTrack.Platform.Iam.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/users")]
 [Produces(MediaTypeNames.Application.Json)]
-[Authorize]
+[Authorize(UserRole.Admin)]
 [SwaggerTag("User management endpoints")]
 public class UsersController(IUserQueryService userQueryService) : ControllerBase
 {

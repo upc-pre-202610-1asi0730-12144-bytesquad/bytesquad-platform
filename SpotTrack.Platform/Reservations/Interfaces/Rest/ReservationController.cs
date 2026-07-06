@@ -1,6 +1,8 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
 using SpotTrack.Platform.Reservations.Application.QueryServices;
 using SpotTrack.Platform.Reservations.Domain.Model;
@@ -16,6 +18,7 @@ namespace SpotTrack.Platform.Reservations.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/reservations")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Client)]
 [SwaggerTag("Reservation management endpoints")]
 public class ReservationsController(
     IReservationCommandService reservationCommandService,
@@ -148,6 +151,7 @@ public class ReservationsController(
     }
 
     [HttpGet("{id:int}")]
+    [Authorize]
     [SwaggerOperation(
         Summary = "Get a reservation by ID",
         Description = "Returns the reservation matching the given ID, or 404 if not found.",
@@ -166,6 +170,7 @@ public class ReservationsController(
     }
 
     [HttpGet("by-client/{clientId:int}")]
+    [Authorize]
     [SwaggerOperation(
         Summary = "Get all reservations by client ID",
         Description = "Returns all reservations for the given client.",
@@ -182,6 +187,7 @@ public class ReservationsController(
     }
 
     [HttpGet("by-equipment/{equipmentId:int}")]
+    [Authorize]
     [SwaggerOperation(
         Summary = "Get all reservations by equipment ID",
         Description = "Returns all reservations for the given equipment.",

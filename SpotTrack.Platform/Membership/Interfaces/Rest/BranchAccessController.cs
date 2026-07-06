@@ -1,6 +1,8 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Memberships.Application.CommandServices;
 using SpotTrack.Platform.Memberships.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Memberships.Interfaces.Rest.Transform;
@@ -12,6 +14,7 @@ namespace SpotTrack.Platform.Memberships.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/branch-accesses")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Admin)]
 [SwaggerTag("Branch access management endpoints")]
 public class BranchAccessController(
     IBranchAccessCommandService branchAccessCommandService,
