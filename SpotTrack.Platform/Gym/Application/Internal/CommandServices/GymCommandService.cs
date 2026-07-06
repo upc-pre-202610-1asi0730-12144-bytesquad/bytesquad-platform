@@ -67,6 +67,11 @@ public class GymCommandService(
                 GymError.GymNotFound,
                 localizer[nameof(GymError.GymNotFound)]);
 
+        if (gym.AdminId != command.AdminId)
+            return Result<Branch>.Failure(
+                GymError.Forbidden,
+                localizer[nameof(GymError.Forbidden)]);
+
         try
         {
             gym.AddBranch(command.Name, command.Street, command.District, command.City);
