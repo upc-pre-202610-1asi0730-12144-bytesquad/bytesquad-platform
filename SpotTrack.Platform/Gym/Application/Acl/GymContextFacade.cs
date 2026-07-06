@@ -1,10 +1,15 @@
+using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
+using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Interfaces.Acl;
 
 namespace SpotTrack.Platform.Gyms.Application.Acl;
 
-public class GymContextFacade(IEquipmentCommandService equipmentCommandService) : IGymContextFacade
+public class GymContextFacade(
+    IEquipmentCommandService equipmentCommandService,
+    IEquipmentRepository equipmentRepository)
+    : IGymContextFacade
 {
     public async Task<bool> OccupyEquipmentAsync(int equipmentId)
     {
@@ -32,5 +37,16 @@ public class GymContextFacade(IEquipmentCommandService equipmentCommandService) 
         var command = new MarkEquipmentAvailableCommand(equipmentId);
         var result = await equipmentCommandService.Handle(command, CancellationToken.None);
         return !result.IsFailure;
+    }
+
+    public async Task<Equipment?> FindEquipmentByIdAsync(int equipmentId)
+    {
+        return await equipmentRepository.FindByIdAsync(equipmentId, CancellationToken.None);
+    }
+
+    public async Task<IEnumerable<Equipment>> FindAvailableAlternativesAsync(string equipmentName, int excludeEquipmentId)
+    {
+        return await equipmentRepository.FindAvailableAlternativesAsync(
+            equipmentName, excludeEquipmentId, CancellationToken.None);
     }
 }
