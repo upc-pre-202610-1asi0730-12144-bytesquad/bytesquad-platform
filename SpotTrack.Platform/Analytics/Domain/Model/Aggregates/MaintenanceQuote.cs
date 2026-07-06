@@ -7,6 +7,7 @@ public class MaintenanceQuote
 {
     public long Id { get; private set; }
     public MaintenanceQuoteId MaintenanceQuoteId { get; private set; } = null!;
+    public int AdminId { get; private set; }
     public double CorrectiveActionsCost { get; private set; }
     public double SparePartsCost { get; private set; }
     public double PreventiveCost { get; private set; }
@@ -16,6 +17,7 @@ public class MaintenanceQuote
 
     public MaintenanceQuote(RequestCorrectiveActionsCostCommand command)
     {
+        AdminId = command.AuthenticatedAdminId;
         CorrectiveActionsCost = command.CorrectiveActionsCost;
         SparePartsCost = 0;
         PreventiveCost = 0;
