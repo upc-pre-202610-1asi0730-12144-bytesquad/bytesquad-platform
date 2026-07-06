@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Gyms.Interfaces.Acl;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
 using SpotTrack.Platform.Reservations.Application.QueryServices;
 using SpotTrack.Platform.Reservations.Domain.Model;
@@ -20,6 +21,7 @@ namespace SpotTrack.Platform.Reservations.Interfaces.Rest;
 public class ReservationsController(
     IReservationCommandService reservationCommandService,
     IReservationQueryService reservationQueryService,
+    IGymContextFacade gymContextFacade,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
     [HttpPost("express")]
@@ -145,6 +147,57 @@ public class ReservationsController(
             ReservationResourceFromEntityAssembler.ToResourceFromEntity,
             StatusCodes.Status200OK,
             this);
+    }
+
+    [HttpPatch("{id}/alternative")]
+    [SwaggerOperation(
+        Summary = "Request alternative equipment",
+        Description = "Marks the reservation's request as needing alternative equipment (e.g. the assigned equipment is broken or otherwise unusable).",
+        OperationId = "RequestAlternativeEquipment")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Alternative equipment requested successfully", typeof(CreateReservationResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Reservation not found")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Reservation status does not allow this operation")]
+    public async Task<IActionResult> RequestAlternativeEquipment(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateRequestAlternativeEquipmentCommand(id);
+        var result = await reservationCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return ReservationsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return ReservationsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            ReservationResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
+    [HttpGet("{id:int}/alternatives")]
+    [SwaggerOperation(
+        Summary = "View available alternative equipment",
+        Description = "Returns other available equipment of the same kind as the one assigned to this reservation.",
+        OperationId = "GetAvailableAlternatives")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of available alternatives", typeof(IEnumerable<AlternativeEquipmentResource>))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Reservation or equipment not found")]
+    public async Task<IActionResult> GetAvailableAlternatives(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var reservation = await reservationQueryService.Handle(new GetReservationByIdQuery(id), cancellationToken);
+        if (reservation is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ReservationsError.ReservationNotFound, "Reservation not found.");
+
+        var equipment = await gymContextFacade.FindEquipmentByIdAsync(reservation.EquipmentId);
+        if (equipment is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ReservationsError.ReservationNotFound, "Equipment not found.");
+
+        var alternatives = await gymContextFacade.FindAvailableAlternativesAsync(equipment.Name.Value, equipment.Id);
+        var resources = alternatives.Select(e => new AlternativeEquipmentResource(e.Id, e.Name.Value));
+        return Ok(resources);
     }
 
     [HttpGet("{id:int}")]
