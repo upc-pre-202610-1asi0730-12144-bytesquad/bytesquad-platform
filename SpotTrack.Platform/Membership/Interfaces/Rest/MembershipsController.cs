@@ -1,6 +1,8 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Extensions;
 using SpotTrack.Platform.Memberships.Application.CommandServices;
 using SpotTrack.Platform.Memberships.Application.QueryServices;
 using SpotTrack.Platform.Memberships.Domain.Model;
@@ -8,6 +10,7 @@ using SpotTrack.Platform.Memberships.Domain.Model.Commands;
 using SpotTrack.Platform.Memberships.Domain.Model.Queries;
 using SpotTrack.Platform.Memberships.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Memberships.Interfaces.Rest.Transform;
+using SpotTrack.Platform.Profiles.Interfaces.Acl;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -20,8 +23,28 @@ namespace SpotTrack.Platform.Memberships.Interfaces.Rest;
 public class MembershipsController(
     IMembershipCommandService membershipCommandService,
     IMembershipQueryService membershipQueryService,
+    IProfilesContextFacade profilesContextFacade,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet("me")]
+    [Authorize]
+    [SwaggerOperation(Summary = "Get my memberships", OperationId = "GetMyMemberships")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Memberships retrieved successfully", typeof(IEnumerable<MembershipResource>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found")]
+    public async Task<IActionResult> GetMyMemberships(CancellationToken cancellationToken)
+    {
+        var userId = HttpContext.GetAuthenticatedUserId()!.Value;
+        var clientId = await profilesContextFacade.FetchClientIdByUserIdAsync(userId);
+        if (clientId == 0)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, MembershipError.MembershipNotFound, "Client not found.");
+
+        var memberships = await membershipQueryService.Handle(
+            new GetAllMembershipsByClientIdQuery(clientId), cancellationToken);
+        return Ok(memberships.Select(MembershipResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpPost("activate")]
     [SwaggerOperation(Summary = "Activate a membership", OperationId = "ActivateMembership")]
     [SwaggerResponse(StatusCodes.Status201Created, "Membership activated successfully", typeof(MembershipResource))]
