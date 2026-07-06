@@ -27,4 +27,7 @@
     <data name="GymMembershipInactive" xml:space="preserve">
     <value>La membresía del gimnasio está inactiva o vencida. Las reservas no están disponibles actualmente.</value>
   </data>
+    <data name="InvalidTimerDuration" xml:space="preserve">
+    <value>La duración en minutos debe ser mayor a cero.</value>
+  </data>
 </root>

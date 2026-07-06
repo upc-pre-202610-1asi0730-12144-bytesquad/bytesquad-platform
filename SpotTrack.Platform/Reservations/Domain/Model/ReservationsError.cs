@@ -12,4 +12,5 @@ public enum ReservationsError
     EquipmentOccupyFailed,
     EquipmentReleaseFailed,
     GymMembershipInactive,
+    InvalidTimerDuration,
 }

@@ -197,13 +197,19 @@ public class ReservationCommandService(
 
         try
         {
-            reservation.StartTimer();
+            reservation.StartTimer(command.DurationMinutes);
         }
         catch (InvalidOperationException ex)
         {
             return Result<Reservation>.Failure(
                 ReservationsError.InvalidReservationStatus,
                 ex.Message);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.InvalidTimerDuration,
+                localizer[nameof(ReservationsError.InvalidTimerDuration)]);
         }
 
         try

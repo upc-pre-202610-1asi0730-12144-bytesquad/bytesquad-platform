@@ -12,7 +12,8 @@ public static class ReservationsActionResultAssembler
     {
         ReservationsError.ReservationNotFound  => StatusCodes.Status404NotFound,
         ReservationsError.InvalidReservationDates or
-            ReservationsError.EquipmentNotAvailable => StatusCodes.Status400BadRequest,
+            ReservationsError.EquipmentNotAvailable or
+            ReservationsError.InvalidTimerDuration => StatusCodes.Status400BadRequest,
         _                                       => StatusCodes.Status500InternalServerError
     };
 

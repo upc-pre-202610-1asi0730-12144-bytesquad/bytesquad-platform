@@ -40,6 +40,8 @@ public partial class Reservation
 
     public EReservationStatus Status { get; private set; }
 
+    public DateTimeOffset? TimerExpiry { get; private set; }
+
     private ReservationRequest? _request;
     public ReservationRequest? Request => _request;
 
@@ -66,14 +68,19 @@ public partial class Reservation
         Status = EReservationStatus.Cancelled;
     }
 
-    public void StartTimer()
+    public void StartTimer(int durationMinutes)
     {
         if (Status is not EReservationStatus.Reserved)
             throw new InvalidOperationException(
                 $"Cannot start the timer for a reservation in '{Status}' status.");
 
+        if (durationMinutes <= 0)
+            throw new ArgumentOutOfRangeException(nameof(durationMinutes), durationMinutes,
+                "DurationMinutes must be greater than zero.");
+
         _request!.ConfirmEquipmentOccupied();
         Status = EReservationStatus.Active;
+        TimerExpiry = DateTimeOffset.UtcNow.AddMinutes(durationMinutes);
     }
 
     public void RequestEquipmentAvailable()

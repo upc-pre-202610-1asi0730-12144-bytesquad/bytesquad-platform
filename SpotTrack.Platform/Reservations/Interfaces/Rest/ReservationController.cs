@@ -263,9 +263,10 @@ public class ReservationsController(
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Reservation cannot be started or equipment occupy failed")]
     public async Task<IActionResult> StartReservationTimer(
         [FromRoute] int id,
+        [FromBody] StartReservationTimerResource resource,
         CancellationToken cancellationToken)
     {
-        var command = new CreateStartReservationTimerCommand(id);
+        var command = new CreateStartReservationTimerCommand(id, resource.DurationMinutes);
         var result = await reservationCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)
