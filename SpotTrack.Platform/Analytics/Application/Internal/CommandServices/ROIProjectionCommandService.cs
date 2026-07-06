@@ -28,20 +28,22 @@ public class ROIProjectionCommandService : IROIProjectionCommandService
     {
         var roiProjectionId = new ROIProjectionId(command.RoiProjectionId);
         var roiProjection = await _roiProjectionRepository.FindByRoiProjectionIdAsync(roiProjectionId);
-        
+
         if (roiProjection == null) return null;
+        if (roiProjection.AdminId != command.AuthenticatedAdminId) return null;
 
         roiProjection.UpdateProjectedEarnings(command.ProjectedEarnings);
         await _roiProjectionRepository.UpdateAsync(roiProjection);
         return roiProjection;
     }
-    
+
     public async Task<ROIProjection?> Handle(RequestROICommand command)
     {
         var roiProjectionId = new ROIProjectionId(command.RoiProjectionId);
         var roiProjection = await _roiProjectionRepository.FindByRoiProjectionIdAsync(roiProjectionId);
-        
+
         if (roiProjection == null) return null;
+        if (roiProjection.AdminId != command.AuthenticatedAdminId) return null;
 
         roiProjection.GenerateFinalProjection();
         await _roiProjectionRepository.UpdateAsync(roiProjection);
