@@ -1468,7 +1468,7 @@ namespace SpotTrack.Platform.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("routine_session_id")
-                                .HasConstraintName("f_k_session_exercise_completions_routine_sessions_routine_sessio~");
+                                .HasConstraintName("fk_session_completions_routine_session");
                         });
 
                     b.Navigation("ClientId")

@@ -86,7 +86,9 @@ public static class ModelBuilderExtensions
             entity.OwnsMany(s => s.CompletedExercises, ce =>
             {
                 ce.ToTable("session_exercise_completions");
-                ce.WithOwner().HasForeignKey("routine_session_id");
+                ce.WithOwner()
+                    .HasForeignKey("routine_session_id")
+                    .HasConstraintName("fk_session_completions_routine_session");
                 ce.HasKey(c => c.Id);
                 ce.Property(c => c.Id).ValueGeneratedOnAdd().HasColumnName("id");
                 ce.Property(c => c.ExerciseBlockId).IsRequired().HasColumnName("exercise_block_id");

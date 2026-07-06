@@ -38,7 +38,7 @@ namespace SpotTrack.Platform.Migrations
                 {
                     table.PrimaryKey("p_k_session_exercise_completions", x => x.id);
                     table.ForeignKey(
-                        name: "f_k_session_exercise_completions_routine_sessions_routine_sessio~",
+                        name: "fk_session_completions_routine_session",
                         column: x => x.routine_session_id,
                         principalTable: "routine_sessions",
                         principalColumn: "id",
