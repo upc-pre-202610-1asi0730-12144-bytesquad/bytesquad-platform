@@ -13,6 +13,9 @@ public static class GymErrors
     public static Error Forbidden(string message) =>
         new($"{nameof(GymError)}.{nameof(GymError.Forbidden)}", message);
 
+    public static Error BranchLimitExceeded(string message) =>
+        new($"{nameof(GymError)}.{nameof(GymError.BranchLimitExceeded)}", message);
+
     public static Error OperationCancelled(string message) =>
         new($"{nameof(GymError)}.{nameof(GymError.OperationCancelled)}", message);
 
