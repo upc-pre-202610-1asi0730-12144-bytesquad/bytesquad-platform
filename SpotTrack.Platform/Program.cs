@@ -53,6 +53,7 @@ using SpotTrack.Platform.Iam.Interfaces.Acl;
 using SpotTrack.Platform.Iam.Resources;
 using SpotTrack.Platform.Gyms.Application.Acl;
 using SpotTrack.Platform.Gyms.Application.Internal.CommandServices;
+using SpotTrack.Platform.Gyms.Application.Internal.QueryServices;
 using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
@@ -193,6 +194,7 @@ builder.Services.AddSingleton<IStringLocalizer<RoutinesMessages>, StringLocalize
 // Gym Bounded Context
 builder.Services.AddScoped<IGymRepository, GymRepository>();
 builder.Services.AddScoped<IGymCommandService, GymCommandService>();
+builder.Services.AddScoped<IGymQueryService, GymQueryService>();
 builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 builder.Services.AddScoped<IEquipmentCommandService, EquipmentCommandService>();
 builder.Services.AddScoped<IGymContextFacade, GymContextFacade>();
