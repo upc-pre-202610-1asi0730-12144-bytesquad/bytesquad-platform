@@ -33,6 +33,11 @@ public class TechnicalTicketCommandService(
                 TechnicalTicketError.MaintenanceNotFound,
                 localizer[nameof(TechnicalTicketError.MaintenanceNotFound)]);
 
+        if (maintenance.RequestedByAdminId != command.AuthenticatedAdminId)
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
+
         TechnicalTicket ticket;
         try
         {
@@ -94,6 +99,13 @@ public class TechnicalTicketCommandService(
         return Result<TechnicalTicket>.Success(ticket);
     }
 
+    private async Task<bool> IsAdminOwnerOfTicketAsync(
+        TechnicalTicket ticket, int authenticatedAdminId, CancellationToken cancellationToken)
+    {
+        var maintenance = await maintenanceRepository.FindByIdAsync(ticket.MaintenanceId, cancellationToken);
+        return maintenance is not null && maintenance.RequestedByAdminId == authenticatedAdminId;
+    }
+
     public async Task<Result<TechnicalTicket>> Handle(
         AssignTechnicalTicketCommand command,
         CancellationToken cancellationToken)
@@ -103,6 +115,11 @@ public class TechnicalTicketCommandService(
             return Result<TechnicalTicket>.Failure(
                 TechnicalTicketError.TechnicalTicketNotFound,
                 localizer[nameof(TechnicalTicketError.TechnicalTicketNotFound)]);
+
+        if (!await IsAdminOwnerOfTicketAsync(ticket, command.AuthenticatedAdminId, cancellationToken))
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
 
         try
         {
@@ -149,6 +166,11 @@ public class TechnicalTicketCommandService(
                 TechnicalTicketError.TechnicalTicketNotFound,
                 localizer[nameof(TechnicalTicketError.TechnicalTicketNotFound)]);
 
+        if (!await IsAdminOwnerOfTicketAsync(ticket, command.AuthenticatedAdminId, cancellationToken))
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
+
         try
         {
             ticket.ModifyStatus(command.NewStatus);
@@ -194,6 +216,11 @@ public class TechnicalTicketCommandService(
                 TechnicalTicketError.TechnicalTicketNotFound,
                 localizer[nameof(TechnicalTicketError.TechnicalTicketNotFound)]);
 
+        if (!await IsAdminOwnerOfTicketAsync(ticket, command.AuthenticatedAdminId, cancellationToken))
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
+
         try
         {
             ticket.RequestMaintenanceStatusUpdate();
@@ -238,6 +265,11 @@ public class TechnicalTicketCommandService(
             return Result<TechnicalTicket>.Failure(
                 TechnicalTicketError.TechnicalTicketNotFound,
                 localizer[nameof(TechnicalTicketError.TechnicalTicketNotFound)]);
+
+        if (!await IsAdminOwnerOfTicketAsync(ticket, command.AuthenticatedAdminId, cancellationToken))
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
 
         try
         {
@@ -300,6 +332,11 @@ public class TechnicalTicketCommandService(
             return Result<TechnicalTicket>.Failure(
                 TechnicalTicketError.MaintenanceNotFound,
                 localizer[nameof(TechnicalTicketError.MaintenanceNotFound)]);
+
+        if (maintenance.RequestedByAdminId != command.AuthenticatedAdminId)
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
 
         try
         {
