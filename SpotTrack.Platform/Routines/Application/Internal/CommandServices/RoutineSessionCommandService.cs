@@ -65,7 +65,14 @@ public class RoutineSessionCommandService(
                 RoutinesError.RoutineSessionNotFound,
                 localizer[nameof(RoutinesError.RoutineSessionNotFound)]);
 
-        session.Complete();
+        try
+        {
+            session.Complete();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<RoutineSession>.Failure(RoutinesError.InvalidSessionData, ex.Message);
+        }
 
         try
         {
@@ -101,7 +108,14 @@ public class RoutineSessionCommandService(
                 RoutinesError.RoutineSessionNotFound,
                 localizer[nameof(RoutinesError.RoutineSessionNotFound)]);
 
-        session.MarkMissed();
+        try
+        {
+            session.MarkMissed();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<RoutineSession>.Failure(RoutinesError.InvalidSessionData, ex.Message);
+        }
 
         try
         {

@@ -83,6 +83,15 @@ public static class ModelBuilderExtensions
 
             entity.Property(s => s.StartedAt).IsRequired().HasColumnName("started_at");
 
+            entity.OwnsMany(s => s.CompletedExercises, ce =>
+            {
+                ce.ToTable("session_exercise_completions");
+                ce.WithOwner().HasForeignKey("routine_session_id");
+                ce.HasKey(c => c.Id);
+                ce.Property(c => c.Id).ValueGeneratedOnAdd().HasColumnName("id");
+                ce.Property(c => c.ExerciseBlockId).IsRequired().HasColumnName("exercise_block_id");
+            });
+
             entity.Ignore(s => s.ClientIdValue);
         });
     }
