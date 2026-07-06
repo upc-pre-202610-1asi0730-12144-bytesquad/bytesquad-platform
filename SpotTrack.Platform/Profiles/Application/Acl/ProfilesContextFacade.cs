@@ -10,7 +10,8 @@ public class ProfilesContextFacade(
     IClientCommandService clientCommandService,
     IAdminCommandService adminCommandService,
     IClientQueryService clientQueryService,
-    IAdminQueryService adminQueryService)
+    IAdminQueryService adminQueryService,
+    IBusinessCommandService businessCommandService)
     : IProfilesContextFacade
 {
     public async Task<int> CreateClientAsync(int userId, string email, string firstName,
@@ -55,5 +56,13 @@ public class ProfilesContextFacade(
         var admin = await adminQueryService.Handle(
             new GetAdminByEmailQuery(email), CancellationToken.None);
         return admin?.Id ?? 0;
+    }
+
+    public async Task<int> ProvisionBusinessAsync(int adminId, string companyName, string ruc,
+        string legalStructure, string companyPhone, string companyEmail)
+    {
+        var command = new ProvisionBusinessCommand(adminId, companyName, ruc, legalStructure, companyPhone, companyEmail);
+        var result = await businessCommandService.Handle(command, CancellationToken.None);
+        return result.IsFailure ? 0 : result.Value!.Id;
     }
 }
