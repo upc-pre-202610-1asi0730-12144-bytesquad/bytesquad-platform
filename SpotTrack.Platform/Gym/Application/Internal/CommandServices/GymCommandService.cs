@@ -9,6 +9,7 @@ using SpotTrack.Platform.Gyms.Domain.Model.Errors;
 using SpotTrack.Platform.Gyms.Domain.Model.Events;
 using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
+using SpotTrack.Platform.Gyms.Interfaces.Acl;
 using SpotTrack.Platform.Gyms.Resources;
 using SpotTrack.Platform.Shared.Application.Model;
 using SpotTrack.Platform.Shared.Domain.Repositories;
@@ -19,6 +20,7 @@ public class GymCommandService(
     IGymRepository gymRepository,
     IUnitOfWork unitOfWork,
     IMediator mediator,
+    IMembershipContextFacade membershipContextFacade,
     IStringLocalizer<GymMessages> localizer)
     : IGymCommandService
 {
@@ -75,6 +77,13 @@ public class GymCommandService(
             return Result<Branch>.Failure(
                 GymError.Forbidden,
                 localizer[nameof(GymError.Forbidden)]);
+
+        var branchLimit = await membershipContextFacade.GetBranchLimitForAdminAsync(
+            command.AdminId, cancellationToken);
+        if (gym.Branches.Count >= branchLimit)
+            return Result<Branch>.Failure(
+                GymError.BranchLimitExceeded,
+                localizer[nameof(GymError.BranchLimitExceeded)]);
 
         try
         {
