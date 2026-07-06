@@ -47,7 +47,19 @@ public class TechnicalTicketCommandService(
 
         try
         {
+            maintenance.Accept();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.InvalidTechnicalTicketStatus,
+                ex.Message);
+        }
+
+        try
+        {
             await technicalTicketRepository.AddAsync(ticket, cancellationToken);
+            maintenanceRepository.Update(maintenance);
             await unitOfWork.CompleteAsync(cancellationToken);
         }
         catch (OperationCanceledException)
@@ -283,8 +295,26 @@ public class TechnicalTicketCommandService(
                 ex.Message);
         }
 
+        var maintenance = await maintenanceRepository.FindByIdAsync(ticket.MaintenanceId, cancellationToken);
+        if (maintenance is null)
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.MaintenanceNotFound,
+                localizer[nameof(TechnicalTicketError.MaintenanceNotFound)]);
+
         try
         {
+            maintenance.Complete();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.InvalidTechnicalTicketStatus,
+                ex.Message);
+        }
+
+        try
+        {
+            maintenanceRepository.Update(maintenance);
             await unitOfWork.CompleteAsync(cancellationToken);
         }
         catch (DbUpdateException)
