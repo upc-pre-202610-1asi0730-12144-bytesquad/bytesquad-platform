@@ -6,6 +6,8 @@ namespace SpotTrack.Platform.Profiles.Interfaces.Rest.Transform;
 public static class ClientResourceFromEntityAssembler
 {
     public static ClientResource ToResourceFromEntity(Client client) =>
-        new(client.Id, client.UserId, client.FullName, client.Email?.Address ?? string.Empty,
+        new(client.Id, client.UserId, client.FullName,
+            client.Name?.FirstName ?? string.Empty, client.Name?.LastName ?? string.Empty,
+            client.Email?.Address ?? string.Empty,
             client.Phone?.Number ?? string.Empty, client.Dni?.Value ?? string.Empty);
 }
