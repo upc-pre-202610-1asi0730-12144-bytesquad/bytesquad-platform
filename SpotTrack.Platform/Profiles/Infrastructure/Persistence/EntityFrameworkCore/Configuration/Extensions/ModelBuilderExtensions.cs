@@ -80,5 +80,20 @@ public static class ModelBuilderExtensions
             });
             entity.Navigation(a => a.Dni).IsRequired(false);
         });
+
+        builder.Entity<Business>(entity =>
+        {
+            entity.HasKey(b => b.Id);
+            entity.Property(b => b.Id).ValueGeneratedOnAdd();
+
+            entity.Property(b => b.AdminId).IsRequired();
+            entity.HasIndex(b => b.AdminId).IsUnique();
+
+            entity.Property(b => b.CompanyName).IsRequired().HasMaxLength(100);
+            entity.Property(b => b.Ruc).IsRequired().HasMaxLength(11);
+            entity.Property(b => b.LegalStructure).IsRequired().HasMaxLength(50);
+            entity.Property(b => b.CompanyPhone).HasMaxLength(15);
+            entity.Property(b => b.CompanyEmail).HasMaxLength(100);
+        });
     }
 }
