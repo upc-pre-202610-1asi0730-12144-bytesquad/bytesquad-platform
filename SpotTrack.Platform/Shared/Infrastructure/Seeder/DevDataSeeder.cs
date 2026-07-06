@@ -3,7 +3,10 @@ using Microsoft.Extensions.Logging;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Iam.Application.CommandServices;
+using SpotTrack.Platform.Iam.Application.Internal.OutboundServices;
+using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Domain.Model.Commands;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Domain.Repositories;
 using SpotTrack.Platform.Iam.Interfaces.Acl;
 using SpotTrack.Platform.Memberships.Application.CommandServices;
@@ -14,6 +17,8 @@ using SpotTrack.Platform.Profiles.Application.QueryServices;
 using SpotTrack.Platform.Profiles.Domain.Model.Commands;
 using SpotTrack.Platform.Profiles.Domain.Model.Queries;
 using SpotTrack.Platform.Profiles.Domain.Repositories;
+using SpotTrack.Platform.Profiles.Interfaces.Acl;
+using SpotTrack.Platform.Shared.Domain.Repositories;
 
 namespace SpotTrack.Platform.Shared.Infrastructure.Seeder;
 
@@ -45,6 +50,9 @@ public static class DevDataSeeder
 
         var userCommandService = sp.GetRequiredService<IUserCommandService>();
         var iamContextFacade = sp.GetRequiredService<IIamContextFacade>();
+        var hashingService = sp.GetRequiredService<IHashingService>();
+        var unitOfWork = sp.GetRequiredService<IUnitOfWork>();
+        var profilesContextFacade = sp.GetRequiredService<IProfilesContextFacade>();
         var adminRepository = sp.GetRequiredService<IAdminRepository>();
         var adminCommandService = sp.GetRequiredService<IAdminCommandService>();
         var clientQueryService = sp.GetRequiredService<IClientQueryService>();
@@ -53,10 +61,17 @@ public static class DevDataSeeder
         var equipmentCommandService = sp.GetRequiredService<IEquipmentCommandService>();
         var membershipCommandService = sp.GetRequiredService<IMembershipCommandService>();
 
-        await userCommandService.Handle(new SignUpCommand(AdminUsername, AdminPassword, "Admin"), default);
-        await userCommandService.Handle(new SignUpCommand(ClientUsername, ClientPassword, "Client"), default);
+        // Public sign-up only ever creates Client accounts (see fix/security-signup-role-restriction).
+        // Admin accounts normally go through the business-registration + provisioning flow, which has
+        // no REST endpoint yet — so for this dev-only seeder we create the Admin User directly.
+        var adminUser = new User(AdminUsername, hashingService.HashPassword(AdminPassword), UserRole.Admin);
+        await userRepository.AddAsync(adminUser, default);
+        await unitOfWork.CompleteAsync(default);
+        await profilesContextFacade.RegisterAdminAsync(adminUser.Id);
 
-        var adminUserId = await iamContextFacade.FetchUserIdByUsernameAsync(AdminUsername);
+        await userCommandService.Handle(new SignUpCommand(ClientUsername, ClientPassword), default);
+
+        var adminUserId = adminUser.Id;
         var clientUserId = await iamContextFacade.FetchUserIdByUsernameAsync(ClientUsername);
 
         var admins = await adminRepository.ListAsync();
