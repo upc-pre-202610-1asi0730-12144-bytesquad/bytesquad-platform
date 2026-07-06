@@ -67,6 +67,7 @@ using SpotTrack.Platform.Memberships.Application.QueryServices;
 using SpotTrack.Platform.Memberships.Domain.Repositories;
 using SpotTrack.Platform.Memberships.Infrastructure.BackgroundServices;
 using SpotTrack.Platform.Memberships.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using SpotTrack.Platform.Memberships.Infrastructure.Stripe;
 using SpotTrack.Platform.Memberships.Resources;
 using SpotTrack.Platform.Maintenances.Application.CommandServices;
 using SpotTrack.Platform.Maintenances.Application.Internal.CommandServices;
@@ -204,11 +205,14 @@ builder.Services.AddSingleton<IStringLocalizer<GymMessages>, StringLocalizer<Gym
 builder.Services.AddSingleton<IStringLocalizer<EquipmentMessages>, StringLocalizer<EquipmentMessages>>();
 
 // Membership Bounded Context
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
 builder.Services.AddScoped<IMembershipCommandService, MembershipCommandService>();
 builder.Services.AddScoped<IMembershipQueryService, MembershipQueryService>();
 builder.Services.AddScoped<IBranchAccessRepository, BranchAccessRepository>();
 builder.Services.AddScoped<IBranchAccessCommandService, BranchAccessCommandService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentCommandService, PaymentCommandService>();
 builder.Services.AddSingleton<IStringLocalizer<MembershipMessages>, StringLocalizer<MembershipMessages>>();
 builder.Services.AddHostedService<MembershipExpirationBackgroundService>();
 
