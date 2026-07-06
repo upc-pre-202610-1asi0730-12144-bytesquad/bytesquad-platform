@@ -1,3 +1,3 @@
 namespace SpotTrack.Platform.Analytics.Domain.Model.Commands;
 
-public record RequestROICommand(long RoiProjectionId);
+public record RequestROICommand(long RoiProjectionId, int AuthenticatedAdminId);
