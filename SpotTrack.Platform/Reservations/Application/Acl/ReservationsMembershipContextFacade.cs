@@ -8,7 +8,7 @@ namespace SpotTrack.Platform.Reservations.Application.Acl;
 
 public class ReservationsMembershipContextFacade(
     IGymContextFacade gymContextFacade,
-    IMembershipQueryService membershipQueryService) : IMembershipContextFacade
+    IMembershipQueryService membershipQueryService) : IReservationsMembershipContextFacade
 {
     public async Task<bool> GymHasActiveMembershipAsync(int equipmentId, CancellationToken cancellationToken)
     {
