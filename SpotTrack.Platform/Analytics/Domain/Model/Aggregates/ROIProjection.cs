@@ -7,6 +7,7 @@ public class ROIProjection
 {
     public long Id { get; private set; }
     public ROIProjectionId RoiProjectionId { get; private set; } = null!;
+    public int AdminId { get; private set; }
     public double ProjectedDowntimeCost { get; private set; }
     public double ProjectedEarnings { get; private set; }
     public double RoiIndex { get; private set; }
@@ -16,6 +17,7 @@ public class ROIProjection
 
     public ROIProjection(RequestDowntimeCostProjectionCommand command)
     {
+        AdminId = command.AuthenticatedAdminId;
         ProjectedDowntimeCost = command.ProjectedDowntimeCost;
         ProjectedEarnings = 0;
         RoiIndex = 0;
