@@ -1,8 +1,10 @@
 using SpotTrack.Platform.Analytics.Application.CommandServices;
+using SpotTrack.Platform.Analytics.Domain.Model;
 using SpotTrack.Platform.Analytics.Domain.Model.Aggregates;
 using SpotTrack.Platform.Analytics.Domain.Model.Commands;
 using SpotTrack.Platform.Analytics.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Analytics.Domain.Repositories;
+using SpotTrack.Platform.Shared.Application.Model;
 
 namespace SpotTrack.Platform.Analytics.Application.Internal.CommandServices;
 
@@ -15,40 +17,38 @@ public class ROIProjectionCommandService : IROIProjectionCommandService
         _roiProjectionRepository = roiProjectionRepository;
     }
 
-    public async Task<ROIProjection?> Handle(RequestDowntimeCostProjectionCommand command)
+    public async Task<Result<ROIProjection>> Handle(RequestDowntimeCostProjectionCommand command)
     {
         var roiProjection = new ROIProjection(command);
         await _roiProjectionRepository.AddAsync(roiProjection);
         roiProjection.InitializeId();
         await _roiProjectionRepository.UpdateAsync(roiProjection);
-        return roiProjection;
+        return Result<ROIProjection>.Success(roiProjection);
     }
-    
-    public async Task<ROIProjection?> Handle(RequestEarningsProjectionCommand command)
+
+    public async Task<Result<ROIProjection>> Handle(RequestEarningsProjectionCommand command)
     {
         var roiProjectionId = new ROIProjectionId(command.RoiProjectionId);
         var roiProjection = await _roiProjectionRepository.FindByRoiProjectionIdAsync(roiProjectionId);
 
-        if (roiProjection == null) return null;
-        if (roiProjection.AdminId != command.AuthenticatedAdminId) return null;
+        if (roiProjection == null) return Result<ROIProjection>.Failure(AnalyticsError.NotFound, "ROI projection not found.");
+        if (roiProjection.AdminId != command.AuthenticatedAdminId) return Result<ROIProjection>.Failure(AnalyticsError.Forbidden, "You do not have permission to modify this ROI projection.");
 
         roiProjection.UpdateProjectedEarnings(command.ProjectedEarnings);
         await _roiProjectionRepository.UpdateAsync(roiProjection);
-        return roiProjection;
+        return Result<ROIProjection>.Success(roiProjection);
     }
 
-    public async Task<ROIProjection?> Handle(RequestROICommand command)
+    public async Task<Result<ROIProjection>> Handle(RequestROICommand command)
     {
         var roiProjectionId = new ROIProjectionId(command.RoiProjectionId);
         var roiProjection = await _roiProjectionRepository.FindByRoiProjectionIdAsync(roiProjectionId);
 
-        if (roiProjection == null) return null;
-        if (roiProjection.AdminId != command.AuthenticatedAdminId) return null;
+        if (roiProjection == null) return Result<ROIProjection>.Failure(AnalyticsError.NotFound, "ROI projection not found.");
+        if (roiProjection.AdminId != command.AuthenticatedAdminId) return Result<ROIProjection>.Failure(AnalyticsError.Forbidden, "You do not have permission to modify this ROI projection.");
 
         roiProjection.GenerateFinalProjection();
         await _roiProjectionRepository.UpdateAsync(roiProjection);
-        return roiProjection;
+        return Result<ROIProjection>.Success(roiProjection);
     }
-
-
 }
