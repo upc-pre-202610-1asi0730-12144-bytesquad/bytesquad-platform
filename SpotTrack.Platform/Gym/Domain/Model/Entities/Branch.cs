@@ -24,6 +24,6 @@ public class Branch
     public void AddZone(string name, int maximumOccupancy)
     {
         var zoneName = new ZoneName(name);
-        _zones.Add(new Zone(zoneName, maximumOccupancy));
+        _zones.Add(new Zone(zoneName, maximumOccupancy, Id));
     }
 }

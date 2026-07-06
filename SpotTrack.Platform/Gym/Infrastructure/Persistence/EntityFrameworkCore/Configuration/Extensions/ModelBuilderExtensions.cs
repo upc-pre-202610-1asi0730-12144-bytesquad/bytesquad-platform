@@ -88,7 +88,7 @@ public static class ModelBuilderExtensions
 
             entity.HasMany(b => b.Zones)
                 .WithOne()
-                .HasForeignKey("branch_id")
+                .HasForeignKey(z => z.BranchId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         });

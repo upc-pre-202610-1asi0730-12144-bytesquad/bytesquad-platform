@@ -6,5 +6,5 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
 public static class ZoneResourceFromEntityAssembler
 {
     public static ZoneResource ToResourceFromEntity(Zone zone) =>
-        new(zone.Id, zone.Name.Value, zone.MaximumOccupancy);
+        new(zone.Id, zone.Name.Value, zone.MaximumOccupancy, zone.BranchId);
 }
