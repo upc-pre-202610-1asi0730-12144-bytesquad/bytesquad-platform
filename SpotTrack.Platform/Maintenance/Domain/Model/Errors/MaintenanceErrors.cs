@@ -13,6 +13,9 @@ public static class MaintenanceErrors
     public static Error InvalidMaintenanceStatus(string message) =>
         new($"{nameof(MaintenanceError)}.{nameof(MaintenanceError.InvalidMaintenanceStatus)}", message);
 
+    public static Error Forbidden(string message) =>
+        new($"{nameof(MaintenanceError)}.{nameof(MaintenanceError.Forbidden)}", message);
+
     public static Error OperationCancelled(string message) =>
         new($"{nameof(MaintenanceError)}.{nameof(MaintenanceError.OperationCancelled)}", message);
 
