@@ -85,6 +85,15 @@ public partial class Reservation
         _request!.RequestEquipmentStatusChangeToAvailable();
     }
 
+    public void RequestAlternativeEquipment()
+    {
+        if (Status is not (EReservationStatus.Reserved or EReservationStatus.Active))
+            throw new InvalidOperationException(
+                $"Cannot request alternative equipment for a reservation in '{Status}' status.");
+
+        _request!.RequestAlternativeEquipment();
+    }
+
     public void End()
     {
         if (Status is EReservationStatus.Ended or EReservationStatus.Cancelled)
