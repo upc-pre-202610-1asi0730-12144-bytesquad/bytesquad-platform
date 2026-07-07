@@ -1,8 +1,10 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Analytics.Application.CommandServices;
+using SpotTrack.Platform.Analytics.Application.QueryServices;
 using SpotTrack.Platform.Analytics.Domain.Model;
 using SpotTrack.Platform.Analytics.Domain.Model.Commands;
+using SpotTrack.Platform.Analytics.Domain.Model.Queries;
 using SpotTrack.Platform.Analytics.Interfaces.REST.Transform;
 using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
@@ -17,10 +19,14 @@ namespace SpotTrack.Platform.Analytics.Interfaces.REST.Controllers;
 public class ActivityReportsController : ControllerBase
 {
     private readonly IActivityReportCommandService _activityReportCommandService;
+    private readonly IActivityReportQueryService _activityReportQueryService;
 
-    public ActivityReportsController(IActivityReportCommandService activityReportCommandService)
+    public ActivityReportsController(
+        IActivityReportCommandService activityReportCommandService,
+        IActivityReportQueryService activityReportQueryService)
     {
         _activityReportCommandService = activityReportCommandService;
+        _activityReportQueryService = activityReportQueryService;
     }
 
     [HttpPost]
@@ -68,5 +74,16 @@ public class ActivityReportsController : ControllerBase
 
         var resource = ActivityReportResourceFromEntityAssembler.ToResourceFromEntity(result.Value!);
         return Ok(resource);
+    }
+
+    [HttpGet("by-admin/{adminId:int}")]
+    public async Task<IActionResult> GetActivityReportsByAdmin([FromRoute] int adminId, CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        if (adminId != authenticatedAdminId) return Forbid();
+
+        var reports = await _activityReportQueryService.Handle(
+            new GetAllActivityReportsByAdminIdQuery(adminId), cancellationToken);
+        return Ok(reports.Select(ActivityReportResourceFromEntityAssembler.ToResourceFromEntity));
     }
 }

@@ -3,7 +3,7 @@ using SpotTrack.Platform.Analytics.Domain.Model.ValueObjects;
 
 namespace SpotTrack.Platform.Analytics.Domain.Model.Aggregates;
 
-public class ROIProjection
+public partial class ROIProjection
 {
     public long Id { get; private set; }
     public ROIProjectionId RoiProjectionId { get; private set; } = null!;

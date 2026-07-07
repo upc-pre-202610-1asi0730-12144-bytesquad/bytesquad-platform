@@ -1,8 +1,10 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Analytics.Application.CommandServices;
+using SpotTrack.Platform.Analytics.Application.QueryServices;
 using SpotTrack.Platform.Analytics.Domain.Model;
 using SpotTrack.Platform.Analytics.Domain.Model.Commands;
+using SpotTrack.Platform.Analytics.Domain.Model.Queries;
 using SpotTrack.Platform.Analytics.Interfaces.REST.Transform;
 using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
@@ -17,10 +19,14 @@ namespace SpotTrack.Platform.Analytics.Interfaces.REST.Controllers;
 public class ROIProjectionsController : ControllerBase
 {
     private readonly IROIProjectionCommandService _roiProjectionCommandService;
+    private readonly IROIProjectionQueryService _roiProjectionQueryService;
 
-    public ROIProjectionsController(IROIProjectionCommandService roiProjectionCommandService)
+    public ROIProjectionsController(
+        IROIProjectionCommandService roiProjectionCommandService,
+        IROIProjectionQueryService roiProjectionQueryService)
     {
         _roiProjectionCommandService = roiProjectionCommandService;
+        _roiProjectionQueryService = roiProjectionQueryService;
     }
 
     [HttpPost]
@@ -56,5 +62,16 @@ public class ROIProjectionsController : ControllerBase
 
         var resource = ROIProjectionResourceFromEntityAssembler.ToResourceFromEntity(result.Value!);
         return Ok(resource);
+    }
+
+    [HttpGet("by-admin/{adminId:int}")]
+    public async Task<IActionResult> GetROIProjectionsByAdmin([FromRoute] int adminId, CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        if (adminId != authenticatedAdminId) return Forbid();
+
+        var projections = await _roiProjectionQueryService.Handle(
+            new GetAllROIProjectionsByAdminIdQuery(adminId), cancellationToken);
+        return Ok(projections.Select(ROIProjectionResourceFromEntityAssembler.ToResourceFromEntity));
     }
 }

@@ -1,5 +1,7 @@
 using SpotTrack.Platform.Analytics.Application.CommandServices;
 using SpotTrack.Platform.Analytics.Application.Internal.CommandServices;
+using SpotTrack.Platform.Analytics.Application.Internal.QueryServices;
+using SpotTrack.Platform.Analytics.Application.QueryServices;
 using SpotTrack.Platform.Analytics.Domain.Repositories;
 using SpotTrack.Platform.Analytics.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Profiles.Application.Acl;
@@ -170,6 +172,9 @@ builder.Services.AddScoped<IROIProjectionRepository, ROIProjectionRepository>();
 builder.Services.AddScoped<IActivityReportCommandService, ActivityReportCommandService>();
 builder.Services.AddScoped<IMaintenanceQuoteCommandService, MaintenanceQuoteCommandService>();
 builder.Services.AddScoped<IROIProjectionCommandService, ROIProjectionCommandService>();
+builder.Services.AddScoped<IActivityReportQueryService, ActivityReportQueryService>();
+builder.Services.AddScoped<IMaintenanceQuoteQueryService, MaintenanceQuoteQueryService>();
+builder.Services.AddScoped<IROIProjectionQueryService, ROIProjectionQueryService>();
 
 // Profiles Bounded Context
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
