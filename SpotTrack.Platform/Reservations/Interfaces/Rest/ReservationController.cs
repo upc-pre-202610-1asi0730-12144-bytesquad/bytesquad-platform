@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Extensions;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
 using SpotTrack.Platform.Reservations.Application.QueryServices;
 using SpotTrack.Platform.Reservations.Domain.Model;
@@ -37,7 +38,8 @@ public class ReservationsController(
         [FromBody] CreateInitiateExpressReservationResource resource,
         CancellationToken cancellationToken)
     {
-        var command = CreateInitiateExpressReservationCommandFromResourceAssembler.ToCommandFromResource(resource);
+        var userId = HttpContext.GetAuthenticatedUserId() ?? 0;
+        var command = CreateInitiateExpressReservationCommandFromResourceAssembler.ToCommandFromResource(userId, resource);
         var result = await reservationCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)
