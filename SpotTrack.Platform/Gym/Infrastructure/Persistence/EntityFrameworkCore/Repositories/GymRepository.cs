@@ -49,6 +49,9 @@ public class GymRepository(AppDbContext context) : BaseRepository<Gym>(context),
     public async Task<bool> ExistsByAdminIdAsync(int adminId, CancellationToken cancellationToken = default) =>
         await Context.Set<Gym>().AnyAsync(g => g.AdminId == adminId, cancellationToken);
 
+    public async Task<Gym?> FindByAdminIdAsync(int adminId, CancellationToken cancellationToken = default) =>
+        await Context.Set<Gym>().FirstOrDefaultAsync(g => g.AdminId == adminId, cancellationToken);
+
     public async Task<IEnumerable<int>> FindAllEquipmentIdsByAdminIdAsync(
         int adminId,
         CancellationToken cancellationToken = default)
