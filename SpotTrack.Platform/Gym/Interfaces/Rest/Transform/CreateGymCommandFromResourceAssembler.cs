@@ -6,5 +6,5 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
 public static class CreateGymCommandFromResourceAssembler
 {
     public static CreateGymCommand ToCommandFromResource(int adminId, CreateGymResource resource) =>
-        new(adminId, resource.Name, resource.Street, resource.District, resource.City);
+        new(adminId, resource.Name);
 }
