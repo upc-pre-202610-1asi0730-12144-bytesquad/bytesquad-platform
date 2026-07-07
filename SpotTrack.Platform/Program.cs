@@ -80,6 +80,12 @@ using SpotTrack.Platform.Maintenances.Application.QueryServices;
 using SpotTrack.Platform.Maintenances.Domain.Repositories;
 using SpotTrack.Platform.Maintenances.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Maintenances.Resources;
+using SpotTrack.Platform.Monitoring.Application.CommandServices;
+using SpotTrack.Platform.Monitoring.Application.Internal.CommandServices;
+using SpotTrack.Platform.Monitoring.Application.Internal.QueryServices;
+using SpotTrack.Platform.Monitoring.Application.QueryServices;
+using SpotTrack.Platform.Monitoring.Domain.Repositories;
+using SpotTrack.Platform.Monitoring.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -246,6 +252,16 @@ builder.Services.AddScoped<IMaintenanceLogQueryService, MaintenanceLogQueryServi
 builder.Services.AddScoped<ITechnicianRepository, TechnicianRepository>();
 builder.Services.AddScoped<ITechnicianCommandService, TechnicianCommandService>();
 builder.Services.AddScoped<ITechnicianQueryService, TechnicianQueryService>();
+
+// Monitoring Bounded Context
+builder.Services.AddScoped<ISensorRepository, SensorRepository>();
+builder.Services.AddScoped<ISessionTrackerRepository, SessionTrackerRepository>();
+builder.Services.AddScoped<IAnomalyRepository, AnomalyRepository>();
+builder.Services.AddScoped<ISensorCommandService, SensorCommandService>();
+builder.Services.AddScoped<ISessionTrackerCommandService, SessionTrackerCommandService>();
+builder.Services.AddScoped<IAnomalyCommandService, AnomalyCommandService>();
+builder.Services.AddScoped<ISensorQueryService, SensorQueryService>();
+builder.Services.AddScoped<ISessionTrackerQueryService, SessionTrackerQueryService>();
 
 // IAM Bounded Context
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
