@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Configuration;
 using SpotTrack.Platform.Gyms.Interfaces.Acl;
 using SpotTrack.Platform.Memberships.Application.QueryServices;
 using SpotTrack.Platform.Memberships.Domain.Model;
@@ -11,18 +10,10 @@ namespace SpotTrack.Platform.Reservations.Application.Acl;
 public class ReservationsMembershipContextFacade(
     IGymContextFacade gymContextFacade,
     IProfilesContextFacade profilesContextFacade,
-    IMembershipQueryService membershipQueryService,
-    IConfiguration configuration) : IReservationsMembershipContextFacade
+    IMembershipQueryService membershipQueryService) : IReservationsMembershipContextFacade
 {
     public async Task<bool> GymHasActiveMembershipAsync(int equipmentId, CancellationToken cancellationToken)
     {
-        // TEMPORARY local-only escape hatch for testing without a real active gym
-        // membership. Off by default everywhere; only ever turned on via the
-        // untracked appsettings.Development.json on a developer's own machine.
-        // Remove this block once testing no longer needs it.
-        if (configuration.GetValue<bool>("Reservations:BypassGymMembershipCheck"))
-            return true;
-
         var adminId = await gymContextFacade.GetAdminIdByEquipmentIdAsync(equipmentId, cancellationToken);
         if (adminId is null) return false;
 
@@ -36,10 +27,6 @@ public class ReservationsMembershipContextFacade(
 
     public async Task<bool> ClientGymHasActiveMembershipAsync(int userId, int equipmentId, CancellationToken cancellationToken)
     {
-        // Same local-only escape hatch as GymHasActiveMembershipAsync above.
-        if (configuration.GetValue<bool>("Reservations:BypassGymMembershipCheck"))
-            return true;
-
         var gymId = await profilesContextFacade.GetActiveGymIdForClientAsync(userId, cancellationToken);
         if (gymId == 0) return false;
 
