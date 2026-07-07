@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using SpotTrack.Platform.Gyms.Interfaces.Acl;
 using SpotTrack.Platform.Iam.Interfaces.Acl;
 using SpotTrack.Platform.Memberships.Application.CommandServices;
 using SpotTrack.Platform.Memberships.Domain.Model;
@@ -14,7 +13,6 @@ namespace SpotTrack.Platform.Memberships.Application.Internal.EventHandlers;
 public class PaymentConfirmedEventHandler(
     IIamContextFacade iamFacade,
     IProfilesContextFacade profilesFacade,
-    IGymContextFacade gymFacade,
     IMembershipCommandService membershipCommandService,
     ILogger<PaymentConfirmedEventHandler> logger)
     : IEventHandler<PaymentConfirmedEvent>
@@ -55,11 +53,6 @@ public class PaymentConfirmedEventHandler(
             logger.LogError("PaymentConfirmed: failed to provision Business for admin {AdminId}", adminId);
             return;
         }
-
-        var gymId = await gymFacade.CreateGymWithBranchAsync(userId, data.CompanyName,
-            "Sede Principal", data.StreetAddress, data.District, data.City, cancellationToken);
-        if (gymId == 0)
-            logger.LogWarning("PaymentConfirmed: gym already exists or creation failed for admin {UserId} — continuing", userId);
 
         if (!Enum.TryParse<EMembershipPlan>(data.MembershipTier, ignoreCase: true, out var plan))
         {
