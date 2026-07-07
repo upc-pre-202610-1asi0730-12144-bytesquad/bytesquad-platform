@@ -13,6 +13,8 @@ public partial class Equipment
 
     public EquipmentStatus Status { get; private set; }
 
+    public int? MaintenanceThreshold { get; private set; }
+
     private Equipment() { }
 
     public Equipment(RegisterEquipmentCommand command)
@@ -82,5 +84,13 @@ public partial class Equipment
             throw new InvalidOperationException("Cannot relocate decommissioned equipment.");
 
         ZoneId = new ZoneId(newZoneId);
+    }
+
+    public void SetMaintenanceThreshold(int usageCount)
+    {
+        if (usageCount <= 0)
+            throw new ArgumentException("Maintenance threshold must be greater than zero.", nameof(usageCount));
+
+        MaintenanceThreshold = usageCount;
     }
 }
