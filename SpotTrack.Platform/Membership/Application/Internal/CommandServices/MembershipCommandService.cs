@@ -350,4 +350,136 @@ public class MembershipCommandService(
                 localizer[nameof(MembershipError.InternalServerError)]);
         }
     }
+
+    public async Task<Result<Membership>> Handle(
+        CreateUndoCancelMembershipCommand command,
+        CancellationToken cancellationToken)
+    {
+        var membership = await membershipRepository.FindByIdAsync(command.MembershipId, cancellationToken);
+        if (membership is null)
+            return Result<Membership>.Failure(
+                MembershipError.MembershipNotFound,
+                localizer[nameof(MembershipError.MembershipNotFound)]);
+
+        try
+        {
+            membership.UndoCancellation();
+        }
+        catch (InvalidOperationException)
+        {
+            return Result<Membership>.Failure(
+                MembershipError.InvalidMembershipStatus,
+                localizer[nameof(MembershipError.InvalidMembershipStatus)]);
+        }
+
+        try
+        {
+            membershipRepository.Update(membership);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            await mediator.PublishAsync(MembershipCancellationUndoneEvent.FromMembership(membership), cancellationToken);
+            return Result<Membership>.Success(membership);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<Membership>.Failure(MembershipError.OperationCancelled, localizer[nameof(MembershipError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Membership>.Failure(MembershipError.DatabaseError, localizer[nameof(MembershipError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Membership>.Failure(MembershipError.InternalServerError, localizer[nameof(MembershipError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result<Membership>> Handle(
+        CreatePayDebtCommand command,
+        CancellationToken cancellationToken)
+    {
+        var membership = await membershipRepository.FindByIdAsync(command.MembershipId, cancellationToken);
+        if (membership is null)
+            return Result<Membership>.Failure(
+                MembershipError.MembershipNotFound,
+                localizer[nameof(MembershipError.MembershipNotFound)]);
+
+        try
+        {
+            membership.PayDebt();
+        }
+        catch (InvalidOperationException)
+        {
+            return Result<Membership>.Failure(
+                MembershipError.InvalidMembershipStatus,
+                localizer[nameof(MembershipError.InvalidMembershipStatus)]);
+        }
+
+        try
+        {
+            membershipRepository.Update(membership);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            await mediator.PublishAsync(MembershipDebtPaidEvent.FromMembership(membership), cancellationToken);
+            return Result<Membership>.Success(membership);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<Membership>.Failure(MembershipError.OperationCancelled, localizer[nameof(MembershipError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Membership>.Failure(MembershipError.DatabaseError, localizer[nameof(MembershipError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Membership>.Failure(MembershipError.InternalServerError, localizer[nameof(MembershipError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result<Membership>> Handle(
+        CreateResubscribeCommand command,
+        CancellationToken cancellationToken)
+    {
+        var membership = await membershipRepository.FindByIdAsync(command.MembershipId, cancellationToken);
+        if (membership is null)
+            return Result<Membership>.Failure(
+                MembershipError.MembershipNotFound,
+                localizer[nameof(MembershipError.MembershipNotFound)]);
+
+        try
+        {
+            membership.Resubscribe(command.NewStartDate, command.NewEndDate);
+        }
+        catch (InvalidOperationException)
+        {
+            return Result<Membership>.Failure(
+                MembershipError.InvalidMembershipStatus,
+                localizer[nameof(MembershipError.InvalidMembershipStatus)]);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return Result<Membership>.Failure(
+                MembershipError.InvalidMembershipPeriod,
+                localizer[nameof(MembershipError.InvalidMembershipPeriod)]);
+        }
+
+        try
+        {
+            membershipRepository.Update(membership);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            await mediator.PublishAsync(MembershipResubscribedEvent.FromMembership(membership), cancellationToken);
+            return Result<Membership>.Success(membership);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<Membership>.Failure(MembershipError.OperationCancelled, localizer[nameof(MembershipError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Membership>.Failure(MembershipError.DatabaseError, localizer[nameof(MembershipError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Membership>.Failure(MembershipError.InternalServerError, localizer[nameof(MembershipError.InternalServerError)]);
+        }
+    }
 }
