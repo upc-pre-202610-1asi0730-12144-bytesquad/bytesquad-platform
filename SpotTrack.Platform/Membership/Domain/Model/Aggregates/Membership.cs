@@ -110,4 +110,33 @@ public partial class Membership
 
         PendingDowngradePlan = newPlan;
     }
+
+    public void UndoCancellation()
+    {
+        if (Status != EMembershipStatus.PendingCancellation)
+            throw new InvalidOperationException("Only a PendingCancellation membership can undo its cancellation.");
+
+        Status = EMembershipStatus.Active;
+    }
+
+    public void PayDebt()
+    {
+        if (Status != EMembershipStatus.Suspended)
+            throw new InvalidOperationException("Only a Suspended membership can pay its debt.");
+
+        Status = EMembershipStatus.Active;
+    }
+
+    public void Resubscribe(DateTimeOffset newStartDate, DateTimeOffset newEndDate)
+    {
+        if (Status != EMembershipStatus.Cancelled)
+            throw new InvalidOperationException("Only a Cancelled membership can resubscribe.");
+
+        if (newEndDate <= newStartDate)
+            throw new ArgumentOutOfRangeException(nameof(newEndDate), "End date must be after start date.");
+
+        StartDate = newStartDate;
+        EndDate = newEndDate;
+        Status = EMembershipStatus.Active;
+    }
 }
