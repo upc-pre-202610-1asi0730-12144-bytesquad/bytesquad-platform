@@ -7,4 +7,5 @@ public interface IAdminRepository : IBaseRepository<Admin>
 {
     Task<Admin?> FindByEmailAsync(string email, CancellationToken cancellationToken = default);
     Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<Admin?> FindByUserIdAsync(int userId, CancellationToken cancellationToken = default);
 }
