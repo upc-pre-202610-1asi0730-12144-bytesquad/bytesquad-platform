@@ -1,3 +1,4 @@
+using SpotTrack.Platform.Monitoring.Domain.Model;
 using SpotTrack.Platform.Monitoring.Domain.Model.Aggregates;
 using SpotTrack.Platform.Shared.Domain.Repositories;
 
