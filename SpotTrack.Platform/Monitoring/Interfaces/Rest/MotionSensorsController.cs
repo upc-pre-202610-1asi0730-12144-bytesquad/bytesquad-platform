@@ -19,7 +19,6 @@ namespace SpotTrack.Platform.Monitoring.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/motion-sensors")]
 [Produces(MediaTypeNames.Application.Json)]
-[AllowAnonymous]
 [SwaggerTag("Motion sensor management endpoints")]
 public class MotionSensorsController(
     ISensorCommandService sensorCommandService,
@@ -48,6 +47,7 @@ public class MotionSensorsController(
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [SwaggerOperation(
         Summary = "Get all motion sensors",
         Description = "Returns a list of all registered motion sensors.",
@@ -75,6 +75,7 @@ public class MotionSensorsController(
     }
 
     [HttpPost("capture-motion")]
+    [AllowAnonymous]
     [SwaggerOperation(
         Summary = "Capture a motion detection event",
         Description = "Records a motion detection event reported by an IoT motion sensor device.",
