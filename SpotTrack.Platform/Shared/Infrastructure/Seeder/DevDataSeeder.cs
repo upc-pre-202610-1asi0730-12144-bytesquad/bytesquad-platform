@@ -34,6 +34,7 @@ public static class DevDataSeeder
     public const string AdminPassword = "Admin123!";
     public const string ClientUsername = "client@spottrack.test";
     public const string ClientPassword = "Client123!";
+    public const string ClientDni = "12345678";
 
     public static async Task SeedAsync(IServiceProvider rootServices)
     {
@@ -81,7 +82,7 @@ public static class DevDataSeeder
 
         var client = await clientQueryService.Handle(new GetClientByUserIdQuery(clientUserId), default);
         await clientCommandService.Handle(
-            new UpdateClientProfileCommand(client!.Id, "Demo", "Client", "988888888"), default);
+            new UpdateClientProfileCommand(client!.Id, "Demo", "Client", "988888888", ClientDni), default);
 
         var gym = (await gymCommandService.Handle(
             new CreateGymCommand(adminUserId, "SpotTrack Demo Gym"),
@@ -106,6 +107,9 @@ public static class DevDataSeeder
             new RegisterEquipmentCommand("Caminadora", "Technogym Run 900", zone.Id), default);
         await equipmentCommandService.Handle(
             new RegisterEquipmentCommand("Bicicleta estática", "Technogym Bike 700", zone.Id), default);
+
+        await gymCommandService.Handle(
+            new AddAuthorizedDniCommand(gym.Id, ClientDni), default);
 
         await clientCommandService.Handle(
             new AssociateClientWithGymCommand(client.Id, gym.Id), default);

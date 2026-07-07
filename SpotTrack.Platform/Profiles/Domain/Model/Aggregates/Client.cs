@@ -33,6 +33,8 @@ public partial class Client
     {
         Name = new PersonName(command.FirstName, command.LastName);
         Phone = new PhoneNumber(command.PhoneNumber);
+        if (!string.IsNullOrWhiteSpace(command.Dni))
+            Dni = new ValueObjects.Dni(command.Dni);
     }
 
     public string FullName => Name?.FullName ?? string.Empty;
