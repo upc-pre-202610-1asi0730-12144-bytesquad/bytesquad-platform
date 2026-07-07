@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Iam.Application.CommandServices;
 using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Iam.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Iam.Interfaces.Rest.Transform;
@@ -78,6 +79,12 @@ public class AuthenticationController(
         var (user, token) = result.Value!;
         return IamActionResultAssembler.ToSignInSuccessActionResult(user, token, this);
     }
+
+    [HttpGet("/api/v1/roles")]
+    [AllowAnonymous]
+    [SwaggerOperation(Summary = "List all roles", Description = "Returns the available user role values.", OperationId = "GetRoles")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of roles")]
+    public IActionResult GetRoles() => Ok(Enum.GetNames<UserRole>());
 
     [HttpPost("forgot-password")]
     [AllowAnonymous]
