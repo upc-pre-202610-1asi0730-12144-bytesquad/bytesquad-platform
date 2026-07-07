@@ -8,6 +8,7 @@ using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
+using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
@@ -24,6 +25,7 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest;
 public class GymsController(
     IGymCommandService gymCommandService,
     IGymQueryService gymQueryService,
+    IEquipmentQueryService equipmentQueryService,
     IAuthorizedDniRepository authorizedDniRepository,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
@@ -83,6 +85,29 @@ public class GymsController(
             GymResourceFromEntityAssembler.ToResourceFromEntity,
             StatusCodes.Status201Created,
             this);
+    }
+
+    [HttpGet("{gymId:int}/equipments")]
+    [SwaggerOperation(
+        Summary = "Get all equipment of a gym",
+        Description = "Returns all equipment across all branches and zones of the given gym. Admin must own the gym.",
+        OperationId = "GetEquipmentByGym")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of equipment", typeof(IEnumerable<EquipmentResource>))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    public async Task<IActionResult> GetEquipmentByGym(
+        [FromRoute] int gymId,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var equipment = await equipmentQueryService.Handle(new GetEquipmentByGymIdQuery(gymId), cancellationToken);
+        return Ok(equipment.Select(EquipmentResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     [HttpGet("{gymId:int}/zones")]
