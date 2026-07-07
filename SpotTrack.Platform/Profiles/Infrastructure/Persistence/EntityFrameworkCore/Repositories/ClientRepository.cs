@@ -20,4 +20,10 @@ public class ClientRepository(AppDbContext context)
         return await Context.Set<Client>()
             .AnyAsync(c => c.Email != null && c.Email.Address == email, cancellationToken);
     }
+
+    public async Task<Client?> FindByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<Client>()
+            .FirstOrDefaultAsync(c => c.UserId == userId, cancellationToken);
+    }
 }
