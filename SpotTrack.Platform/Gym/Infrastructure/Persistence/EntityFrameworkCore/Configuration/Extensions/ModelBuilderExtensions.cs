@@ -49,14 +49,6 @@ public static class ModelBuilderExtensions
                 name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
             });
 
-            entity.OwnsOne(g => g.Address, address =>
-            {
-                address.WithOwner().HasForeignKey("Id");
-                address.Property(a => a.Street).IsRequired().HasMaxLength(200).HasColumnName("street");
-                address.Property(a => a.District).IsRequired().HasMaxLength(100).HasColumnName("district");
-                address.Property(a => a.City).IsRequired().HasMaxLength(100).HasColumnName("city");
-            });
-
             entity.HasMany(g => g.Branches)
                 .WithOne()
                 .HasForeignKey("gym_id")
