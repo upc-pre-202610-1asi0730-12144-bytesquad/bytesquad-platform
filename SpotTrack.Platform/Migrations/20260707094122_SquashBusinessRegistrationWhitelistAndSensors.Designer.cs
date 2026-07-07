@@ -11,8 +11,8 @@ using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.C
 namespace SpotTrack.Platform.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260707092636_AddSensors")]
-    partial class AddSensors
+    [Migration("20260707094122_SquashBusinessRegistrationWhitelistAndSensors")]
+    partial class SquashBusinessRegistrationWhitelistAndSensors
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
