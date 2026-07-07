@@ -8,4 +8,5 @@ public interface IActivityReportRepository
     Task AddAsync(ActivityReport activityReport);
     Task<ActivityReport?> FindByActivityReportIdAsync(ActivityReportId activityReportId);
     Task UpdateAsync(ActivityReport activityReport);
+    Task<IEnumerable<ActivityReport>> FindAllByAdminIdAsync(int adminId, CancellationToken cancellationToken = default);
 }
