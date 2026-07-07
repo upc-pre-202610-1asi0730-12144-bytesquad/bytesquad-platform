@@ -29,4 +29,10 @@ public class MaintenanceLogRepository(AppDbContext context)
         => await Context.Set<MaintenanceLog>()
             .Where(l => l.TechnicalTicketId == ticketId)
             .ToListAsync(cancellationToken);
+
+    public async Task<bool> ExistsByTechnicalTicketIdAsync(
+        int ticketId,
+        CancellationToken cancellationToken = default)
+        => await Context.Set<MaintenanceLog>()
+            .AnyAsync(l => l.TechnicalTicketId == ticketId, cancellationToken);
 }
