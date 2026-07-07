@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Gyms.Domain.Model;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
 using SpotTrack.Platform.Gyms.Domain.Model.Queries;
 using SpotTrack.Platform.Gyms.Domain.Services;
@@ -44,7 +45,7 @@ public class EquipmentController(
         var equipment = await equipmentQueryService.Handle(new GetEquipmentByIdQuery(equipmentId), cancellationToken);
         if (equipment is null)
             return problemDetailsFactory.CreateProblemDetails(
-                this, StatusCodes.Status404NotFound, null, "Equipment not found.");
+                this, StatusCodes.Status404NotFound, EquipmentError.EquipmentNotFound, "Equipment not found.");
         return Ok(EquipmentResourceFromEntityAssembler.ToResourceFromEntity(equipment));
     }
 
