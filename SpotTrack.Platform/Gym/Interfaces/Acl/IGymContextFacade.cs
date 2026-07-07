@@ -8,4 +8,6 @@ public interface IGymContextFacade
     Task<bool> MarkEquipmentAvailableAsync(int equipmentId);
     Task<int?> GetAdminIdByEquipmentIdAsync(int equipmentId, CancellationToken cancellationToken);
     Task<IEnumerable<int>> GetEquipmentIdsByAdminIdAsync(int adminId, CancellationToken cancellationToken = default);
+    Task<bool> IsDniWhitelistedForGymAsync(int gymId, string dni, CancellationToken cancellationToken = default);
+    Task<int> GetAdminIdByGymIdAsync(int gymId, CancellationToken cancellationToken = default);
 }
