@@ -13,7 +13,10 @@ public static class IamActionResultAssembler
     {
         IamError.InvalidCredentials => StatusCodes.Status401Unauthorized,
         IamError.UsernameAlreadyTaken => StatusCodes.Status409Conflict,
-        IamError.InvalidCurrentPassword => StatusCodes.Status400BadRequest,
+        IamError.InvalidCurrentPassword or
+            IamError.InvalidResetCode or
+            IamError.ResetCodeExpired => StatusCodes.Status400BadRequest,
+        IamError.UserNotFound => StatusCodes.Status404NotFound,
         _ => StatusCodes.Status500InternalServerError
     };
 

@@ -11,5 +11,8 @@ public enum IamError
     PendingRegistrationNotFound,
     PendingRegistrationExpired,
     PendingRegistrationAlreadyConsumed,
-    InvalidCurrentPassword
+    InvalidCurrentPassword,
+    UserNotFound,
+    InvalidResetCode,
+    ResetCodeExpired
 }
