@@ -6,5 +6,6 @@ namespace SpotTrack.Platform.Routines.Interfaces.Rest.Transform;
 public static class RoutineSessionResourceFromEntityAssembler
 {
     public static RoutineSessionResource ToResourceFromEntity(RoutineSession session) =>
-        new(session.Id, session.RoutineId, session.ClientId.Value, session.Status.ToString(), session.StartedAt);
+        new(session.Id, session.RoutineId, session.ClientId.Value, session.Status.ToString(), session.StartedAt,
+            session.CompletedBlocks.Select(b => b.ExerciseBlockId));
 }
