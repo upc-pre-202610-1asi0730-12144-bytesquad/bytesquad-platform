@@ -56,8 +56,8 @@ public class PaymentConfirmedEventHandler(
             return;
         }
 
-        var gymId = await gymFacade.CreateGymAsync(userId, data.CompanyName,
-            data.StreetAddress, data.District, data.City, cancellationToken);
+        var gymId = await gymFacade.CreateGymWithBranchAsync(userId, data.CompanyName,
+            "Sede Principal", data.StreetAddress, data.District, data.City, cancellationToken);
         if (gymId == 0)
             logger.LogWarning("PaymentConfirmed: gym already exists or creation failed for admin {UserId} — continuing", userId);
 
