@@ -1,7 +1,9 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Gyms.Domain.Model;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
+using SpotTrack.Platform.Gyms.Domain.Model.Queries;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
@@ -20,8 +22,30 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest;
 [SwaggerTag("Gym management endpoints")]
 public class GymsController(
     IGymCommandService gymCommandService,
+    IGymQueryService gymQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet("by-admin/{adminId:int}")]
+    [SwaggerOperation(
+        Summary = "Get gym by admin",
+        OperationId = "GetGymByAdmin")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Gym found", typeof(GymResource))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Access denied")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "No gym found for this admin")]
+    public async Task<IActionResult> GetGymByAdmin(
+        [FromRoute] int adminId,
+        CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        if (adminId != authenticatedAdminId) return Forbid();
+
+        var gym = await gymQueryService.Handle(new GetGymByAdminIdQuery(adminId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, GymError.GymNotFound, "No gym found for this admin.");
+        return Ok(GymResourceFromEntityAssembler.ToResourceFromEntity(gym));
+    }
+
     [HttpPost]
     [SwaggerOperation(
         Summary = "Create a new gym",
