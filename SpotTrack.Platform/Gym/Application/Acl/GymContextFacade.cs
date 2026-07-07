@@ -43,6 +43,11 @@ public class GymContextFacade(
         CancellationToken cancellationToken)
         => await gymRepository.FindAdminIdByEquipmentIdAsync(equipmentId, cancellationToken);
 
+    public async Task<IEnumerable<int>> GetEquipmentIdsByAdminIdAsync(
+        int adminId,
+        CancellationToken cancellationToken = default)
+        => await gymRepository.FindAllEquipmentIdsByAdminIdAsync(adminId, cancellationToken);
+
     public async Task<int> CreateGymAsync(int adminId, string name, string street, string district, string city,
         CancellationToken cancellationToken = default)
     {

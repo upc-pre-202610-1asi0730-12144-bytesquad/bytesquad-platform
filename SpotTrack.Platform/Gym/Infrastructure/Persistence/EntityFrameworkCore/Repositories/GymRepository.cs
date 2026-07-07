@@ -48,4 +48,20 @@ public class GymRepository(AppDbContext context) : BaseRepository<Gym>(context),
 
     public async Task<bool> ExistsByAdminIdAsync(int adminId, CancellationToken cancellationToken = default) =>
         await Context.Set<Gym>().AnyAsync(g => g.AdminId == adminId, cancellationToken);
+
+    public async Task<IEnumerable<int>> FindAllEquipmentIdsByAdminIdAsync(
+        int adminId,
+        CancellationToken cancellationToken = default)
+    {
+        var zoneIds = Context.Set<Gym>()
+            .Where(g => g.AdminId == adminId)
+            .SelectMany(g => g.Branches)
+            .SelectMany(b => b.Zones)
+            .Select(z => z.Id);
+
+        return await Context.Set<Equipment>()
+            .Where(e => zoneIds.Contains(e.ZoneId.Value))
+            .Select(e => e.Id)
+            .ToListAsync(cancellationToken);
+    }
 }
