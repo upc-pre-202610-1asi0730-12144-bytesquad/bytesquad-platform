@@ -5,6 +5,6 @@ namespace SpotTrack.Platform.Profiles.Interfaces.Rest.Transform;
 
 public static class AssociateClientWithGymCommandFromResourceAssembler
 {
-    public static AssociateClientWithGymCommand ToCommandFromResource(int clientId, AssociateGymResource resource) =>
-        new(clientId, resource.GymId);
+    public static AssociateClientWithGymCommand ToCommandFromResource(int clientId, AssociateGymResource resource)
+        => new(clientId, resource.GymId);
 }

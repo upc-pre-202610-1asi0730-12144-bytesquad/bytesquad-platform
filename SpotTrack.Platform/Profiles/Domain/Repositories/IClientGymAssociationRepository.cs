@@ -8,5 +8,6 @@ public interface IClientGymAssociationRepository : IBaseRepository<ClientGymAsso
     Task<bool> ExistsByClientIdAndGymIdAsync(int clientId, int gymId, CancellationToken cancellationToken = default);
     Task<ClientGymAssociation?> FindByClientIdAndGymIdAsync(int clientId, int gymId, CancellationToken cancellationToken = default);
     Task<IEnumerable<ClientGymAssociation>> FindAllByClientIdAsync(int clientId, CancellationToken cancellationToken = default);
-    Task<IEnumerable<ClientGymAssociation>> FindAllByClientIdAndActiveAsync(int clientId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ClientGymAssociation>> FindActiveByClientIdAsync(int clientId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ClientGymAssociation>> FindAllByGymIdAndDniAsync(int gymId, string dni, CancellationToken cancellationToken = default);
 }

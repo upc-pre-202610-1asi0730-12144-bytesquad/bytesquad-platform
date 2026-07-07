@@ -18,6 +18,7 @@ namespace SpotTrack.Platform.Gyms.Application.Internal.CommandServices;
 
 public class GymCommandService(
     IGymRepository gymRepository,
+    IAuthorizedDniRepository authorizedDniRepository,
     IUnitOfWork unitOfWork,
     IMediator mediator,
     IMembershipContextFacade membershipContextFacade,
@@ -170,6 +171,76 @@ public class GymCommandService(
             return Result<Zone>.Failure(
                 GymError.InternalServerError,
                 localizer[nameof(GymError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result<AuthorizedDni>> Handle(AddAuthorizedDniCommand command, CancellationToken cancellationToken)
+    {
+        var gym = await gymRepository.FindByIdAsync(command.GymId, cancellationToken);
+        if (gym is null)
+            return Result<AuthorizedDni>.Failure(GymError.GymNotFound, localizer[nameof(GymError.GymNotFound)]);
+
+        if (await authorizedDniRepository.ExistsByGymIdAndDniAsync(command.GymId, command.Dni, cancellationToken))
+            return Result<AuthorizedDni>.Failure(GymError.DniAlreadyAuthorized, localizer[nameof(GymError.DniAlreadyAuthorized)]);
+
+        AuthorizedDni entry;
+        try
+        {
+            entry = new AuthorizedDni(command.GymId, command.Dni);
+        }
+        catch (ArgumentException)
+        {
+            return Result<AuthorizedDni>.Failure(GymError.DniInvalid, localizer[nameof(GymError.DniInvalid)]);
+        }
+
+        try
+        {
+            await authorizedDniRepository.AddAsync(entry, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<AuthorizedDni>.Success(entry);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<AuthorizedDni>.Failure(GymError.OperationCancelled, localizer[nameof(GymError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<AuthorizedDni>.Failure(GymError.DatabaseError, localizer[nameof(GymError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<AuthorizedDni>.Failure(GymError.InternalServerError, localizer[nameof(GymError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result<AuthorizedDni>> Handle(RemoveAuthorizedDniCommand command, CancellationToken cancellationToken)
+    {
+        var gym = await gymRepository.FindByIdAsync(command.GymId, cancellationToken);
+        if (gym is null)
+            return Result<AuthorizedDni>.Failure(GymError.GymNotFound, localizer[nameof(GymError.GymNotFound)]);
+
+        var entry = await authorizedDniRepository.FindByGymIdAndDniAsync(command.GymId, command.Dni, cancellationToken);
+        if (entry is null)
+            return Result<AuthorizedDni>.Failure(GymError.DniNotFound, localizer[nameof(GymError.DniNotFound)]);
+
+        try
+        {
+            authorizedDniRepository.Remove(entry);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            await mediator.PublishAsync(new GymDniRevokedEvent(command.GymId, command.Dni), cancellationToken);
+            return Result<AuthorizedDni>.Success(entry);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<AuthorizedDni>.Failure(GymError.OperationCancelled, localizer[nameof(GymError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<AuthorizedDni>.Failure(GymError.DatabaseError, localizer[nameof(GymError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<AuthorizedDni>.Failure(GymError.InternalServerError, localizer[nameof(GymError.InternalServerError)]);
         }
     }
 }

@@ -11,5 +11,6 @@ public enum ProfilesError
     InternalServerError,
     ProfileIncomplete,
     AlreadyAssociatedWithGym,
-    GymAssociationNotFound
+    GymAssociationNotFound,
+    GymAccessDenied
 }

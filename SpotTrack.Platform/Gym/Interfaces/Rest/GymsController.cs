@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Gyms.Domain.Model;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
 using SpotTrack.Platform.Gyms.Domain.Model.Queries;
+using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
@@ -23,6 +24,7 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest;
 public class GymsController(
     IGymCommandService gymCommandService,
     IGymQueryService gymQueryService,
+    IAuthorizedDniRepository authorizedDniRepository,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
     [HttpGet]
@@ -193,5 +195,86 @@ public class GymsController(
             ZoneResourceFromEntityAssembler.ToResourceFromEntity,
             StatusCodes.Status201Created,
             this);
+    }
+
+    [HttpGet("{gymId:int}/authorized-dnis")]
+    [SwaggerOperation(
+        Summary = "List authorised DNIs for a gym",
+        Description = "Returns all DNIs on the whitelist for the given gym. Admin must own the gym.",
+        OperationId = "GetAuthorizedDnis")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of authorised DNIs", typeof(IEnumerable<AuthorizedDniResource>))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    public async Task<IActionResult> GetAuthorizedDnis(
+        [FromRoute] int gymId,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var entries = await authorizedDniRepository.FindAllByGymIdAsync(gymId, cancellationToken);
+        return Ok(entries.Select(AuthorizedDniResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
+    [HttpPost("{gymId:int}/authorized-dnis")]
+    [SwaggerOperation(
+        Summary = "Add a DNI to a gym whitelist",
+        Description = "Adds a DNI to the authorised list for the given gym. Admin must own the gym.",
+        OperationId = "AddAuthorizedDni")]
+    [SwaggerResponse(StatusCodes.Status201Created, "DNI added to whitelist", typeof(AuthorizedDniResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid DNI format")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "DNI already on whitelist")]
+    public async Task<IActionResult> AddAuthorizedDni(
+        [FromRoute] int gymId,
+        [FromBody] AddAuthorizedDniResource resource,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var result = await gymCommandService.Handle(new AddAuthorizedDniCommand(gymId, resource.Dni), cancellationToken);
+        if (result.IsFailure)
+            return GymsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return GymsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            AuthorizedDniResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status201Created,
+            this);
+    }
+
+    [HttpDelete("{gymId:int}/authorized-dnis/{dni}")]
+    [SwaggerOperation(
+        Summary = "Remove a DNI from a gym whitelist",
+        Description = "Removes a DNI from the authorised list. Triggers cascade deactivation of any client associations that depended on that DNI.",
+        OperationId = "RemoveAuthorizedDni")]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "DNI removed from whitelist")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym or DNI not found")]
+    public async Task<IActionResult> RemoveAuthorizedDni(
+        [FromRoute] int gymId,
+        [FromRoute] string dni,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var result = await gymCommandService.Handle(new RemoveAuthorizedDniCommand(gymId, dni), cancellationToken);
+        if (result.IsFailure)
+            return GymsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return NoContent();
     }
 }

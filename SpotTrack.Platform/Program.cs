@@ -218,6 +218,7 @@ builder.Services.AddSingleton<IStringLocalizer<MonitoringMessages>, StringLocali
 
 // Gym Bounded Context
 builder.Services.AddScoped<IGymRepository, GymRepository>();
+builder.Services.AddScoped<IAuthorizedDniRepository, AuthorizedDniRepository>();
 builder.Services.AddScoped<IGymCommandService, GymCommandService>();
 builder.Services.AddScoped<IGymQueryService, GymQueryService>();
 builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();

@@ -5,6 +5,6 @@ namespace SpotTrack.Platform.Profiles.Interfaces.Rest.Transform;
 
 public static class ClientGymAssociationResourceFromEntityAssembler
 {
-    public static ClientGymAssociationResource ToResourceFromEntity(ClientGymAssociation association) =>
-        new(association.ClientId, association.GymId, association.Active);
+    public static ClientGymAssociationResource ToResourceFromEntity(ClientGymAssociation entity)
+        => new(entity.Id, entity.ClientId, entity.GymId, entity.Active);
 }

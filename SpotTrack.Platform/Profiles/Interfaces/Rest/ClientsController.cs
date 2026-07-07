@@ -49,13 +49,11 @@ public class ClientsController(
     }
 
     [HttpGet("me")]
-    [Authorize]
     [SwaggerOperation(
         Summary = "Get my client profile",
         Description = "Returns the client profile of the currently authenticated user.",
         OperationId = "GetMyProfile")]
     [SwaggerResponse(StatusCodes.Status200OK, "Profile found", typeof(ClientResource))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found")]
     public async Task<IActionResult> GetMyProfile(CancellationToken cancellationToken)
     {
@@ -68,14 +66,12 @@ public class ClientsController(
     }
 
     [HttpPut("me")]
-    [Authorize]
     [SwaggerOperation(
         Summary = "Update my client profile",
         Description = "Updates personal data (first name, last name, phone number) for the currently authenticated client.",
         OperationId = "UpdateMyProfile")]
     [SwaggerResponse(StatusCodes.Status200OK, "Profile updated successfully", typeof(ClientResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid profile data provided")]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found")]
     public async Task<IActionResult> UpdateMyProfile(
         [FromBody] UpdateClientProfileResource resource,
@@ -99,14 +95,13 @@ public class ClientsController(
     }
 
     [HttpPost("me/gym-associations")]
-    [Authorize]
     [SwaggerOperation(
         Summary = "Associate myself with a gym",
-        Description = "Associates the currently authenticated client with a gym. The first association becomes the active gym automatically.",
+        Description = "Associates the currently authenticated client with a gym after validating their DNI against the gym's whitelist. The first association becomes the active gym automatically.",
         OperationId = "AssociateGym")]
     [SwaggerResponse(StatusCodes.Status201Created, "Association created successfully", typeof(ClientGymAssociationResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Client profile is incomplete")]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "DNI not authorised for this gym")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "Already associated with this gym")]
     public async Task<IActionResult> AssociateGym(
@@ -131,13 +126,11 @@ public class ClientsController(
     }
 
     [HttpGet("me/gym-associations")]
-    [Authorize]
     [SwaggerOperation(
         Summary = "Get my gym associations",
         Description = "Returns the gyms the currently authenticated client is associated with.",
         OperationId = "GetMyGymAssociations")]
     [SwaggerResponse(StatusCodes.Status200OK, "List of gym associations", typeof(IEnumerable<ClientGymAssociationResource>))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found")]
     public async Task<IActionResult> GetMyGymAssociations(CancellationToken cancellationToken)
     {
@@ -149,18 +142,15 @@ public class ClientsController(
 
         var associations = await clientQueryService.Handle(
             new GetClientGymAssociationsQuery(client.Id), cancellationToken);
-        var resources = associations.Select(ClientGymAssociationResourceFromEntityAssembler.ToResourceFromEntity);
-        return Ok(resources);
+        return Ok(associations.Select(ClientGymAssociationResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     [HttpPatch("me/active-gym")]
-    [Authorize]
     [SwaggerOperation(
         Summary = "Change my active gym",
         Description = "Switches the currently authenticated client's active gym to one they are already associated with.",
         OperationId = "ChangeActiveGym")]
     [SwaggerResponse(StatusCodes.Status200OK, "Active gym changed successfully", typeof(ClientGymAssociationResource))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found, or client is not associated with that gym")]
     public async Task<IActionResult> ChangeActiveGym(
         [FromBody] ChangeActiveGymResource resource,
@@ -187,7 +177,7 @@ public class ClientsController(
     [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Get a client profile by ID",
-        Description = "Returns the client profile matching the given ID, or 404 if not found.",
+        Description = "Returns the client profile matching the given ID. Admin only.",
         OperationId = "GetClientById")]
     [SwaggerResponse(StatusCodes.Status200OK, "Client profile found", typeof(ClientResource))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Client profile not found")]
@@ -206,21 +196,20 @@ public class ClientsController(
     [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Get all client profiles",
-        Description = "Returns the list of all registered client profiles.",
+        Description = "Returns the list of all registered client profiles. Admin only.",
         OperationId = "GetAllClients")]
     [SwaggerResponse(StatusCodes.Status200OK, "List of client profiles", typeof(IEnumerable<ClientResource>))]
     public async Task<IActionResult> GetAllClients(CancellationToken cancellationToken)
     {
         var clients = await clientQueryService.Handle(new GetAllClientsQuery(), cancellationToken);
-        var resources = clients.Select(ClientResourceFromEntityAssembler.ToResourceFromEntity);
-        return Ok(resources);
+        return Ok(clients.Select(ClientResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     [HttpPut("{clientId:int}")]
     [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Update a client profile",
-        Description = "Updates the first name, last name and phone number of the given client.",
+        Description = "Updates the first name, last name and phone number of the given client. Admin only.",
         OperationId = "UpdateClientProfile")]
     [SwaggerResponse(StatusCodes.Status200OK, "Client profile updated successfully", typeof(ClientResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid profile data provided")]

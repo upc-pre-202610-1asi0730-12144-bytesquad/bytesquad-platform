@@ -30,4 +30,7 @@
   <data name="GymAssociationNotFound" xml:space="preserve">
     <value>You are not associated with this gym.</value>
   </data>
+  <data name="GymAccessDenied" xml:space="preserve">
+    <value>Your DNI is not authorised for this gym.</value>
+  </data>
 </root>

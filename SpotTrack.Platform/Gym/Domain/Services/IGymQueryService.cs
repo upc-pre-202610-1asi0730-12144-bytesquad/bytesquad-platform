@@ -18,5 +18,6 @@ public interface IGymQueryService
     /// <returns>null if the gym does not exist, otherwise its equipment across all zones (possibly empty).</returns>
     Task<IReadOnlyCollection<Equipment>?> Handle(GetEquipmentsByGymIdQuery query, CancellationToken cancellationToken);
 
+    Task<Gym?> Handle(GetGymByIdQuery query, CancellationToken cancellationToken);
     Task<Gym?> Handle(GetGymByAdminIdQuery query, CancellationToken cancellationToken);
 }

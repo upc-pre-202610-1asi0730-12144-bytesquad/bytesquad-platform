@@ -12,4 +12,6 @@ public interface IGymContextFacade
     Task<IEnumerable<Equipment>> FindAvailableAlternativesAsync(string equipmentName, int excludeEquipmentId);
     Task<int?> GetAdminIdByEquipmentIdAsync(int equipmentId, CancellationToken cancellationToken);
     Task<IEnumerable<int>> GetEquipmentIdsByAdminIdAsync(int adminId, CancellationToken cancellationToken = default);
+    Task<bool> IsDniWhitelistedForGymAsync(int gymId, string dni, CancellationToken cancellationToken = default);
+    Task<int> GetAdminIdByGymIdAsync(int gymId, CancellationToken cancellationToken = default);
 }

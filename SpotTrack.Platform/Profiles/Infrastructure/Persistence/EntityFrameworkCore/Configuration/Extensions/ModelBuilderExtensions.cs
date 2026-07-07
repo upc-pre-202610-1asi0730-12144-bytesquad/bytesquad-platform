@@ -107,5 +107,16 @@ public static class ModelBuilderExtensions
             entity.Property(b => b.CompanyPhone).HasMaxLength(15);
             entity.Property(b => b.CompanyEmail).HasMaxLength(100);
         });
+
+        builder.Entity<ClientGymAssociation>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.Id).ValueGeneratedOnAdd();
+            entity.Property(a => a.ClientId).IsRequired();
+            entity.Property(a => a.GymId).IsRequired();
+            entity.Property(a => a.Active).IsRequired();
+            entity.HasIndex(a => new { a.ClientId, a.GymId }).IsUnique();
+            entity.ToTable("client_gym_associations");
+        });
     }
 }
