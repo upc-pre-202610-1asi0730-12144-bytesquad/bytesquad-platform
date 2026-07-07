@@ -18,6 +18,7 @@ public class UserCommandService(
     IUserRepository userRepository,
     ITokenService tokenService,
     IHashingService hashingService,
+    IEmailService emailService,
     IUnitOfWork unitOfWork,
     IProfilesContextFacade profilesFacade,
     IStringLocalizer<IamMessages> localizer)
@@ -162,6 +163,78 @@ public class UserCommandService(
             return Result<(User, string)>.Failure(
                 IamError.InternalServerError,
                 localizer[nameof(IamError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result> Handle(ForgotPasswordCommand command, CancellationToken cancellationToken)
+    {
+        var user = await userRepository.FindByUsernameAsync(command.Username, cancellationToken);
+
+        // Always return 200 — don't reveal whether username exists
+        if (user is null) return Result.Success();
+
+        var code = Random.Shared.Next(100000, 999999).ToString();
+        var hashedCode = hashingService.HashPassword(code);
+        user.SetResetCode(hashedCode, DateTimeOffset.UtcNow.AddMinutes(15));
+        userRepository.Update(user);
+
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure(IamError.OperationCancelled, localizer[nameof(IamError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result.Failure(IamError.DatabaseError, localizer[nameof(IamError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result.Failure(IamError.InternalServerError, localizer[nameof(IamError.InternalServerError)]);
+        }
+
+        await emailService.SendAsync(
+            user.Username,
+            "Password Reset",
+            $"Your password reset code is: {code}. It expires in 15 minutes.");
+
+        return Result.Success();
+    }
+
+    public async Task<Result> Handle(VerifyForgotPasswordCommand command, CancellationToken cancellationToken)
+    {
+        var user = await userRepository.FindByUsernameAsync(command.Username, cancellationToken);
+        if (user is null)
+            return Result.Failure(IamError.UserNotFound, localizer[nameof(IamError.UserNotFound)]);
+
+        if (user.PasswordResetCodeHash is null || user.PasswordResetExpiresAt < DateTimeOffset.UtcNow)
+            return Result.Failure(IamError.ResetCodeExpired, localizer[nameof(IamError.ResetCodeExpired)]);
+
+        if (!hashingService.VerifyPassword(command.Code, user.PasswordResetCodeHash))
+            return Result.Failure(IamError.InvalidResetCode, localizer[nameof(IamError.InvalidResetCode)]);
+
+        user.UpdatePasswordHash(hashingService.HashPassword(command.NewPassword));
+        user.ClearResetCode();
+        userRepository.Update(user);
+
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure(IamError.OperationCancelled, localizer[nameof(IamError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result.Failure(IamError.DatabaseError, localizer[nameof(IamError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result.Failure(IamError.InternalServerError, localizer[nameof(IamError.InternalServerError)]);
         }
     }
 }

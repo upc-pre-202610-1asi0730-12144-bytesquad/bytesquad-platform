@@ -53,6 +53,7 @@ using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Extensions;
 using SpotTrack.Platform.Iam.Infrastructure.Tokens.Jwt.Configuration;
 using SpotTrack.Platform.Iam.Infrastructure.Tokens.Jwt.Services;
 using SpotTrack.Platform.Iam.Application.Internal.OutboundServices;
+using SpotTrack.Platform.Iam.Infrastructure.Email;
 using SpotTrack.Platform.Iam.Interfaces.Acl;
 using SpotTrack.Platform.Iam.Resources;
 using SpotTrack.Platform.Gyms.Application.Acl;
@@ -241,6 +242,10 @@ builder.Services.AddScoped<IMaintenanceJobRepository, MaintenanceJobRepository>(
 builder.Services.AddScoped<IMaintenanceJobCommandService, MaintenanceJobCommandService>();
 builder.Services.AddScoped<IMaintenanceLogRepository, MaintenanceLogRepository>();
 builder.Services.AddScoped<IMaintenanceLogCommandService, MaintenanceLogCommandService>();
+builder.Services.AddScoped<IMaintenanceLogQueryService, MaintenanceLogQueryService>();
+builder.Services.AddScoped<ITechnicianRepository, TechnicianRepository>();
+builder.Services.AddScoped<ITechnicianCommandService, TechnicianCommandService>();
+builder.Services.AddScoped<ITechnicianQueryService, TechnicianQueryService>();
 
 // IAM Bounded Context
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
@@ -248,6 +253,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPendingRegistrationRepository, PendingRegistrationRepository>();
 builder.Services.AddScoped<IHashingService, HashingService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IEmailService, ConsoleEmailService>();
 builder.Services.AddScoped<IUserCommandService, UserCommandService>();
 builder.Services.AddScoped<IUserQueryService, UserQueryService>();
 builder.Services.AddScoped<IPendingRegistrationCommandService, PendingRegistrationCommandService>();

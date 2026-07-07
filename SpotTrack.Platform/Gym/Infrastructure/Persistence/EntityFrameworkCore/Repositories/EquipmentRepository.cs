@@ -21,4 +21,17 @@ public class EquipmentRepository(AppDbContext context) : BaseRepository<Equipmen
             .Where(e => zoneIds.Contains(e.ZoneId.Value))
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IEnumerable<Equipment>> FindAllByGymIdAsync(int gymId, CancellationToken cancellationToken = default)
+    {
+        var zoneIds = Context.Set<Gym>()
+            .Where(g => g.Id == gymId)
+            .SelectMany(g => g.Branches)
+            .SelectMany(b => b.Zones)
+            .Select(z => z.Id);
+
+        return await Context.Set<Equipment>()
+            .Where(e => zoneIds.Contains(e.ZoneId.Value))
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -21,6 +21,21 @@ public partial class User
         Role = role;
     }
 
+    public string? PasswordResetCodeHash { get; private set; }
+    public DateTimeOffset? PasswordResetExpiresAt { get; private set; }
+
     public void UpdateUsername(string username) => Username = username;
     public void UpdatePasswordHash(string passwordHash) => PasswordHash = passwordHash;
+
+    public void SetResetCode(string hashedCode, DateTimeOffset expiresAt)
+    {
+        PasswordResetCodeHash = hashedCode;
+        PasswordResetExpiresAt = expiresAt;
+    }
+
+    public void ClearResetCode()
+    {
+        PasswordResetCodeHash = null;
+        PasswordResetExpiresAt = null;
+    }
 }

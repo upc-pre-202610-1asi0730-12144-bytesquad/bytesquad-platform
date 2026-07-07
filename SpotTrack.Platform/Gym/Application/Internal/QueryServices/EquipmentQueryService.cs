@@ -9,4 +9,7 @@ public class EquipmentQueryService(IEquipmentRepository equipmentRepository) : I
 {
     public async Task<IEnumerable<Equipment>> Handle(GetEquipmentByAdminIdQuery query, CancellationToken cancellationToken)
         => await equipmentRepository.FindAllByAdminIdAsync(query.AdminId, cancellationToken);
+
+    public async Task<IEnumerable<Equipment>> Handle(GetEquipmentByGymIdQuery query, CancellationToken cancellationToken)
+        => await equipmentRepository.FindAllByGymIdAsync(query.GymId, cancellationToken);
 }
