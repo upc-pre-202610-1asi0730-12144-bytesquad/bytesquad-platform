@@ -2,6 +2,7 @@ using SpotTrack.Platform.Profiles.Application.CommandServices;
 using SpotTrack.Platform.Profiles.Application.QueryServices;
 using SpotTrack.Platform.Profiles.Domain.Model.Commands;
 using SpotTrack.Platform.Profiles.Domain.Model.Queries;
+using SpotTrack.Platform.Profiles.Domain.Repositories;
 using SpotTrack.Platform.Profiles.Interfaces.Acl;
 
 namespace SpotTrack.Platform.Profiles.Application.Acl;
@@ -11,7 +12,8 @@ public class ProfilesContextFacade(
     IAdminCommandService adminCommandService,
     IClientQueryService clientQueryService,
     IAdminQueryService adminQueryService,
-    IBusinessCommandService businessCommandService)
+    IBusinessCommandService businessCommandService,
+    IClientGymAssociationRepository clientGymAssociationRepository)
     : IProfilesContextFacade
 {
     public async Task<int> CreateClientAsync(int userId, string email, string firstName,
@@ -51,6 +53,13 @@ public class ProfilesContextFacade(
         return client?.Id ?? 0;
     }
 
+    public async Task<int> FetchClientIdByUserIdAsync(int userId)
+    {
+        var client = await clientQueryService.Handle(
+            new GetClientByUserIdQuery(userId), CancellationToken.None);
+        return client?.Id ?? 0;
+    }
+
     public async Task<int> FetchAdminIdByEmailAsync(string email)
     {
         var admin = await adminQueryService.Handle(
@@ -64,5 +73,14 @@ public class ProfilesContextFacade(
         var command = new ProvisionBusinessCommand(adminId, companyName, ruc, legalStructure, companyPhone, companyEmail);
         var result = await businessCommandService.Handle(command, CancellationToken.None);
         return result.IsFailure ? 0 : result.Value!.Id;
+    }
+
+    public async Task<int> GetActiveGymIdForClientAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        var client = await clientQueryService.Handle(new GetClientByUserIdQuery(userId), cancellationToken);
+        if (client is null) return 0;
+
+        var active = await clientGymAssociationRepository.FindActiveByClientIdAsync(client.Id, cancellationToken);
+        return active.FirstOrDefault()?.GymId ?? 0;
     }
 }
