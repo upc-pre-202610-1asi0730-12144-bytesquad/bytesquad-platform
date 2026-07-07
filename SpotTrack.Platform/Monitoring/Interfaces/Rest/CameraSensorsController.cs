@@ -19,7 +19,6 @@ namespace SpotTrack.Platform.Monitoring.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/camera-sensors")]
 [Produces(MediaTypeNames.Application.Json)]
-[AllowAnonymous]
 [SwaggerTag("Camera sensor management endpoints")]
 public class CameraSensorsController(
     ISensorCommandService sensorCommandService,
@@ -48,6 +47,7 @@ public class CameraSensorsController(
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [SwaggerOperation(
         Summary = "Get all camera sensors",
         Description = "Returns a list of all registered camera sensors.",
@@ -75,6 +75,7 @@ public class CameraSensorsController(
     }
 
     [HttpPost("capture")]
+    [AllowAnonymous]
     [SwaggerOperation(
         Summary = "Capture a camera detection event",
         Description = "Records a detection event reported by an IoT camera sensor device.",
