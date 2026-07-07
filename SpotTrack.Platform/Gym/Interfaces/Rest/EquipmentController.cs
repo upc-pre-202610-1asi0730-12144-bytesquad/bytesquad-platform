@@ -76,6 +76,89 @@ public class EquipmentController(
             this);
     }
 
+    [HttpPatch("{equipmentId:int}/status")]
+    [SwaggerOperation(
+        Summary = "Update equipment status",
+        OperationId = "UpdateEquipmentStatus")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Equipment status updated", typeof(EquipmentResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid status or transition not allowed")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Access denied")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Equipment not found")]
+    public async Task<IActionResult> UpdateEquipmentStatus(
+        [FromRoute] int equipmentId,
+        [FromBody] UpdateEquipmentStatusResource resource,
+        CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        var ownerAdminId = await gymContextFacade.GetAdminIdByEquipmentIdAsync(equipmentId, cancellationToken);
+        if (ownerAdminId != authenticatedAdminId) return Forbid();
+
+        var command = new UpdateEquipmentStatusCommand(equipmentId, resource.Status);
+        var result = await equipmentCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return EquipmentActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return EquipmentActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            EquipmentResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
+    [HttpPatch("{equipmentId:int}/decomission")]
+    [SwaggerOperation(
+        Summary = "Decommission equipment",
+        OperationId = "DecommissionEquipment")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Equipment decommissioned", typeof(EquipmentResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Equipment already decommissioned")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Access denied")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Equipment not found")]
+    public async Task<IActionResult> DecommissionEquipment(
+        [FromRoute] int equipmentId,
+        CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        var ownerAdminId = await gymContextFacade.GetAdminIdByEquipmentIdAsync(equipmentId, cancellationToken);
+        if (ownerAdminId != authenticatedAdminId) return Forbid();
+
+        var command = new DecommissionEquipmentCommand(equipmentId);
+        var result = await equipmentCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return EquipmentActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return EquipmentActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            EquipmentResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
+    [HttpPatch("{equipmentId:int}/relocate")]
+    [SwaggerOperation(
+        Summary = "Relocate equipment to a different zone",
+        OperationId = "RelocateEquipment")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Equipment relocated", typeof(EquipmentResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Equipment is decommissioned")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Access denied")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Equipment or target zone not found")]
+    public async Task<IActionResult> RelocateEquipment(
+        [FromRoute] int equipmentId,
+        [FromBody] RelocateEquipmentResource resource,
+        CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        var ownerAdminId = await gymContextFacade.GetAdminIdByEquipmentIdAsync(equipmentId, cancellationToken);
+        if (ownerAdminId != authenticatedAdminId) return Forbid();
+
+        var command = new RelocateEquipmentCommand(equipmentId, resource.NewZoneId);
+        var result = await equipmentCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return EquipmentActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return EquipmentActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            EquipmentResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
     [HttpGet("by-admin/{adminId:int}")]
     [SwaggerOperation(
         Summary = "Get equipment by admin",
