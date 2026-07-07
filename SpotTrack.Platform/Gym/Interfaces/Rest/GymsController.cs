@@ -85,6 +85,55 @@ public class GymsController(
             this);
     }
 
+    [HttpGet("{gymId:int}/branches")]
+    [SwaggerOperation(
+        Summary = "Get branches of a gym",
+        Description = "Returns all branches belonging to the given gym. Admin must own the gym.",
+        OperationId = "GetBranches")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of branches", typeof(IEnumerable<BranchResource>))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    public async Task<IActionResult> GetBranches(
+        [FromRoute] int gymId,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymWithBranchesByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        return Ok(gym.Branches.Select(BranchResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
+    [HttpGet("{gymId:int}/branches/{branchId:int}/zones")]
+    [SwaggerOperation(
+        Summary = "Get zones of a branch",
+        Description = "Returns all zones belonging to the given branch. Admin must own the gym.",
+        OperationId = "GetZones")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of zones", typeof(IEnumerable<ZoneResource>))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym or branch not found")]
+    public async Task<IActionResult> GetZones(
+        [FromRoute] int gymId,
+        [FromRoute] int branchId,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymWithBranchesByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var branch = gym.Branches.FirstOrDefault(b => b.Id == branchId);
+        if (branch is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, BranchError.BranchNotFound, "Branch not found.");
+
+        return Ok(branch.Zones.Select(ZoneResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpPost("{gymId:int}/branches")]
     [SwaggerOperation(
         Summary = "Add a branch to a gym",
