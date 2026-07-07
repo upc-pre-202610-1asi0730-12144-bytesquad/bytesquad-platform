@@ -32,4 +32,11 @@ public class ActivityReportRepository : IActivityReportRepository
         _context.Set<ActivityReport>().Update(activityReport);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<IEnumerable<ActivityReport>> FindAllByAdminIdAsync(int adminId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<ActivityReport>()
+            .Where(r => r.AdminId == adminId)
+            .ToListAsync(cancellationToken);
+    }
 }
