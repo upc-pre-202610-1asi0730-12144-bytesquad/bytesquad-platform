@@ -6,6 +6,7 @@ namespace SpotTrack.Platform.Memberships.Application.CommandServices;
 public interface IPaymentCommandService
 {
     Task<Result<string>> Handle(InitiateBusinessPaymentCommand command, CancellationToken cancellationToken);
+    Task<Result<string>> Handle(InitiateMembershipPaymentCommand command, CancellationToken cancellationToken);
     Task<Result> Handle(ConfirmPaymentCommand command, CancellationToken cancellationToken);
     Task<Result> Handle(FailPaymentCommand command, CancellationToken cancellationToken);
 }
