@@ -104,9 +104,9 @@ public static class DevDataSeeder
             default)).Value!;
 
         await equipmentCommandService.Handle(
-            new RegisterEquipmentCommand("Caminadora", "Technogym Run 900", zone.Id), default);
+            new RegisterEquipmentCommand("Caminadora", "Technogym Run 900", zone.Id, 4500m), default);
         await equipmentCommandService.Handle(
-            new RegisterEquipmentCommand("Bicicleta estática", "Technogym Bike 700", zone.Id), default);
+            new RegisterEquipmentCommand("Bicicleta estática", "Technogym Bike 700", zone.Id, 3200m), default);
 
         await gymCommandService.Handle(
             new AddAuthorizedDniCommand(gym.Id, ClientDni), default);

@@ -10,5 +10,7 @@ public static class MaintenanceResourceFromEntityAssembler
             maintenance.EquipmentId,
             maintenance.RequestedByAdminId,
             maintenance.Reason,
+            maintenance.Priority.ToString(),
+            maintenance.Type.ToString(),
             maintenance.Status.ToString());
 }

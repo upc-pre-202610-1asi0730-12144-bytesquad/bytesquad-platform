@@ -7,5 +7,5 @@ public static class EquipmentResourceFromEntityAssembler
 {
     public static EquipmentResource ToResourceFromEntity(Equipment equipment) =>
         new(equipment.Id, equipment.Name.Value, equipment.Model, equipment.ZoneId.Value, equipment.Status.ToString(),
-            equipment.MaintenanceThreshold);
+            equipment.MaintenanceThreshold, equipment.PurchasePrice);
 }

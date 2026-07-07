@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
@@ -10,9 +11,11 @@ using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.C
 namespace SpotTrack.Platform.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260707155841_AddPurchasePriceToEquipment")]
+    partial class AddPurchasePriceToEquipment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,12 +158,6 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("int")
                         .HasColumnName("maintenance_threshold");
 
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("model");
-
                     b.Property<decimal?>("PurchasePrice")
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("purchase_price");
@@ -260,18 +257,14 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
-                    b.Property<int>("BranchId")
+                    b.Property<int>("branch_id")
                         .HasColumnType("int")
                         .HasColumnName("branch_id");
-
-                    b.Property<int>("MaximumOccupancy")
-                        .HasColumnType("int")
-                        .HasColumnName("maximum_occupancy");
 
                     b.HasKey("Id")
                         .HasName("p_k_zones");
 
-                    b.HasIndex("BranchId")
+                    b.HasIndex("branch_id")
                         .HasDatabaseName("i_x_zones_branch_id");
 
                     b.ToTable("zones", (string)null);
@@ -1022,17 +1015,9 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("int")
                         .HasColumnName("client_id");
 
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("created_at");
-
                     b.Property<int>("GymId")
                         .HasColumnType("int")
                         .HasColumnName("gym_id");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("datetime")
-                        .HasColumnName("updated_at");
 
                     b.HasKey("Id")
                         .HasName("p_k_client_gym_associations");
@@ -1076,10 +1061,6 @@ namespace SpotTrack.Platform.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)")
                         .HasColumnName("status");
-
-                    b.Property<DateTimeOffset?>("TimerExpiry")
-                        .HasColumnType("datetime")
-                        .HasColumnName("timer_expiry");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("datetime")
@@ -1407,7 +1388,7 @@ namespace SpotTrack.Platform.Migrations
                 {
                     b.HasOne("SpotTrack.Platform.Gyms.Domain.Model.Entities.Branch", null)
                         .WithMany("Zones")
-                        .HasForeignKey("BranchId")
+                        .HasForeignKey("branch_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("f_k_zones_branches_branch_id");
@@ -1756,14 +1737,6 @@ namespace SpotTrack.Platform.Migrations
                                 .HasColumnType("int")
                                 .HasColumnName("block_order");
 
-                            b1.Property<int>("Reps")
-                                .HasColumnType("int")
-                                .HasColumnName("reps");
-
-                            b1.Property<int>("Sets")
-                                .HasColumnType("int")
-                                .HasColumnName("sets");
-
                             b1.Property<string>("Type")
                                 .IsRequired()
                                 .HasColumnType("longtext")
@@ -1845,7 +1818,7 @@ namespace SpotTrack.Platform.Migrations
                                 .HasConstraintName("f_k_routine_sessions_routine_sessions_id");
                         });
 
-                    b.OwnsMany("SpotTrack.Platform.Routines.Domain.Model.Entities.SessionExerciseCompletion", "CompletedExercises", b1 =>
+                    b.OwnsMany("SpotTrack.Platform.Routines.Domain.Model.Entities.SessionBlockCompletion", "CompletedBlocks", b1 =>
                         {
                             b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
@@ -1861,22 +1834,22 @@ namespace SpotTrack.Platform.Migrations
                                 .HasColumnName("routine_session_id");
 
                             b1.HasKey("Id")
-                                .HasName("p_k_session_exercise_completions");
+                                .HasName("p_k_routine_session_block_completions");
 
                             b1.HasIndex("routine_session_id")
-                                .HasDatabaseName("i_x_session_exercise_completions_routine_session_id");
+                                .HasDatabaseName("i_x_routine_session_block_completions_routine_session_id");
 
-                            b1.ToTable("session_exercise_completions", (string)null);
+                            b1.ToTable("routine_session_block_completions", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("routine_session_id")
-                                .HasConstraintName("fk_session_completions_routine_session");
+                                .HasConstraintName("f_k_routine_session_block_completions_routine_sessions_routine_s~");
                         });
 
                     b.Navigation("ClientId")
                         .IsRequired();
 
-                    b.Navigation("CompletedExercises");
+                    b.Navigation("CompletedBlocks");
                 });
 
             modelBuilder.Entity("SpotTrack.Platform.Gyms.Domain.Model.Aggregates.Gym", b =>
