@@ -42,7 +42,6 @@ using SpotTrack.Platform.Monitoring.Application.Internal.CommandServices;
 using SpotTrack.Platform.Monitoring.Application.QueryServices;
 using SpotTrack.Platform.Monitoring.Application.Internal.QueryServices;
 using SpotTrack.Platform.Monitoring.Domain.Repositories;
-using SpotTrack.Platform.Monitoring.Infrastructure.BackgroundServices;
 using SpotTrack.Platform.Monitoring.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Monitoring.Resources;
 using SpotTrack.Platform.Routines.Application.CommandServices;
@@ -50,6 +49,7 @@ using SpotTrack.Platform.Routines.Application.Internal.CommandServices;
 using SpotTrack.Platform.Routines.Application.Internal.QueryServices;
 using SpotTrack.Platform.Routines.Application.QueryServices;
 using SpotTrack.Platform.Routines.Domain.Repositories;
+using SpotTrack.Platform.Routines.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Routines.Resources;
 using SpotTrack.Platform.Iam.Application.Acl;
 using SpotTrack.Platform.Iam.Application.CommandServices;
@@ -63,6 +63,7 @@ using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Extensions;
 using SpotTrack.Platform.Iam.Infrastructure.Tokens.Jwt.Configuration;
 using SpotTrack.Platform.Iam.Infrastructure.Tokens.Jwt.Services;
 using SpotTrack.Platform.Iam.Application.Internal.OutboundServices;
+using SpotTrack.Platform.Iam.Infrastructure.Email;
 using SpotTrack.Platform.Iam.Interfaces.Acl;
 using SpotTrack.Platform.Iam.Resources;
 using SpotTrack.Platform.Gyms.Application.Acl;
@@ -89,6 +90,12 @@ using SpotTrack.Platform.Maintenances.Application.QueryServices;
 using SpotTrack.Platform.Maintenances.Domain.Repositories;
 using SpotTrack.Platform.Maintenances.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Maintenances.Resources;
+using SpotTrack.Platform.Monitoring.Application.CommandServices;
+using SpotTrack.Platform.Monitoring.Application.Internal.CommandServices;
+using SpotTrack.Platform.Monitoring.Application.Internal.QueryServices;
+using SpotTrack.Platform.Monitoring.Application.QueryServices;
+using SpotTrack.Platform.Monitoring.Domain.Repositories;
+using SpotTrack.Platform.Monitoring.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -229,6 +236,7 @@ builder.Services.AddScoped<IGymCommandService, GymCommandService>();
 builder.Services.AddScoped<IGymQueryService, GymQueryService>();
 builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 builder.Services.AddScoped<IEquipmentCommandService, EquipmentCommandService>();
+builder.Services.AddScoped<IEquipmentQueryService, EquipmentQueryService>();
 builder.Services.AddScoped<IGymContextFacade, GymContextFacade>();
 builder.Services.AddScoped<IMembershipContextFacade, MembershipContextFacade>();
 builder.Services.AddSingleton<IStringLocalizer<GymMessages>, StringLocalizer<GymMessages>>();
@@ -246,7 +254,6 @@ builder.Services.AddScoped<IPaymentCommandService, PaymentCommandService>();
 builder.Services.AddSingleton<IStringLocalizer<MembershipMessages>, StringLocalizer<MembershipMessages>>();
 builder.Services.AddHostedService<MembershipExpirationBackgroundService>();
 builder.Services.AddHostedService<ReservationTimerExpiryBackgroundService>();
-builder.Services.AddHostedService<SensorConnectivityBackgroundService>();
 
 // Maintenance Bounded Context
 builder.Services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
@@ -260,6 +267,21 @@ builder.Services.AddScoped<IMaintenanceJobRepository, MaintenanceJobRepository>(
 builder.Services.AddScoped<IMaintenanceJobCommandService, MaintenanceJobCommandService>();
 builder.Services.AddScoped<IMaintenanceLogRepository, MaintenanceLogRepository>();
 builder.Services.AddScoped<IMaintenanceLogCommandService, MaintenanceLogCommandService>();
+builder.Services.AddScoped<IMaintenanceLogQueryService, MaintenanceLogQueryService>();
+builder.Services.AddScoped<ITechnicianRepository, TechnicianRepository>();
+builder.Services.AddScoped<ITechnicianCommandService, TechnicianCommandService>();
+builder.Services.AddScoped<ITechnicianQueryService, TechnicianQueryService>();
+
+// Monitoring Bounded Context
+builder.Services.AddScoped<ISensorRepository, SensorRepository>();
+builder.Services.AddScoped<ISessionTrackerRepository, SessionTrackerRepository>();
+builder.Services.AddScoped<IAnomalyRepository, AnomalyRepository>();
+builder.Services.AddScoped<ISensorCommandService, SensorCommandService>();
+builder.Services.AddScoped<ISessionTrackerCommandService, SessionTrackerCommandService>();
+builder.Services.AddScoped<IAnomalyCommandService, AnomalyCommandService>();
+builder.Services.AddScoped<ISensorQueryService, SensorQueryService>();
+builder.Services.AddScoped<ISessionTrackerQueryService, SessionTrackerQueryService>();
+builder.Services.AddScoped<IAnomalyQueryService, AnomalyQueryService>();
 
 // IAM Bounded Context
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
@@ -267,6 +289,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPendingRegistrationRepository, PendingRegistrationRepository>();
 builder.Services.AddScoped<IHashingService, HashingService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IEmailService, ConsoleEmailService>();
 builder.Services.AddScoped<IUserCommandService, UserCommandService>();
 builder.Services.AddScoped<IUserQueryService, UserQueryService>();
 builder.Services.AddScoped<IPendingRegistrationCommandService, PendingRegistrationCommandService>();

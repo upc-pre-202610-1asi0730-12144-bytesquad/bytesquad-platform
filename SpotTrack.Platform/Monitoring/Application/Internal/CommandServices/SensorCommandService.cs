@@ -1,11 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Localization;
 using SpotTrack.Platform.Monitoring.Application.CommandServices;
 using SpotTrack.Platform.Monitoring.Domain.Model;
 using SpotTrack.Platform.Monitoring.Domain.Model.Aggregates;
 using SpotTrack.Platform.Monitoring.Domain.Model.Commands;
 using SpotTrack.Platform.Monitoring.Domain.Repositories;
-using SpotTrack.Platform.Monitoring.Resources;
 using SpotTrack.Platform.Shared.Application.Model;
 using SpotTrack.Platform.Shared.Domain.Repositories;
 
@@ -13,8 +11,7 @@ namespace SpotTrack.Platform.Monitoring.Application.Internal.CommandServices;
 
 public class SensorCommandService(
     ISensorRepository sensorRepository,
-    IUnitOfWork unitOfWork,
-    IStringLocalizer<MonitoringMessages> localizer)
+    IUnitOfWork unitOfWork)
     : ISensorCommandService
 {
     public async Task<Result<Sensor>> Handle(RegisterSensorCommand command, CancellationToken cancellationToken)
@@ -26,82 +23,54 @@ public class SensorCommandService(
         }
         catch (ArgumentException)
         {
-            return Result<Sensor>.Failure(
-                MonitoringError.InvalidSensorData,
-                localizer[nameof(MonitoringError.InvalidSensorData)]);
+            return Result<Sensor>.Failure(MonitoringError.InvalidSensorData, "Invalid sensor data provided.");
         }
-
-        return await PersistAsync(sensor, cancellationToken);
-    }
-
-    public async Task<Result<Sensor>> Handle(MarkSensorDisconnectedCommand command, CancellationToken cancellationToken)
-    {
-        var sensor = await sensorRepository.FindByIdAsync(command.SensorId, cancellationToken);
-        if (sensor is null)
-            return Result<Sensor>.Failure(
-                MonitoringError.SensorNotFound,
-                localizer[nameof(MonitoringError.SensorNotFound)]);
 
         try
         {
-            sensor.MarkDisconnected();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Result<Sensor>.Failure(MonitoringError.InvalidSensorStatus, ex.Message);
-        }
-
-        return await PersistAsync(sensor, cancellationToken, isNew: false);
-    }
-
-    public async Task<Result<Sensor>> Handle(MarkSensorReconnectedCommand command, CancellationToken cancellationToken)
-    {
-        var sensor = await sensorRepository.FindByIdAsync(command.SensorId, cancellationToken);
-        if (sensor is null)
-            return Result<Sensor>.Failure(
-                MonitoringError.SensorNotFound,
-                localizer[nameof(MonitoringError.SensorNotFound)]);
-
-        try
-        {
-            sensor.MarkReconnected();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Result<Sensor>.Failure(MonitoringError.InvalidSensorStatus, ex.Message);
-        }
-
-        return await PersistAsync(sensor, cancellationToken, isNew: false);
-    }
-
-    private async Task<Result<Sensor>> PersistAsync(Sensor sensor, CancellationToken cancellationToken, bool isNew = true)
-    {
-        try
-        {
-            if (isNew)
-                await sensorRepository.AddAsync(sensor, cancellationToken);
-            else
-                sensorRepository.Update(sensor);
+            await sensorRepository.AddAsync(sensor, cancellationToken);
             await unitOfWork.CompleteAsync(cancellationToken);
             return Result<Sensor>.Success(sensor);
         }
         catch (OperationCanceledException)
         {
-            return Result<Sensor>.Failure(
-                MonitoringError.OperationCancelled,
-                localizer[nameof(MonitoringError.OperationCancelled)]);
+            return Result<Sensor>.Failure(MonitoringError.OperationCancelled, "The operation was cancelled.");
         }
         catch (DbUpdateException)
         {
-            return Result<Sensor>.Failure(
-                MonitoringError.DatabaseError,
-                localizer[nameof(MonitoringError.DatabaseError)]);
+            return Result<Sensor>.Failure(MonitoringError.DatabaseError, "A database error occurred.");
         }
         catch (Exception)
         {
-            return Result<Sensor>.Failure(
-                MonitoringError.InternalServerError,
-                localizer[nameof(MonitoringError.InternalServerError)]);
+            return Result<Sensor>.Failure(MonitoringError.InternalServerError, "An unexpected error occurred.");
+        }
+    }
+
+    public async Task<Result<Sensor>> Handle(CaptureSensorEventCommand command, CancellationToken cancellationToken)
+    {
+        var sensor = await sensorRepository.FindByIdAsync(command.SensorId, cancellationToken);
+        if (sensor is null)
+            return Result<Sensor>.Failure(MonitoringError.SensorNotFound, "Sensor not found.");
+
+        sensor.CaptureEvent(command.DetectedAt);
+
+        try
+        {
+            sensorRepository.Update(sensor);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Sensor>.Success(sensor);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<Sensor>.Failure(MonitoringError.OperationCancelled, "The operation was cancelled.");
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Sensor>.Failure(MonitoringError.DatabaseError, "A database error occurred.");
+        }
+        catch (Exception)
+        {
+            return Result<Sensor>.Failure(MonitoringError.InternalServerError, "An unexpected error occurred.");
         }
     }
 }

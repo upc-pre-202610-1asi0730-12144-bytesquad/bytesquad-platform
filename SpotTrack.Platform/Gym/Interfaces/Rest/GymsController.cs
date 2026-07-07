@@ -8,6 +8,7 @@ using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
+using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
@@ -24,6 +25,7 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest;
 public class GymsController(
     IGymCommandService gymCommandService,
     IGymQueryService gymQueryService,
+    IEquipmentQueryService equipmentQueryService,
     IAuthorizedDniRepository authorizedDniRepository,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
@@ -140,6 +142,102 @@ public class GymsController(
             GymResourceFromEntityAssembler.ToResourceFromEntity,
             StatusCodes.Status201Created,
             this);
+    }
+
+    [HttpGet("{gymId:int}/equipments")]
+    [SwaggerOperation(
+        Summary = "Get all equipment of a gym",
+        Description = "Returns all equipment across all branches and zones of the given gym. Admin must own the gym.",
+        OperationId = "GetEquipmentByGym")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of equipment", typeof(IEnumerable<EquipmentResource>))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    public async Task<IActionResult> GetEquipmentByGym(
+        [FromRoute] int gymId,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var equipment = await equipmentQueryService.Handle(new GetEquipmentByGymIdQuery(gymId), cancellationToken);
+        return Ok(equipment.Select(EquipmentResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
+    [HttpGet("{gymId:int}/zones")]
+    [SwaggerOperation(
+        Summary = "Get all zones of a gym",
+        Description = "Returns a flat list of all zones across all branches of the given gym. Each zone includes its BranchId for context. Admin must own the gym.",
+        OperationId = "GetAllZones")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Flat list of zones with branch context", typeof(IEnumerable<ZoneWithBranchResource>))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    public async Task<IActionResult> GetAllZones(
+        [FromRoute] int gymId,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymWithBranchesByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var zones = gym.Branches
+            .SelectMany(b => b.Zones.Select(z => new ZoneWithBranchResource(z.Id, z.Name.Value, b.Id)));
+        return Ok(zones);
+    }
+
+    [HttpGet("{gymId:int}/branches")]
+    [SwaggerOperation(
+        Summary = "Get branches of a gym",
+        Description = "Returns all branches belonging to the given gym. Admin must own the gym.",
+        OperationId = "GetBranches")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of branches", typeof(IEnumerable<BranchResource>))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    public async Task<IActionResult> GetBranches(
+        [FromRoute] int gymId,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymWithBranchesByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        return Ok(gym.Branches.Select(BranchResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
+    [HttpGet("{gymId:int}/branches/{branchId:int}/zones")]
+    [SwaggerOperation(
+        Summary = "Get zones of a branch",
+        Description = "Returns all zones belonging to the given branch. Admin must own the gym.",
+        OperationId = "GetZones")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of zones", typeof(IEnumerable<ZoneResource>))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym or branch not found")]
+    public async Task<IActionResult> GetZones(
+        [FromRoute] int gymId,
+        [FromRoute] int branchId,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymWithBranchesByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var branch = gym.Branches.FirstOrDefault(b => b.Id == branchId);
+        if (branch is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, BranchError.BranchNotFound, "Branch not found.");
+
+        return Ok(branch.Zones.Select(ZoneResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     [HttpPost("{gymId:int}/branches")]

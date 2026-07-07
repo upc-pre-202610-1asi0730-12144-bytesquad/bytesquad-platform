@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SpotTrack.Platform.Routines.Domain.Model.Aggregates;
+using SpotTrack.Platform.Routines.Domain.Model.Entities;
 using SpotTrack.Platform.Routines.Domain.Model.ValueObjects;
 
 namespace SpotTrack.Platform.Routines.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;

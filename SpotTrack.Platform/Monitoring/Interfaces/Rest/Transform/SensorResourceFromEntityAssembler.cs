@@ -6,6 +6,6 @@ namespace SpotTrack.Platform.Monitoring.Interfaces.Rest.Transform;
 public static class SensorResourceFromEntityAssembler
 {
     public static SensorResource ToResourceFromEntity(Sensor sensor) =>
-        new(sensor.Id, sensor.EquipmentId, sensor.MacAddress, sensor.Location, sensor.Status.ToString(),
-            sensor.BatteryLevel, sensor.SignalStrength, sensor.FirmwareVersion, sensor.LastHeartbeat);
+        new(sensor.Id, sensor.Type.ToString(), sensor.Identifier, sensor.AdminId, sensor.EquipmentId,
+            sensor.RegisteredAt, sensor.Captures.Count);
 }

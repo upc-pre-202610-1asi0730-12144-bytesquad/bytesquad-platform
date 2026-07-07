@@ -9,4 +9,7 @@ public interface IEquipmentRepository : IBaseRepository<Equipment>
 
     Task<IEnumerable<Equipment>> FindAvailableAlternativesAsync(
         string equipmentName, int excludeEquipmentId, CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<Equipment>> FindAllByAdminIdAsync(int adminId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Equipment>> FindAllByGymIdAsync(int gymId, CancellationToken cancellationToken = default);
 }

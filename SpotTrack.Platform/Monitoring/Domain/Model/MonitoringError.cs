@@ -2,11 +2,12 @@ namespace SpotTrack.Platform.Monitoring.Domain.Model;
 
 public enum MonitoringError
 {
-    InvalidAnomalyData,
+    SensorNotFound,
+    SessionTrackerNotFound,
+    AnomalyReportFailed,
+    InvalidSensorData,
+    InvalidTrackerData,
     OperationCancelled,
     DatabaseError,
-    InternalServerError,
-    InvalidSensorData,
-    SensorNotFound,
-    InvalidSensorStatus
+    InternalServerError
 }

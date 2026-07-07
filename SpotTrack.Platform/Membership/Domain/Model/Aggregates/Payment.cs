@@ -33,6 +33,11 @@ public class Payment
             command.MembershipPlan, command.Amount, command.Currency,
             PaymentPurpose.BusinessRegistration);
 
+    public static Payment ForMembershipRenewal(InitiateMembershipPaymentCommand command) =>
+        new(Guid.NewGuid(), command.UserId, null, null,
+            command.MembershipPlan, command.Amount, command.Currency,
+            PaymentPurpose.NewMembership);
+
     public Guid PaymentId { get; private set; }
     public int? UserId { get; private set; }
     public Guid? PendingRegistrationId { get; private set; }

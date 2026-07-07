@@ -7,6 +7,5 @@ namespace SpotTrack.Platform.Monitoring.Application.CommandServices;
 public interface ISensorCommandService
 {
     Task<Result<Sensor>> Handle(RegisterSensorCommand command, CancellationToken cancellationToken);
-    Task<Result<Sensor>> Handle(MarkSensorDisconnectedCommand command, CancellationToken cancellationToken);
-    Task<Result<Sensor>> Handle(MarkSensorReconnectedCommand command, CancellationToken cancellationToken);
+    Task<Result<Sensor>> Handle(CaptureSensorEventCommand command, CancellationToken cancellationToken);
 }

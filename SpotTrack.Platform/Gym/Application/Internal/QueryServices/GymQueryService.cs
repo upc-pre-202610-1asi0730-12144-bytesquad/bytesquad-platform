@@ -45,4 +45,7 @@ public class GymQueryService(
 
     public async Task<IEnumerable<Gym>> Handle(GetAllGymsQuery query, CancellationToken cancellationToken)
         => await gymRepository.ListAsync(cancellationToken);
+
+    public async Task<Gym?> Handle(GetGymWithBranchesByIdQuery query, CancellationToken cancellationToken)
+        => await gymRepository.FindByIdWithBranchesAndZonesAsync(query.GymId, cancellationToken);
 }

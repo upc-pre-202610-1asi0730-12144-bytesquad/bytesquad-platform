@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using SpotTrack.Platform.Iam.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 using SpotTrack.Platform.Maintenances.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 using SpotTrack.Platform.Reservations.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
+using SpotTrack.Platform.Monitoring.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 
 namespace SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 

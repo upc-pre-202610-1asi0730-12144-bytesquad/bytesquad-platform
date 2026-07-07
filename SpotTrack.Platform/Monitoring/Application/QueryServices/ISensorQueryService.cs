@@ -5,5 +5,6 @@ namespace SpotTrack.Platform.Monitoring.Application.QueryServices;
 
 public interface ISensorQueryService
 {
-    Task<IEnumerable<Sensor>> Handle(GetSensorsByAdminIdQuery query, CancellationToken cancellationToken);
+    Task<IEnumerable<Sensor>> Handle(GetAllSensorsByTypeQuery query, CancellationToken cancellationToken);
+    Task<IEnumerable<Sensor>> Handle(GetSensorsByAdminIdAndTypeQuery query, CancellationToken cancellationToken);
 }

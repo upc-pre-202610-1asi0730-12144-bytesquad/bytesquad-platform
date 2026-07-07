@@ -19,6 +19,12 @@ public class PaymentConfirmedEventHandler(
 {
     public async Task Handle(PaymentConfirmedEvent notification, CancellationToken cancellationToken)
     {
+        if (notification.Purpose == PaymentPurpose.NewMembership)
+        {
+            await HandleMembershipRenewal(notification, cancellationToken);
+            return;
+        }
+
         if (notification.Purpose != PaymentPurpose.BusinessRegistration)
             return;
 
@@ -69,5 +75,25 @@ public class PaymentConfirmedEventHandler(
             logger.LogError("PaymentConfirmed: failed to activate membership for user {UserId}: {Message}", userId, membershipResult.Message);
         else
             logger.LogInformation("PaymentConfirmed: provisioning complete for user {UserId}, membership {MembershipId}", userId, membershipResult.Value!.Id);
+    }
+
+    private async Task HandleMembershipRenewal(PaymentConfirmedEvent notification, CancellationToken cancellationToken)
+    {
+        if (notification.UserId is null)
+        {
+            logger.LogError("PaymentConfirmed(NewMembership): UserId is null for payment {PaymentId}", notification.PaymentId);
+            return;
+        }
+
+        var userId = notification.UserId.Value;
+        var now = DateTimeOffset.UtcNow;
+        var result = await membershipCommandService.Handle(
+            new CreateActivateMembershipCommand(userId, notification.MembershipPlan, now, now.AddDays(30)),
+            cancellationToken);
+
+        if (result.IsFailure)
+            logger.LogError("PaymentConfirmed(NewMembership): failed to activate membership for user {UserId}: {Message}", userId, result.Message);
+        else
+            logger.LogInformation("PaymentConfirmed(NewMembership): membership {MembershipId} activated for user {UserId}", result.Value!.Id, userId);
     }
 }

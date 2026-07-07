@@ -93,6 +93,25 @@ public class RoutinesController(
             this);
     }
 
+    [HttpGet("{routineId:int}/exercise-blocks")]
+    [Authorize]
+    [SwaggerOperation(
+        Summary = "Get exercise blocks for a routine",
+        OperationId = "GetExerciseBlocksByRoutineId")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Exercise blocks retrieved successfully",
+        typeof(IEnumerable<ExerciseBlockResource>))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Routine not found")]
+    public async Task<IActionResult> GetExerciseBlocksByRoutineId(
+        [FromRoute] int routineId,
+        CancellationToken cancellationToken)
+    {
+        var routine = await routineQueryService.Handle(new GetRoutineByIdQuery(routineId), cancellationToken);
+        if (routine is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, RoutinesError.RoutineNotFound, "Routine not found.");
+        return Ok(routine.ExerciseBlocks.Select(ExerciseBlockResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpGet("{routineId:int}")]
     [SwaggerOperation(
         Summary = "Get a routine by ID",

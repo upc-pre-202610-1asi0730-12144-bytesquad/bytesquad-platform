@@ -191,4 +191,60 @@ public class MembershipsController(
             result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
             StatusCodes.Status200OK, this);
     }
+
+    [HttpPatch("{id:int}/undo-cancel")]
+    [Authorize(UserRole.Admin)]
+    [SwaggerOperation(Summary = "Undo a pending cancellation", Description = "Reverts a PendingCancellation membership back to Active.", OperationId = "UndoCancelMembership")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Cancellation undone successfully", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Membership is not in PendingCancellation status")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
+    public async Task<IActionResult> UndoCancelMembership(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var result = await membershipCommandService.Handle(new CreateUndoCancelMembershipCommand(id), cancellationToken);
+        if (result.IsFailure)
+            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK, this);
+    }
+
+    [HttpPost("{id:int}/pay-debt")]
+    [Authorize(UserRole.Admin)]
+    [SwaggerOperation(Summary = "Pay debt of a suspended membership", Description = "Reactivates a Suspended membership after the admin confirms the client's payment.", OperationId = "PayMembershipDebt")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Debt paid and membership reactivated", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Membership is not Suspended")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
+    public async Task<IActionResult> PayMembershipDebt(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var result = await membershipCommandService.Handle(new CreatePayDebtCommand(id), cancellationToken);
+        if (result.IsFailure)
+            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK, this);
+    }
+
+    [HttpPost("{id:int}/resubscribe")]
+    [Authorize(UserRole.Admin)]
+    [SwaggerOperation(Summary = "Resubscribe a cancelled membership", Description = "Reactivates a fully Cancelled membership with a new subscription period.", OperationId = "ResubscribeMembership")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Membership resubscribed successfully", typeof(MembershipResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Membership is not Cancelled or dates are invalid")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Membership not found")]
+    public async Task<IActionResult> ResubscribeMembership(
+        [FromRoute] int id,
+        [FromBody] ResubscribeMembershipResource resource,
+        CancellationToken cancellationToken)
+    {
+        var result = await membershipCommandService.Handle(
+            new CreateResubscribeCommand(id, resource.NewStartDate, resource.NewEndDate), cancellationToken);
+        if (result.IsFailure)
+            return MembershipsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return MembershipsActionResultAssembler.ToSuccessActionResult(
+            result.Value!, MembershipResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK, this);
+    }
 }

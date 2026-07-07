@@ -24,8 +24,24 @@ namespace SpotTrack.Platform.Maintenances.Interfaces.Rest;
 public class TechnicalTicketController(
     ITechnicalTicketCommandService technicalTicketCommandService,
     ITechnicalTicketQueryService technicalTicketQueryService,
+    IMaintenanceLogQueryService maintenanceLogQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet("{id:int}/completion-log")]
+    [SwaggerOperation(
+        Summary = "Get the completion log for a technical ticket",
+        OperationId = "GetCompletionLogByTicketId")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Completion logs retrieved successfully",
+        typeof(IEnumerable<MaintenanceLogResource>))]
+    public async Task<IActionResult> GetCompletionLogByTicketId(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var logs = await maintenanceLogQueryService.Handle(
+            new GetMaintenanceLogsByTicketIdQuery(id), cancellationToken);
+        return Ok(logs.Select(MaintenanceLogResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpGet("by-admin/{adminId:int}")]
     [SwaggerOperation(
         Summary = "Get all technical tickets by admin",

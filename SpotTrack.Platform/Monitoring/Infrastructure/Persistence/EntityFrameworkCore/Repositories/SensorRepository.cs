@@ -7,22 +7,21 @@ using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.R
 
 namespace SpotTrack.Platform.Monitoring.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 
-public class SensorRepository(AppDbContext context) : BaseRepository<Sensor>(context), ISensorRepository
+public class SensorRepository(AppDbContext context)
+    : BaseRepository<Sensor>(context), ISensorRepository
 {
-    public async Task<IEnumerable<Sensor>> FindAllByEquipmentIdsAsync(IEnumerable<int> equipmentIds,
-        CancellationToken cancellationToken = default)
+    public new async Task<Sensor?> FindByIdAsync(int id, CancellationToken cancellationToken = default)
         => await Context.Set<Sensor>()
-            .Where(s => equipmentIds.Contains(s.EquipmentId))
+            .Where(s => s.Id == id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+    public async Task<IEnumerable<Sensor>> FindAllBySensorTypeAsync(SensorType type, CancellationToken cancellationToken = default)
+        => await Context.Set<Sensor>()
+            .Where(s => s.Type == type)
             .ToListAsync(cancellationToken);
 
-    public async Task<IEnumerable<Sensor>> FindAllOnlineAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Sensor>> FindAllByAdminIdAndTypeAsync(int adminId, SensorType type, CancellationToken cancellationToken = default)
         => await Context.Set<Sensor>()
-            .Where(s => s.Status == ESensorStatus.Online)
-            .ToListAsync(cancellationToken);
-
-    public async Task<IEnumerable<Sensor>> FindAllOfflineSinceAsync(DateTimeOffset threshold,
-        CancellationToken cancellationToken = default)
-        => await Context.Set<Sensor>()
-            .Where(s => s.Status == ESensorStatus.Offline && s.LastStatusChangeAt <= threshold)
+            .Where(s => s.AdminId == adminId && s.Type == type)
             .ToListAsync(cancellationToken);
 }
