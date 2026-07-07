@@ -14,13 +14,13 @@ namespace SpotTrack.Platform.Monitoring.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/anomalies")]
 [Produces(MediaTypeNames.Application.Json)]
-[AllowAnonymous]
 [SwaggerTag("Anomaly reporting endpoints")]
 public class AnomaliesController(
     IAnomalyCommandService anomalyCommandService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
     [HttpPost]
+    [AllowAnonymous]
     [SwaggerOperation(
         Summary = "Report a detected anomaly",
         Description = "Records an anomaly detected by a sensor or external monitoring system.",
