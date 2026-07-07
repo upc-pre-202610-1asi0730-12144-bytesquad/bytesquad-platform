@@ -25,16 +25,21 @@ public class ReservationsMembershipContextFacade(
             m.Status == EMembershipStatus.PendingCancellation);
     }
 
-    public async Task<bool> ClientGymHasActiveMembershipAsync(int userId, CancellationToken cancellationToken)
+    public async Task<bool> ClientGymHasActiveMembershipAsync(int userId, int equipmentId, CancellationToken cancellationToken)
     {
         var gymId = await profilesContextFacade.GetActiveGymIdForClientAsync(userId, cancellationToken);
         if (gymId == 0) return false;
 
-        var adminId = await gymContextFacade.GetAdminIdByGymIdAsync(gymId, cancellationToken);
-        if (adminId == 0) return false;
+        var activeGymAdminId = await gymContextFacade.GetAdminIdByGymIdAsync(gymId, cancellationToken);
+        if (activeGymAdminId == 0) return false;
+
+        var equipmentAdminId = await gymContextFacade.GetAdminIdByEquipmentIdAsync(equipmentId, cancellationToken);
+        if (equipmentAdminId is null) return false;
+
+        if (activeGymAdminId != equipmentAdminId.Value) return false;
 
         var memberships = await membershipQueryService.Handle(
-            new GetAllMembershipsByClientIdQuery(adminId), cancellationToken);
+            new GetAllMembershipsByClientIdQuery(equipmentAdminId.Value), cancellationToken);
 
         return memberships.Any(m =>
             m.Status == EMembershipStatus.Active ||
