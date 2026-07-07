@@ -12,8 +12,6 @@ public partial class Gym
 
     public GymName Name { get; private set; } = null!;
 
-    public Address Address { get; private set; } = null!;
-
     private List<Branch> _branches = new();
     public IReadOnlyCollection<Branch> Branches => _branches.AsReadOnly();
 
@@ -23,7 +21,6 @@ public partial class Gym
     {
         AdminId = command.AdminId;
         Name = new GymName(command.Name);
-        Address = new Address(command.Street, command.District, command.City);
     }
 
     public void AddBranch(string name, string street, string district, string city)
