@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MySql.EntityFrameworkCore.Extensions;
 using SpotTrack.Platform.Reservations.Domain.Model;
 using SpotTrack.Platform.Reservations.Domain.Model.Aggregates;
 using SpotTrack.Platform.Reservations.Domain.Model.Projections;
@@ -33,18 +34,14 @@ public class ReservationRepository(AppDbContext context)
         CancellationToken cancellationToken = default)
     {
         var ids = equipmentIds.ToList();
-        // WHERE+projection runs in DB; TimeSpan arithmetic runs in memory (no cross-provider date-diff function needed)
-        var rows = await Context.Set<Reservation>()
+        return await Context.Set<Reservation>()
             .Where(r => r.Status == EReservationStatus.Ended && ids.Contains(r.EquipmentId))
-            .Select(r => new { r.EquipmentId, r.StartDate, r.EndDate })
-            .ToListAsync(cancellationToken);
-
-        return rows
             .GroupBy(r => r.EquipmentId)
             .Select(g => new EquipmentUsageStat(
                 g.Key,
-                g.Sum(r => (r.EndDate - r.StartDate).TotalHours),
-                g.Count()));
+                g.Sum(r => EF.Functions.DateDiffMinute(r.StartDate, r.EndDate) / 60.0),
+                g.Count()))
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<HourlyUsageStat>> FindHourlyDistributionByIdsAsync(
@@ -52,18 +49,15 @@ public class ReservationRepository(AppDbContext context)
         CancellationToken cancellationToken = default)
     {
         var ids = equipmentIds.ToList();
-        var rows = await Context.Set<Reservation>()
+        return await Context.Set<Reservation>()
             .Where(r => (r.Status == EReservationStatus.Ended || r.Status == EReservationStatus.Active)
                         && ids.Contains(r.EquipmentId))
-            .Select(r => new { r.StartDate, r.EndDate })
-            .ToListAsync(cancellationToken);
-
-        return rows
             .GroupBy(r => r.StartDate.Hour)
             .Select(g => new HourlyUsageStat(
                 g.Key,
                 g.Count(),
-                g.Sum(r => (r.EndDate - r.StartDate).TotalMinutes)))
-            .OrderBy(h => h.Hour);
+                g.Sum(r => EF.Functions.DateDiffMinute(r.StartDate, r.EndDate))))
+            .OrderBy(h => h.Hour)
+            .ToListAsync(cancellationToken);
     }
 }
