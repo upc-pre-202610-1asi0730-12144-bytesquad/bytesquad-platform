@@ -10,5 +10,6 @@ public enum IamError
     PendingRegistrationEmailAlreadyRegistered,
     PendingRegistrationNotFound,
     PendingRegistrationExpired,
-    PendingRegistrationAlreadyConsumed
+    PendingRegistrationAlreadyConsumed,
+    InvalidCurrentPassword
 }

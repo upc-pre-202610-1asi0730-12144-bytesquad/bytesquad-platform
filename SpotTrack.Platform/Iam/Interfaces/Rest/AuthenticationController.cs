@@ -2,6 +2,7 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Iam.Application.CommandServices;
+using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Iam.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Iam.Interfaces.Rest.Transform;
@@ -36,6 +37,26 @@ public class AuthenticationController(
         if (result.IsFailure)
             return IamActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
         return IamActionResultAssembler.ToSignUpSuccessActionResult(this);
+    }
+
+    [HttpPatch("me/password")]
+    [SwaggerOperation(
+        Summary = "Change the authenticated user's password",
+        Description = "Verifies the current password and replaces it with the new one. Returns 400 if the current password is wrong.",
+        OperationId = "ChangePassword")]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "Password changed successfully")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Current password is incorrect")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordResource resource,
+        CancellationToken cancellationToken)
+    {
+        var userId = ((User)HttpContext.Items["User"]!).Id;
+        var command = ChangePasswordCommandFromResourceAssembler.ToCommandFromResource(userId, resource);
+        var result = await userCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return IamActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return NoContent();
     }
 
     [HttpPost("sign-in")]

@@ -97,6 +97,47 @@ public class UserCommandService(
         }
     }
 
+    public async Task<Result> Handle(ChangePasswordCommand command, CancellationToken cancellationToken)
+    {
+        var user = await userRepository.FindByIdAsync(command.UserId, cancellationToken);
+        if (user is null)
+            return Result.Failure(
+                IamError.InternalServerError,
+                localizer[nameof(IamError.InternalServerError)]);
+
+        if (!hashingService.VerifyPassword(command.CurrentPassword, user.PasswordHash))
+            return Result.Failure(
+                IamError.InvalidCurrentPassword,
+                localizer[nameof(IamError.InvalidCurrentPassword)]);
+
+        user.UpdatePasswordHash(hashingService.HashPassword(command.NewPassword));
+        userRepository.Update(user);
+
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure(
+                IamError.OperationCancelled,
+                localizer[nameof(IamError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result.Failure(
+                IamError.DatabaseError,
+                localizer[nameof(IamError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result.Failure(
+                IamError.InternalServerError,
+                localizer[nameof(IamError.InternalServerError)]);
+        }
+    }
+
     public async Task<Result<(User user, string token)>> Handle(SignInCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.FindByUsernameAsync(command.Username, cancellationToken);
