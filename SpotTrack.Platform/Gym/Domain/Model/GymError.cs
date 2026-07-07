@@ -8,5 +8,8 @@ public enum GymError
     BranchLimitExceeded,
     OperationCancelled,
     DatabaseError,
-    InternalServerError
+    InternalServerError,
+    DniAlreadyAuthorized,
+    DniNotFound,
+    DniInvalid
 }
