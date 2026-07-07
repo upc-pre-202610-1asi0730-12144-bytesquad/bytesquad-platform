@@ -17,6 +17,7 @@ namespace SpotTrack.Platform.Maintenances.Application.Internal.CommandServices;
 public class TechnicalTicketCommandService(
     ITechnicalTicketRepository technicalTicketRepository,
     IMaintenanceRepository maintenanceRepository,
+    IMaintenanceLogRepository maintenanceLogRepository,
     IUnitOfWork unitOfWork,
     IMediator mediator,
     IStringLocalizer<MaintenanceMessages> localizer,
@@ -349,9 +350,14 @@ public class TechnicalTicketCommandService(
                 ex.Message);
         }
 
+        var logCommand = new RegisterMaintenanceCompletionCommand(
+            ticket.Id, command.AuthenticatedAdminId, command.Notes ?? string.Empty);
+        var log = new MaintenanceLog(logCommand, ticket.EquipmentId);
+
         try
         {
             maintenanceRepository.Update(maintenance);
+            await maintenanceLogRepository.AddAsync(log, cancellationToken);
             await unitOfWork.CompleteAsync(cancellationToken);
         }
         catch (DbUpdateException)

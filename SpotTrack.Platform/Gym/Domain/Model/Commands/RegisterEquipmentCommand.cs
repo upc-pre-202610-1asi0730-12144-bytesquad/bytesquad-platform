@@ -1,3 +1,3 @@
 namespace SpotTrack.Platform.Gyms.Domain.Model.Commands;
 
-public record RegisterEquipmentCommand(string Name, int ZoneId);
+public record RegisterEquipmentCommand(string Name, int ZoneId, decimal? PurchasePrice);

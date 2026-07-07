@@ -229,10 +229,11 @@ public class TechnicalTicketController(
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Maintenance progress is not Completed or equipment update failed")]
     public async Task<IActionResult> CompleteMaintenance(
         [FromRoute] int id,
+        [FromBody] CompleteTechnicalTicketResource? resource,
         CancellationToken cancellationToken)
     {
         var adminId = ((User)HttpContext.Items["User"]!).Id;
-        var command = new CompleteMaintenanceCommand(id, adminId);
+        var command = new CompleteMaintenanceCommand(id, adminId, resource?.Notes);
         var result = await technicalTicketCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)

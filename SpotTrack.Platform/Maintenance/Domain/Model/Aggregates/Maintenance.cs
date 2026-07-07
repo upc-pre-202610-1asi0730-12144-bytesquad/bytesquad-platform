@@ -19,6 +19,8 @@ public partial class Maintenance
         EquipmentId = command.EquipmentId;
         RequestedByAdminId = command.RequestedByAdminId;
         Reason = command.Reason;
+        Priority = command.Priority;
+        Type = command.Type;
         Status = EMaintenanceStatus.Requested;
     }
 
@@ -26,6 +28,8 @@ public partial class Maintenance
     public int EquipmentId { get; private set; }
     public int RequestedByAdminId { get; private set; }
     public string Reason { get; private set; } = string.Empty;
+    public EMaintenancePriority Priority { get; private set; }
+    public EMaintenanceType Type { get; private set; }
     public EMaintenanceStatus Status { get; private set; }
 
     /// <summary>Triggered when a TechnicalTicket is created for this maintenance request.</summary>
