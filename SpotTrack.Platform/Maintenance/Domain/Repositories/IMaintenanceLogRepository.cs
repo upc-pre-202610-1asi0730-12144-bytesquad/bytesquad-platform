@@ -11,4 +11,7 @@ public interface IMaintenanceLogRepository : IBaseRepository<MaintenanceLog>
         CancellationToken cancellationToken = default);
     Task<IEnumerable<MaintenanceLog>> FindAllByTicketIdAsync(int ticketId,
         CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByTechnicalTicketIdAsync(int ticketId,
+        CancellationToken cancellationToken = default);
 }
