@@ -139,6 +139,42 @@ public class UserCommandService(
         }
     }
 
+    public async Task<Result<User>> Handle(UpdateNotificationPreferencesCommand command, CancellationToken cancellationToken)
+    {
+        var user = await userRepository.FindByIdAsync(command.UserId, cancellationToken);
+        if (user is null)
+            return Result<User>.Failure(
+                IamError.InternalServerError,
+                localizer[nameof(IamError.InternalServerError)]);
+
+        user.UpdateNotificationPreferences(command.NotifyOnCritical, command.NotifyOnWarning, command.NotificationEmail);
+        userRepository.Update(user);
+
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<User>.Success(user);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<User>.Failure(
+                IamError.OperationCancelled,
+                localizer[nameof(IamError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<User>.Failure(
+                IamError.DatabaseError,
+                localizer[nameof(IamError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<User>.Failure(
+                IamError.InternalServerError,
+                localizer[nameof(IamError.InternalServerError)]);
+        }
+    }
+
     public async Task<Result<(User user, string token)>> Handle(SignInCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.FindByUsernameAsync(command.Username, cancellationToken);

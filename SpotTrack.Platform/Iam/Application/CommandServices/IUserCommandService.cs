@@ -12,4 +12,5 @@ public interface IUserCommandService
     Task<Result> Handle(ChangePasswordCommand command, CancellationToken cancellationToken);
     Task<Result> Handle(ForgotPasswordCommand command, CancellationToken cancellationToken);
     Task<Result> Handle(VerifyForgotPasswordCommand command, CancellationToken cancellationToken);
+    Task<Result<User>> Handle(UpdateNotificationPreferencesCommand command, CancellationToken cancellationToken);
 }

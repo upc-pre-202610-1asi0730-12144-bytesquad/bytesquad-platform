@@ -6,5 +6,6 @@ namespace SpotTrack.Platform.Iam.Interfaces.Rest.Transform;
 public static class UserResourceFromEntityAssembler
 {
     public static UserResource ToResourceFromEntity(User user) =>
-        new(user.Id, user.Username, user.Role.ToString());
+        new(user.Id, user.Username, user.Role.ToString(),
+            user.NotifyOnCritical, user.NotifyOnWarning, user.NotificationEmail);
 }

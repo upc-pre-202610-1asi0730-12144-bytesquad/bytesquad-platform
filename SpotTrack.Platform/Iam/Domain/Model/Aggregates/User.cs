@@ -24,6 +24,10 @@ public partial class User
     public string? PasswordResetCodeHash { get; private set; }
     public DateTimeOffset? PasswordResetExpiresAt { get; private set; }
 
+    public bool NotifyOnCritical { get; private set; } = true;
+    public bool NotifyOnWarning { get; private set; } = true;
+    public string? NotificationEmail { get; private set; }
+
     public void UpdateUsername(string username) => Username = username;
     public void UpdatePasswordHash(string passwordHash) => PasswordHash = passwordHash;
 
@@ -37,5 +41,12 @@ public partial class User
     {
         PasswordResetCodeHash = null;
         PasswordResetExpiresAt = null;
+    }
+
+    public void UpdateNotificationPreferences(bool notifyOnCritical, bool notifyOnWarning, string? notificationEmail)
+    {
+        NotifyOnCritical = notifyOnCritical;
+        NotifyOnWarning = notifyOnWarning;
+        NotificationEmail = notificationEmail;
     }
 }
