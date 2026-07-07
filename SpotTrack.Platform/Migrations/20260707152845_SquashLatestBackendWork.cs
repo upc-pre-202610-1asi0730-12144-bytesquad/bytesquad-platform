@@ -24,37 +24,8 @@ namespace SpotTrack.Platform.Migrations
                 name: "street",
                 table: "gyms");
 
-            migrationBuilder.DropColumn(
-                name: "created_at",
-                table: "anomalies");
-
-            migrationBuilder.DropColumn(
-                name: "equipment_id",
-                table: "anomalies");
-
-            migrationBuilder.DropColumn(
-                name: "updated_at",
-                table: "anomalies");
-
-            migrationBuilder.RenameColumn(
-                name: "zone_id",
-                table: "anomalies",
-                newName: "sensor_id");
-
-            migrationBuilder.RenameColumn(
-                name: "reservation_id",
-                table: "anomalies",
-                newName: "admin_id");
-
-            migrationBuilder.RenameColumn(
-                name: "emission_date",
-                table: "anomalies",
-                newName: "detected_at");
-
-            migrationBuilder.RenameColumn(
-                name: "anomaly_description",
-                table: "anomalies",
-                newName: "description");
+            migrationBuilder.DropTable(
+                name: "anomalies");
 
             migrationBuilder.AddColumn<string>(
                 name: "password_reset_code_hash",
@@ -98,14 +69,6 @@ namespace SpotTrack.Platform.Migrations
                 type: "int",
                 nullable: true);
 
-            migrationBuilder.AddColumn<string>(
-                name: "anomaly_type",
-                table: "anomalies",
-                type: "varchar(100)",
-                maxLength: 100,
-                nullable: false,
-                defaultValue: "");
-
             migrationBuilder.AddColumn<DateTimeOffset>(
                 name: "created_at",
                 table: "activity_reports",
@@ -117,6 +80,24 @@ namespace SpotTrack.Platform.Migrations
                 table: "activity_reports",
                 type: "datetime",
                 nullable: true);
+
+            migrationBuilder.CreateTable(
+                name: "anomalies",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    admin_id = table.Column<int>(type: "int", nullable: false),
+                    sensor_id = table.Column<int>(type: "int", nullable: false),
+                    anomaly_type = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false),
+                    detected_at = table.Column<DateTimeOffset>(type: "datetime", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("p_k_anomalies", x => x.id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "businesses",
@@ -355,36 +336,12 @@ namespace SpotTrack.Platform.Migrations
                 table: "equipment");
 
             migrationBuilder.DropColumn(
-                name: "anomaly_type",
-                table: "anomalies");
-
-            migrationBuilder.DropColumn(
                 name: "created_at",
                 table: "activity_reports");
 
             migrationBuilder.DropColumn(
                 name: "updated_at",
                 table: "activity_reports");
-
-            migrationBuilder.RenameColumn(
-                name: "sensor_id",
-                table: "anomalies",
-                newName: "zone_id");
-
-            migrationBuilder.RenameColumn(
-                name: "detected_at",
-                table: "anomalies",
-                newName: "emission_date");
-
-            migrationBuilder.RenameColumn(
-                name: "description",
-                table: "anomalies",
-                newName: "anomaly_description");
-
-            migrationBuilder.RenameColumn(
-                name: "admin_id",
-                table: "anomalies",
-                newName: "reservation_id");
 
             migrationBuilder.AddColumn<string>(
                 name: "city",
@@ -410,24 +367,28 @@ namespace SpotTrack.Platform.Migrations
                 nullable: false,
                 defaultValue: "");
 
-            migrationBuilder.AddColumn<DateTimeOffset>(
-                name: "created_at",
-                table: "anomalies",
-                type: "datetime",
-                nullable: true);
+            migrationBuilder.DropTable(
+                name: "anomalies");
 
-            migrationBuilder.AddColumn<int>(
-                name: "equipment_id",
-                table: "anomalies",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<DateTimeOffset>(
-                name: "updated_at",
-                table: "anomalies",
-                type: "datetime",
-                nullable: true);
+            migrationBuilder.CreateTable(
+                name: "anomalies",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    reservation_id = table.Column<int>(type: "int", nullable: false),
+                    equipment_id = table.Column<int>(type: "int", nullable: false),
+                    zone_id = table.Column<int>(type: "int", nullable: false),
+                    anomaly_description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false),
+                    emission_date = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
+                    updated_at = table.Column<DateTimeOffset>(type: "datetime", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("p_k_anomalies", x => x.id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
         }
     }
 }
