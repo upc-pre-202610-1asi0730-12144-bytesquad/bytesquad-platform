@@ -3,7 +3,7 @@ using SpotTrack.Platform.Analytics.Domain.Model.ValueObjects;
 
 namespace SpotTrack.Platform.Analytics.Domain.Model.Aggregates;
 
-public class MaintenanceQuote
+public partial class MaintenanceQuote
 {
     public long Id { get; private set; }
     public MaintenanceQuoteId MaintenanceQuoteId { get; private set; } = null!;
