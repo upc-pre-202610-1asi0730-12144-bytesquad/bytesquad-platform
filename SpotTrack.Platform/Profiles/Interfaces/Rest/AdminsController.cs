@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Profiles.Application.CommandServices;
@@ -24,6 +25,24 @@ public class AdminsController(
     IAdminQueryService adminQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet("me")]
+    [SwaggerOperation(
+        Summary = "Get the authenticated admin's profile",
+        Description = "Returns the admin profile associated with the authenticated user's IAM account.",
+        OperationId = "GetMyAdminProfile")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Admin profile found", typeof(AdminResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Admin profile not found")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    public async Task<IActionResult> GetMyAdminProfile(CancellationToken cancellationToken)
+    {
+        var userId = ((User)HttpContext.Items["User"]!).Id;
+        var admin = await adminQueryService.Handle(new GetAdminByUserIdQuery(userId), cancellationToken);
+        if (admin is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ProfilesError.AdminNotFound, "Admin profile not found.");
+        return Ok(AdminResourceFromEntityAssembler.ToResourceFromEntity(admin));
+    }
+
     [HttpPost]
     [SwaggerOperation(
         Summary = "Create a new admin profile",
