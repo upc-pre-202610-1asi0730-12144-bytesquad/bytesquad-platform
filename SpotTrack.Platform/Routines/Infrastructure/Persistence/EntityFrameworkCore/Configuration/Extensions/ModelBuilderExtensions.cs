@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SpotTrack.Platform.Routines.Domain.Model.Aggregates;
+using SpotTrack.Platform.Routines.Domain.Model.Entities;
 using SpotTrack.Platform.Routines.Domain.Model.ValueObjects;
 
 namespace SpotTrack.Platform.Routines.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
@@ -74,6 +75,15 @@ public static class ModelBuilderExtensions
                 .IsRequired();
 
             entity.Property(s => s.StartedAt).IsRequired().HasColumnName("started_at");
+
+            entity.OwnsMany(s => s.CompletedBlocks, cb =>
+            {
+                cb.ToTable("routine_session_block_completions");
+                cb.WithOwner().HasForeignKey("routine_session_id");
+                cb.HasKey(b => b.Id);
+                cb.Property(b => b.Id).ValueGeneratedOnAdd().HasColumnName("id");
+                cb.Property(b => b.ExerciseBlockId).HasColumnName("exercise_block_id").IsRequired();
+            });
 
             entity.Ignore(s => s.ClientIdValue);
         });
