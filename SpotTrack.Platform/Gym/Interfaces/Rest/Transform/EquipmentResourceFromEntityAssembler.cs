@@ -6,5 +6,6 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
 public static class EquipmentResourceFromEntityAssembler
 {
     public static EquipmentResource ToResourceFromEntity(Equipment equipment) =>
-        new(equipment.Id, equipment.Name.Value, equipment.ZoneId.Value, equipment.Status.ToString());
+        new(equipment.Id, equipment.Name.Value, equipment.ZoneId.Value, equipment.Status.ToString(),
+            equipment.MaintenanceThreshold);
 }
