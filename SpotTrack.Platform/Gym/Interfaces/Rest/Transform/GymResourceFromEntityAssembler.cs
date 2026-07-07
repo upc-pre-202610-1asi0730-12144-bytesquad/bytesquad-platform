@@ -6,5 +6,5 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
 public static class GymResourceFromEntityAssembler
 {
     public static GymResource ToResourceFromEntity(Gym gym) =>
-        new(gym.Id, gym.Name.Value, gym.Address.Street, gym.Address.District, gym.Address.City);
+        new(gym.Id, gym.Name.Value);
 }
