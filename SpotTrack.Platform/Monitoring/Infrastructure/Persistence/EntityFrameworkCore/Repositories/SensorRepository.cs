@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SpotTrack.Platform.Monitoring.Domain.Model;
 using SpotTrack.Platform.Monitoring.Domain.Model.Aggregates;
 using SpotTrack.Platform.Monitoring.Domain.Repositories;
 using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
