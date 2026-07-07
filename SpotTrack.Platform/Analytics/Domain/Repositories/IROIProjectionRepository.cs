@@ -8,4 +8,5 @@ public interface IROIProjectionRepository
     Task AddAsync(ROIProjection roiProjection);
     Task UpdateAsync(ROIProjection roiProjection);
     Task<ROIProjection?> FindByRoiProjectionIdAsync(ROIProjectionId roiProjectionId);
+    Task<IEnumerable<ROIProjection>> FindAllByAdminIdAsync(int adminId, CancellationToken cancellationToken = default);
 }
