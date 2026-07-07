@@ -11,7 +11,12 @@ namespace SpotTrack.Platform.Reservations.Infrastructure.Persistence.EntityFrame
 public class ReservationRepository(AppDbContext context)
     : BaseRepository<Reservation>(context), IReservationRepository
 {
-   
+    public async Task<Reservation?> FindByIdWithRequestAsync(
+        int id, CancellationToken cancellationToken = default)
+        => await Context.Set<Reservation>()
+            .Include(r => r.Request)
+            .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+
     public async Task<IEnumerable<Reservation>> FindAllByClientIdAsync(
         int clientId,
         CancellationToken cancellationToken = default)

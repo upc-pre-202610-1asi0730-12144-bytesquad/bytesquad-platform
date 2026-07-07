@@ -188,7 +188,7 @@ public class ReservationCommandService(
     public async Task<Result<Reservation>> Handle(
         CreateStartReservationTimerCommand command, CancellationToken cancellationToken)
     {
-        var reservation = await reservationRepository.FindByIdAsync(command.ReservationId,
+        var reservation = await reservationRepository.FindByIdWithRequestAsync(command.ReservationId,
             cancellationToken);
         if (reservation is null)
             return Result<Reservation>.Failure(
@@ -235,7 +235,7 @@ public class ReservationCommandService(
     public async Task<Result<Reservation>> Handle(
         CreateRequestEquipmentStatusChangeToAvailableCommand command, CancellationToken cancellationToken)
     {
-        var reservation = await reservationRepository.FindByIdAsync(command.ReservationId,
+        var reservation = await reservationRepository.FindByIdWithRequestAsync(command.ReservationId,
             cancellationToken);
         if (reservation is null)
             return Result<Reservation>.Failure(
@@ -276,7 +276,7 @@ public class ReservationCommandService(
     public async Task<Result<Reservation>> Handle(
         CreateRequestAlternativeEquipmentCommand command, CancellationToken cancellationToken)
     {
-        var reservation = await reservationRepository.FindByIdAsync(command.ReservationId,
+        var reservation = await reservationRepository.FindByIdWithRequestAsync(command.ReservationId,
             cancellationToken);
         if (reservation is null)
             return Result<Reservation>.Failure(

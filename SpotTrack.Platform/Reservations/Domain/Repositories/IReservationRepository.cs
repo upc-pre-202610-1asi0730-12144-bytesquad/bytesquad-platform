@@ -6,7 +6,10 @@ namespace SpotTrack.Platform.Reservations.Domain.Repositories;
 
 public interface IReservationRepository : IBaseRepository<Reservation>
 {
-   
+    /// <summary>Loads the reservation together with its (possibly null) Request, needed by any
+    /// operation that reads or mutates the request (start timer, release/alternative equipment).</summary>
+    Task<Reservation?> FindByIdWithRequestAsync(int id, CancellationToken cancellationToken = default);
+
     Task<IEnumerable<Reservation>> FindAllByClientIdAsync(int clientId,
         CancellationToken cancellationToken = default);
 
