@@ -86,6 +86,65 @@ public class PaymentCommandService(
         }
     }
 
+    public async Task<Result<string>> Handle(InitiateMembershipPaymentCommand command, CancellationToken cancellationToken)
+    {
+        var payment = Payment.ForMembershipRenewal(command);
+
+        try
+        {
+            await paymentRepository.AddAsync(payment, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<string>.Failure(MembershipError.OperationCancelled, "The operation was cancelled.");
+        }
+        catch (DbUpdateException ex)
+        {
+            logger.LogError(ex, "Database error persisting membership payment for user {UserId}", command.UserId);
+            return Result<string>.Failure(MembershipError.DatabaseError, "A database error occurred.");
+        }
+
+        var sessionService = new SessionService(new StripeClient(Stripe.ApiKey));
+        var options = new SessionCreateOptions
+        {
+            Mode = "payment",
+            LineItems =
+            [
+                new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = command.Currency,
+                        UnitAmount = command.MembershipPlan.ToStripeAmount(),
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = $"SpotTrack {command.MembershipPlan} Membership Renewal"
+                        }
+                    },
+                    Quantity = 1
+                }
+            ],
+            SuccessUrl = $"{Stripe.SuccessUrl}?session_id={{CHECKOUT_SESSION_ID}}",
+            CancelUrl = Stripe.CancelUrl,
+            Metadata = new Dictionary<string, string>
+            {
+                ["paymentId"] = payment.PaymentId.ToString()
+            }
+        };
+
+        try
+        {
+            var session = await sessionService.CreateAsync(options, cancellationToken: cancellationToken);
+            return Result<string>.Success(session.Url);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Stripe session creation failed for membership payment {PaymentId}", payment.PaymentId);
+            return Result<string>.Failure(MembershipError.StripeError, "Failed to create Stripe checkout session.");
+        }
+    }
+
     public async Task<Result> Handle(ConfirmPaymentCommand command, CancellationToken cancellationToken)
     {
         var payment = await paymentRepository.FindByPaymentIdAsync(command.PaymentId, cancellationToken);

@@ -97,6 +97,33 @@ public class AdminsController(
         return Ok(resources);
     }
 
+    [HttpPut("me")]
+    [SwaggerOperation(
+        Summary = "Update the authenticated admin's own profile",
+        OperationId = "UpdateMyAdminProfile")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Admin profile updated successfully", typeof(AdminResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid profile data provided")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Admin profile not found")]
+    public async Task<IActionResult> UpdateMyAdminProfile(
+        [FromBody] UpdateAdminProfileResource resource,
+        CancellationToken cancellationToken)
+    {
+        var userId = ((User)HttpContext.Items["User"]!).Id;
+        var admin = await adminQueryService.Handle(new GetAdminByUserIdQuery(userId), cancellationToken);
+        if (admin is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ProfilesError.AdminNotFound, "Admin profile not found.");
+        var command = UpdateAdminProfileCommandFromResourceAssembler.ToCommandFromResource(admin.Id, resource);
+        var result = await adminCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return ProfilesActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return ProfilesActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            AdminResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
     [HttpPut("{adminId:int}")]
     [SwaggerOperation(
         Summary = "Update an admin profile",

@@ -112,6 +112,29 @@ public class RoutineSessionsController(
             this);
     }
 
+    [HttpPatch("{routineSessionId:int}/exercise-blocks/{exerciseBlockId:int}")]
+    [SwaggerOperation(
+        Summary = "Update the completion state of an exercise block within a session",
+        OperationId = "SetExerciseBlockCompleted")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Block completion state updated", typeof(RoutineSessionResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Routine session not found")]
+    public async Task<IActionResult> SetExerciseBlockCompleted(
+        [FromRoute] int routineSessionId,
+        [FromRoute] int exerciseBlockId,
+        [FromBody] CompleteExerciseBlockResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = new CompleteExerciseBlockCommand(routineSessionId, exerciseBlockId, resource.IsCompleted);
+        var result = await routineSessionCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return RoutinesActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return RoutinesActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            RoutineSessionResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
     [HttpGet]
     [Authorize]
     [SwaggerOperation(

@@ -32,6 +32,10 @@ public static class ModelBuilderExtensions
                 .HasMaxLength(20)
                 .HasColumnName("status")
                 .IsRequired();
+
+            entity.Property(e => e.MaintenanceThreshold)
+                .HasColumnName("maintenance_threshold")
+                .IsRequired(false);
         });
     }
 

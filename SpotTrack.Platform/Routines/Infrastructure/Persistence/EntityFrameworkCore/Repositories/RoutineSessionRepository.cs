@@ -7,11 +7,15 @@ using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.R
 public class RoutineSessionRepository(AppDbContext context)
     : BaseRepository<RoutineSession>(context), IRoutineSessionRepository
 {
+    // Shadow base FindByIdAsync so OwnsMany (CompletedBlocks) is loaded from its separate table.
+    public new async Task<RoutineSession?> FindByIdAsync(int id, CancellationToken cancellationToken = default)
+        => await Context.Set<RoutineSession>()
+            .Where(s => s.Id == id)
+            .FirstOrDefaultAsync(cancellationToken);
+
     public async Task<IEnumerable<RoutineSession>> FindAllByClientIdAsync(
         int clientId, CancellationToken cancellationToken = default)
-    {
-        return await Context.Set<RoutineSession>()
+        => await Context.Set<RoutineSession>()
             .Where(s => s.ClientId.Value == clientId)
             .ToListAsync(cancellationToken);
-    }
 }

@@ -11,4 +11,8 @@ public interface IEquipmentCommandService
     Task<Result<Equipment>> Handle(ReleaseEquipmentCommand command, CancellationToken cancellationToken);
     Task<Result<Equipment>> Handle(MarkEquipmentOutOfServiceCommand command, CancellationToken cancellationToken);
     Task<Result<Equipment>> Handle(MarkEquipmentAvailableCommand command, CancellationToken cancellationToken);
+    Task<Result<Equipment>> Handle(UpdateEquipmentStatusCommand command, CancellationToken cancellationToken);
+    Task<Result<Equipment>> Handle(DecommissionEquipmentCommand command, CancellationToken cancellationToken);
+    Task<Result<Equipment>> Handle(RelocateEquipmentCommand command, CancellationToken cancellationToken);
+    Task<Result<Equipment>> Handle(SetMaintenanceThresholdCommand command, CancellationToken cancellationToken);
 }

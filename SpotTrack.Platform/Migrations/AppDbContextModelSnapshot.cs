@@ -151,6 +151,10 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("created_at");
 
+                    b.Property<int?>("MaintenanceThreshold")
+                        .HasColumnType("int")
+                        .HasColumnName("maintenance_threshold");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -777,6 +781,109 @@ namespace SpotTrack.Platform.Migrations
                     b.ToTable("payments");
                 });
 
+            modelBuilder.Entity("SpotTrack.Platform.Monitoring.Domain.Model.Aggregates.Anomaly", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
+
+                    b.Property<string>("AnomalyType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("anomaly_type");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTimeOffset>("DetectedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("detected_at");
+
+                    b.Property<int>("SensorId")
+                        .HasColumnType("int")
+                        .HasColumnName("sensor_id");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_anomalies");
+
+                    b.ToTable("anomalies");
+                });
+
+            modelBuilder.Entity("SpotTrack.Platform.Monitoring.Domain.Model.Aggregates.Sensor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
+
+                    b.Property<int?>("EquipmentId")
+                        .HasColumnType("int")
+                        .HasColumnName("equipment_id");
+
+                    b.Property<string>("Identifier")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("identifier");
+
+                    b.Property<DateTimeOffset>("RegisteredAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("registered_at");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_sensors");
+
+                    b.ToTable("sensors");
+                });
+
+            modelBuilder.Entity("SpotTrack.Platform.Monitoring.Domain.Model.Aggregates.SessionTracker", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
+
+                    b.Property<DateTimeOffset?>("EndedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("ended_at");
+
+                    b.Property<int>("EquipmentId")
+                        .HasColumnType("int")
+                        .HasColumnName("equipment_id");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("started_at");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_session_trackers");
+
+                    b.ToTable("session_trackers");
+                });
+
             modelBuilder.Entity("SpotTrack.Platform.Profiles.Domain.Model.Aggregates.Admin", b =>
                 {
                     b.Property<int>("Id")
@@ -1297,6 +1404,39 @@ namespace SpotTrack.Platform.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SpotTrack.Platform.Monitoring.Domain.Model.Aggregates.Sensor", b =>
+                {
+                    b.OwnsMany("SpotTrack.Platform.Monitoring.Domain.Model.Entities.SensorCapture", "Captures", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasColumnName("id");
+
+                            b1.Property<DateTimeOffset>("DetectedAt")
+                                .HasColumnType("datetime")
+                                .HasColumnName("detected_at");
+
+                            b1.Property<int>("sensor_id")
+                                .HasColumnType("int")
+                                .HasColumnName("sensor_id");
+
+                            b1.HasKey("Id")
+                                .HasName("p_k_sensor_captures");
+
+                            b1.HasIndex("sensor_id")
+                                .HasDatabaseName("i_x_sensor_captures_sensor_id");
+
+                            b1.ToTable("sensor_captures", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("sensor_id")
+                                .HasConstraintName("f_k_sensor_captures_sensors_sensor_id");
+                        });
+
+                    b.Navigation("Captures");
+                });
+
             modelBuilder.Entity("SpotTrack.Platform.Profiles.Domain.Model.Aggregates.Admin", b =>
                 {
                     b.OwnsOne("SpotTrack.Platform.Profiles.Domain.Model.ValueObjects.Dni", "Dni", b1 =>
@@ -1663,8 +1803,38 @@ namespace SpotTrack.Platform.Migrations
                                 .HasConstraintName("f_k_routine_sessions_routine_sessions_id");
                         });
 
+                    b.OwnsMany("SpotTrack.Platform.Routines.Domain.Model.Entities.SessionBlockCompletion", "CompletedBlocks", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasColumnName("id");
+
+                            b1.Property<int>("ExerciseBlockId")
+                                .HasColumnType("int")
+                                .HasColumnName("exercise_block_id");
+
+                            b1.Property<int>("routine_session_id")
+                                .HasColumnType("int")
+                                .HasColumnName("routine_session_id");
+
+                            b1.HasKey("Id")
+                                .HasName("p_k_routine_session_block_completions");
+
+                            b1.HasIndex("routine_session_id")
+                                .HasDatabaseName("i_x_routine_session_block_completions_routine_session_id");
+
+                            b1.ToTable("routine_session_block_completions", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("routine_session_id")
+                                .HasConstraintName("f_k_routine_session_block_completions_routine_sessions_routine_s~");
+                        });
+
                     b.Navigation("ClientId")
                         .IsRequired();
+
+                    b.Navigation("CompletedBlocks");
                 });
 
             modelBuilder.Entity("SpotTrack.Platform.Gyms.Domain.Model.Aggregates.Gym", b =>
