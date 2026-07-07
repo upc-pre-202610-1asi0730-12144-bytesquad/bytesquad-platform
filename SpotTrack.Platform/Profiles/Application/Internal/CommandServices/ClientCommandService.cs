@@ -1,6 +1,7 @@
 using Cortex.Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using SpotTrack.Platform.Gyms.Interfaces.Acl;
 using SpotTrack.Platform.Profiles.Application.CommandServices;
 using SpotTrack.Platform.Profiles.Domain.Model;
 using SpotTrack.Platform.Profiles.Domain.Model.Aggregates;
@@ -17,6 +18,7 @@ namespace SpotTrack.Platform.Profiles.Application.Internal.CommandServices;
 public class ClientCommandService(
     IClientRepository clientRepository,
     IClientGymAssociationRepository clientGymAssociationRepository,
+    IGymContextFacade gymFacade,
     IUnitOfWork unitOfWork,
     IMediator mediator,
     IStringLocalizer<ProfilesMessages> localizer)
@@ -156,8 +158,12 @@ public class ClientCommandService(
                 ProfilesError.ProfileIncomplete,
                 localizer[nameof(ProfilesError.ProfileIncomplete)]);
 
-        // TODO: call IGymContextFacade.IsDniWhitelistedForGymAsync(command.GymId, client.Dni!.Value)
-        // and return ProfilesError.GymAccessDenied if the DNI is not on the whitelist.
+        var dni = client.Dni?.Value;
+        if (string.IsNullOrEmpty(dni) ||
+            !await gymFacade.IsDniWhitelistedForGymAsync(command.GymId, dni, cancellationToken))
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.GymAccessDenied,
+                localizer[nameof(ProfilesError.GymAccessDenied)]);
 
         if (await clientGymAssociationRepository.ExistsByClientIdAndGymIdAsync(
                 command.ClientId, command.GymId, cancellationToken))
@@ -207,8 +213,13 @@ public class ClientCommandService(
                 ProfilesError.GymAssociationNotFound,
                 localizer[nameof(ProfilesError.GymAssociationNotFound)]);
 
-        // TODO: call IGymContextFacade.IsDniWhitelistedForGymAsync(command.GymId, client.Dni!.Value)
-        // to reject the switch if the DNI was revoked since the association was created.
+        var client = await clientRepository.FindByIdAsync(command.ClientId, cancellationToken);
+        var dni = client?.Dni?.Value;
+        if (string.IsNullOrEmpty(dni) ||
+            !await gymFacade.IsDniWhitelistedForGymAsync(command.GymId, dni, cancellationToken))
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.GymAccessDenied,
+                localizer[nameof(ProfilesError.GymAccessDenied)]);
 
         try
         {

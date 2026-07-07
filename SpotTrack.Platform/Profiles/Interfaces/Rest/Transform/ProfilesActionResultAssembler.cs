@@ -16,6 +16,7 @@ public static class ProfilesActionResultAssembler
             or ProfilesError.AlreadyAssociatedWithGym             => StatusCodes.Status409Conflict,
         ProfilesError.InvalidProfileData
             or ProfilesError.ProfileIncomplete                    => StatusCodes.Status400BadRequest,
+        ProfilesError.GymAccessDenied                            => StatusCodes.Status403Forbidden,
         _                                                         => StatusCodes.Status500InternalServerError
     };
 
