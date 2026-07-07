@@ -27,9 +27,10 @@ public class SessionTrackersController(
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
     [HttpPost]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Create a session tracker",
-        Description = "Creates a new equipment usage session tracker. Initiated by IoT device or admin.",
+        Description = "Creates a new equipment usage session tracker for the authenticated admin's equipment.",
         OperationId = "CreateSessionTracker")]
     [SwaggerResponse(StatusCodes.Status201Created, "Session tracker created", typeof(SessionTrackerResource))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid tracker data")]
@@ -37,7 +38,8 @@ public class SessionTrackersController(
         [FromBody] CreateSessionTrackerResource resource,
         CancellationToken cancellationToken)
     {
-        var command = new CreateSessionTrackerCommand(resource.EquipmentId, resource.AdminId, resource.StartedAt);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = new CreateSessionTrackerCommand(resource.EquipmentId, adminId, resource.StartedAt);
         var result = await sessionTrackerCommandService.Handle(command, cancellationToken);
         if (result.IsFailure)
             return MonitoringActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
