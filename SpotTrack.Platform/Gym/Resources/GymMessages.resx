@@ -24,4 +24,13 @@
   <data name="InternalServerError" xml:space="preserve">
     <value>An unexpected internal error occurred.</value>
   </data>
+  <data name="DniAlreadyAuthorized" xml:space="preserve">
+    <value>This DNI is already on the whitelist for this gym.</value>
+  </data>
+  <data name="DniNotFound" xml:space="preserve">
+    <value>This DNI is not on the whitelist for this gym.</value>
+  </data>
+  <data name="DniInvalid" xml:space="preserve">
+    <value>DNI must be exactly 8 digits.</value>
+  </data>
 </root>
