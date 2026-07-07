@@ -103,7 +103,6 @@ public class ReservationCommandService(
         try
         {
             await unitOfWork.CompleteAsync(cancellationToken);
-            return Result<Reservation>.Success(reservation);
         }
         catch (DbUpdateException)
         {
@@ -111,6 +110,11 @@ public class ReservationCommandService(
                 ReservationsError.DatabaseError,
                 localizer[nameof(ReservationsError.DatabaseError)]);
         }
+
+        // Best-effort: only matters if the reservation had already occupied the equipment.
+        await gymContextFacade.ReleaseEquipmentAsync(reservation.EquipmentId);
+
+        return Result<Reservation>.Success(reservation);
     }
 
     public async Task<Result<Reservation>> Handle(
@@ -175,7 +179,6 @@ public class ReservationCommandService(
         try
         {
             await unitOfWork.CompleteAsync(cancellationToken);
-            return Result<Reservation>.Success(reservation);
         }
         catch (DbUpdateException)
         {
@@ -183,6 +186,12 @@ public class ReservationCommandService(
                 ReservationsError.DatabaseError,
                 localizer[nameof(ReservationsError.DatabaseError)]);
         }
+
+        // Best-effort: the equipment may already be Available (e.g. the client already
+        // requested it) — that's not a reason to fail an otherwise-successful End.
+        await gymContextFacade.ReleaseEquipmentAsync(reservation.EquipmentId);
+
+        return Result<Reservation>.Success(reservation);
     }
 
     public async Task<Result<Reservation>> Handle(
