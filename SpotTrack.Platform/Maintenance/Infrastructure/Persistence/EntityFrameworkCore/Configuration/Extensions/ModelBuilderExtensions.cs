@@ -81,5 +81,16 @@ public static class ModelBuilderExtensions
                 .IsRequired()
                 .HasMaxLength(1000);
         });
+
+        builder.Entity<Technician>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+            entity.Property(t => t.Id).ValueGeneratedOnAdd();
+
+            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
+            entity.Property(t => t.Specialization).IsRequired().HasMaxLength(100);
+            entity.Property(t => t.PhoneNumber).IsRequired(false).HasMaxLength(20);
+            entity.Property(t => t.AdminId).IsRequired();
+        });
     }
 }

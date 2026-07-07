@@ -241,6 +241,9 @@ builder.Services.AddScoped<IMaintenanceJobRepository, MaintenanceJobRepository>(
 builder.Services.AddScoped<IMaintenanceJobCommandService, MaintenanceJobCommandService>();
 builder.Services.AddScoped<IMaintenanceLogRepository, MaintenanceLogRepository>();
 builder.Services.AddScoped<IMaintenanceLogCommandService, MaintenanceLogCommandService>();
+builder.Services.AddScoped<ITechnicianRepository, TechnicianRepository>();
+builder.Services.AddScoped<ITechnicianCommandService, TechnicianCommandService>();
+builder.Services.AddScoped<ITechnicianQueryService, TechnicianQueryService>();
 
 // IAM Bounded Context
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
