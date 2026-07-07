@@ -87,6 +87,13 @@ public static class DevDataSeeder
             new CreateGymCommand(adminUserId, "SpotTrack Demo Gym", "Av. Demo 123", "Miraflores", "Lima"),
             default)).Value!;
 
+        // Branch creation checks the admin's branch limit against their active membership,
+        // so the membership must exist before any branch is created.
+        await membershipCommandService.Handle(
+            new CreateActivateMembershipCommand(
+                adminUserId, EMembershipPlan.Premium, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddYears(1)),
+            default);
+
         var branch = (await gymCommandService.Handle(
             new CreateBranchCommand(gym.Id, adminUserId, "Sede Principal", "Av. Demo 123", "Miraflores", "Lima"),
             default)).Value!;
@@ -99,11 +106,6 @@ public static class DevDataSeeder
             new RegisterEquipmentCommand("Caminadora", "Technogym Run 900", zone.Id), default);
         await equipmentCommandService.Handle(
             new RegisterEquipmentCommand("Bicicleta estática", "Technogym Bike 700", zone.Id), default);
-
-        await membershipCommandService.Handle(
-            new CreateActivateMembershipCommand(
-                adminUserId, EMembershipPlan.Premium, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddYears(1)),
-            default);
 
         await clientCommandService.Handle(
             new AssociateClientWithGymCommand(client.Id, gym.Id), default);
