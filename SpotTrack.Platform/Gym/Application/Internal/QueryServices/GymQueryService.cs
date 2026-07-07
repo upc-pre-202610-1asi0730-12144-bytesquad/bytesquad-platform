@@ -7,6 +7,9 @@ namespace SpotTrack.Platform.Gyms.Application.Internal.QueryServices;
 
 public class GymQueryService(IGymRepository gymRepository) : IGymQueryService
 {
+    public async Task<Gym?> Handle(GetGymByIdQuery query, CancellationToken cancellationToken)
+        => await gymRepository.FindByIdAsync(query.GymId, cancellationToken);
+
     public async Task<Gym?> Handle(GetGymByAdminIdQuery query, CancellationToken cancellationToken)
         => await gymRepository.FindByAdminIdAsync(query.AdminId, cancellationToken);
 }

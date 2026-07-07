@@ -21,4 +21,16 @@
   <data name="InternalServerError" xml:space="preserve">
     <value>An unexpected internal error occurred in Profiles.</value>
   </data>
+  <data name="ProfileIncomplete" xml:space="preserve">
+    <value>Complete your profile before associating with a gym.</value>
+  </data>
+  <data name="AlreadyAssociatedWithGym" xml:space="preserve">
+    <value>You are already associated with this gym.</value>
+  </data>
+  <data name="GymAssociationNotFound" xml:space="preserve">
+    <value>You are not associated with this gym.</value>
+  </data>
+  <data name="GymAccessDenied" xml:space="preserve">
+    <value>Your DNI is not authorised for this gym.</value>
+  </data>
 </root>

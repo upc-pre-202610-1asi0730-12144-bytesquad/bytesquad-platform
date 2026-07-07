@@ -192,6 +192,33 @@ namespace SpotTrack.Platform.Migrations
                     b.ToTable("gyms");
                 });
 
+            modelBuilder.Entity("SpotTrack.Platform.Gyms.Domain.Model.Entities.AuthorizedDni", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Dni")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)")
+                        .HasColumnName("dni");
+
+                    b.Property<int>("GymId")
+                        .HasColumnType("int")
+                        .HasColumnName("gym_id");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_gym_authorized_dnis");
+
+                    b.HasIndex("GymId", "Dni")
+                        .IsUnique()
+                        .HasDatabaseName("i_x_gym_authorized_dnis_gym_id_dni");
+
+                    b.ToTable("gym_authorized_dnis", (string)null);
+                });
+
             modelBuilder.Entity("SpotTrack.Platform.Gyms.Domain.Model.Entities.Branch", b =>
                 {
                     b.Property<int>("Id")
@@ -807,6 +834,35 @@ namespace SpotTrack.Platform.Migrations
                         .HasName("p_k_clients");
 
                     b.ToTable("clients");
+                });
+
+            modelBuilder.Entity("SpotTrack.Platform.Profiles.Domain.Model.Entities.ClientGymAssociation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("active");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int")
+                        .HasColumnName("client_id");
+
+                    b.Property<int>("GymId")
+                        .HasColumnType("int")
+                        .HasColumnName("gym_id");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_client_gym_associations");
+
+                    b.HasIndex("ClientId", "GymId")
+                        .IsUnique()
+                        .HasDatabaseName("i_x_client_gym_associations_client_id_gym_id");
+
+                    b.ToTable("client_gym_associations", (string)null);
                 });
 
             modelBuilder.Entity("SpotTrack.Platform.Reservations.Domain.Model.Aggregates.Reservation", b =>

@@ -7,7 +7,8 @@ namespace SpotTrack.Platform.Gyms.Application.Acl;
 
 public class GymContextFacade(
     IEquipmentCommandService equipmentCommandService,
-    IGymRepository gymRepository) : IGymContextFacade
+    IGymRepository gymRepository,
+    IAuthorizedDniRepository authorizedDniRepository) : IGymContextFacade
 {
     public async Task<bool> OccupyEquipmentAsync(int equipmentId)
     {
@@ -47,4 +48,12 @@ public class GymContextFacade(
         CancellationToken cancellationToken = default)
         => await gymRepository.FindAllEquipmentIdsByAdminIdAsync(adminId, cancellationToken);
 
+    public async Task<bool> IsDniWhitelistedForGymAsync(int gymId, string dni, CancellationToken cancellationToken = default)
+        => await authorizedDniRepository.ExistsByGymIdAndDniAsync(gymId, dni, cancellationToken);
+
+    public async Task<int> GetAdminIdByGymIdAsync(int gymId, CancellationToken cancellationToken = default)
+    {
+        var gym = await gymRepository.FindByIdAsync(gymId, cancellationToken);
+        return gym?.AdminId ?? 0;
+    }
 }

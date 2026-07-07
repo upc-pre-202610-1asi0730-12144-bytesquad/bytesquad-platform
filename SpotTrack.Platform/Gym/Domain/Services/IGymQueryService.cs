@@ -5,5 +5,6 @@ namespace SpotTrack.Platform.Gyms.Domain.Services;
 
 public interface IGymQueryService
 {
+    Task<Gym?> Handle(GetGymByIdQuery query, CancellationToken cancellationToken);
     Task<Gym?> Handle(GetGymByAdminIdQuery query, CancellationToken cancellationToken);
 }

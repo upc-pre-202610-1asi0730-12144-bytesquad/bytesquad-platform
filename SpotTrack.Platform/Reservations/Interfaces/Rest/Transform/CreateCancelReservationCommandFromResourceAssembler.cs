@@ -7,8 +7,4 @@ public static class CreateCancelReservationCommandFromResourceAssembler
 {
     public static CreateCancelReservationCommand ToCommandResource(
         CreateCancelReservationResource resource) => new(resource.ReservationId);
-    
-    public static CreateInitiateExpressReservationCommand ToCommandFromResource(
-        CreateInitiateExpressReservationResource resource) =>
-        new(resource.ClientId, resource.EquipmentId, resource.StartDate, resource.EndDate);
 }

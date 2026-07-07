@@ -179,6 +179,7 @@ builder.Services.AddScoped<IROIProjectionQueryService, ROIProjectionQueryService
 
 // Profiles Bounded Context
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<IClientGymAssociationRepository, ClientGymAssociationRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
 builder.Services.AddScoped<IClientCommandService, ClientCommandService>();
@@ -205,6 +206,7 @@ builder.Services.AddSingleton<IStringLocalizer<RoutinesMessages>, StringLocalize
 
 // Gym Bounded Context
 builder.Services.AddScoped<IGymRepository, GymRepository>();
+builder.Services.AddScoped<IAuthorizedDniRepository, AuthorizedDniRepository>();
 builder.Services.AddScoped<IGymCommandService, GymCommandService>();
 builder.Services.AddScoped<IGymQueryService, GymQueryService>();
 builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();

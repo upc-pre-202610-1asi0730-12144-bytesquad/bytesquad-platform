@@ -37,4 +37,5 @@ public partial class Client
 
     public string FullName => Name?.FullName ?? string.Empty;
     public string EmailAddress => Email?.Address ?? string.Empty;
+    public bool IsProfileComplete() => Name is not null;
 }

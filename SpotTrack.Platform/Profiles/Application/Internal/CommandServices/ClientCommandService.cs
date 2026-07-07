@@ -1,10 +1,12 @@
 using Cortex.Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using SpotTrack.Platform.Gyms.Interfaces.Acl;
 using SpotTrack.Platform.Profiles.Application.CommandServices;
 using SpotTrack.Platform.Profiles.Domain.Model;
 using SpotTrack.Platform.Profiles.Domain.Model.Aggregates;
 using SpotTrack.Platform.Profiles.Domain.Model.Commands;
+using SpotTrack.Platform.Profiles.Domain.Model.Entities;
 using SpotTrack.Platform.Profiles.Domain.Model.Events;
 using SpotTrack.Platform.Profiles.Domain.Repositories;
 using SpotTrack.Platform.Profiles.Resources;
@@ -15,6 +17,8 @@ namespace SpotTrack.Platform.Profiles.Application.Internal.CommandServices;
 
 public class ClientCommandService(
     IClientRepository clientRepository,
+    IClientGymAssociationRepository clientGymAssociationRepository,
+    IGymContextFacade gymFacade,
     IUnitOfWork unitOfWork,
     IMediator mediator,
     IStringLocalizer<ProfilesMessages> localizer)
@@ -135,6 +139,118 @@ public class ClientCommandService(
         catch (Exception)
         {
             return Result<Client>.Failure(
+                ProfilesError.InternalServerError,
+                localizer[nameof(ProfilesError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result<ClientGymAssociation>> Handle(
+        AssociateClientWithGymCommand command, CancellationToken cancellationToken)
+    {
+        var client = await clientRepository.FindByIdAsync(command.ClientId, cancellationToken);
+        if (client is null)
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.ClientNotFound,
+                localizer[nameof(ProfilesError.ClientNotFound)]);
+
+        if (!client.IsProfileComplete())
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.ProfileIncomplete,
+                localizer[nameof(ProfilesError.ProfileIncomplete)]);
+
+        var dni = client.Dni?.Value;
+        if (string.IsNullOrEmpty(dni) ||
+            !await gymFacade.IsDniWhitelistedForGymAsync(command.GymId, dni, cancellationToken))
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.GymAccessDenied,
+                localizer[nameof(ProfilesError.GymAccessDenied)]);
+
+        if (await clientGymAssociationRepository.ExistsByClientIdAndGymIdAsync(
+                command.ClientId, command.GymId, cancellationToken))
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.AlreadyAssociatedWithGym,
+                localizer[nameof(ProfilesError.AlreadyAssociatedWithGym)]);
+
+        var existing = await clientGymAssociationRepository.FindAllByClientIdAsync(
+            command.ClientId, cancellationToken);
+        var isFirst = !existing.Any();
+
+        var association = ClientGymAssociation.Create(command.ClientId, command.GymId, isFirst);
+
+        try
+        {
+            await clientGymAssociationRepository.AddAsync(association, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<ClientGymAssociation>.Success(association);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.OperationCancelled,
+                localizer[nameof(ProfilesError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.DatabaseError,
+                localizer[nameof(ProfilesError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.InternalServerError,
+                localizer[nameof(ProfilesError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result<ClientGymAssociation>> Handle(
+        ChangeActiveGymCommand command, CancellationToken cancellationToken)
+    {
+        var target = await clientGymAssociationRepository.FindByClientIdAndGymIdAsync(
+            command.ClientId, command.GymId, cancellationToken);
+        if (target is null)
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.GymAssociationNotFound,
+                localizer[nameof(ProfilesError.GymAssociationNotFound)]);
+
+        var client = await clientRepository.FindByIdAsync(command.ClientId, cancellationToken);
+        var dni = client?.Dni?.Value;
+        if (string.IsNullOrEmpty(dni) ||
+            !await gymFacade.IsDniWhitelistedForGymAsync(command.GymId, dni, cancellationToken))
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.GymAccessDenied,
+                localizer[nameof(ProfilesError.GymAccessDenied)]);
+
+        try
+        {
+            var currentlyActive = await clientGymAssociationRepository.FindActiveByClientIdAsync(
+                command.ClientId, cancellationToken);
+            foreach (var association in currentlyActive)
+            {
+                association.Deactivate();
+                clientGymAssociationRepository.Update(association);
+            }
+
+            target.Activate();
+            clientGymAssociationRepository.Update(target);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<ClientGymAssociation>.Success(target);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.OperationCancelled,
+                localizer[nameof(ProfilesError.OperationCancelled)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<ClientGymAssociation>.Failure(
+                ProfilesError.DatabaseError,
+                localizer[nameof(ProfilesError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<ClientGymAssociation>.Failure(
                 ProfilesError.InternalServerError,
                 localizer[nameof(ProfilesError.InternalServerError)]);
         }

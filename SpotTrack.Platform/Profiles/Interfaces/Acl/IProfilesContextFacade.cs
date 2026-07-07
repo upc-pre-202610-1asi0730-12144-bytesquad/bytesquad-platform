@@ -3,7 +3,9 @@ namespace SpotTrack.Platform.Profiles.Interfaces.Acl;
 public interface IProfilesContextFacade
 {
     Task<int> FetchClientIdByEmailAsync(string email);
+    Task<int> FetchClientIdByUserIdAsync(int userId);
     Task<int> FetchAdminIdByEmailAsync(string email);
+    Task<int> GetActiveGymIdForClientAsync(int userId, CancellationToken cancellationToken = default);
 
     Task<int> CreateClientAsync(int userId, string email, string firstName, string lastName, string phoneNumber,
         string dni);

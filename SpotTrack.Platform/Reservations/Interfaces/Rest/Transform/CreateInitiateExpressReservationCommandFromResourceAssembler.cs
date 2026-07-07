@@ -6,6 +6,7 @@ namespace SpotTrack.Platform.Reservations.Interfaces.Rest.Transform;
 public static class CreateInitiateExpressReservationCommandFromResourceAssembler
 {
     public static CreateInitiateExpressReservationCommand ToCommandFromResource(
+        int userId,
         CreateInitiateExpressReservationResource resource) =>
-        new(resource.ClientId, resource.EquipmentId, resource.StartDate, resource.EndDate);
+        new(userId, resource.ClientId, resource.EquipmentId, resource.StartDate, resource.EndDate);
 }
