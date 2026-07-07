@@ -29,7 +29,7 @@ public class ReservationCommandService(
         CancellationToken cancellationToken)
     {
         var gymIsActive = await membershipContextFacade
-            .GymHasActiveMembershipAsync(command.EquipmentId, cancellationToken);
+            .ClientGymHasActiveMembershipAsync(command.UserId, cancellationToken);
         if (!gymIsActive)
             return Result<Reservation>.Failure(
                 ReservationsError.GymMembershipInactive,
