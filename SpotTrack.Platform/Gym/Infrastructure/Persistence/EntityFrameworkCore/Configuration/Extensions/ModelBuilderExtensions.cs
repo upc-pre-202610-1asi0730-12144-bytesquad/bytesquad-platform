@@ -95,5 +95,15 @@ public static class ModelBuilderExtensions
                 name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
             });
         });
+
+        builder.Entity<AuthorizedDni>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.Id).ValueGeneratedOnAdd();
+            entity.Property(a => a.GymId).IsRequired().HasColumnName("gym_id");
+            entity.Property(a => a.Dni).IsRequired().HasMaxLength(8).HasColumnName("dni");
+            entity.HasIndex(a => new { a.GymId, a.Dni }).IsUnique();
+            entity.ToTable("gym_authorized_dnis");
+        });
     }
 }
