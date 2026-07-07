@@ -43,4 +43,7 @@ public class GymQueryService(
         var equipment = await equipmentRepository.FindAllByZoneIdsAsync(zoneIds, cancellationToken);
         return equipment.ToList();
     }
+
+    public async Task<Gym?> Handle(GetGymByAdminIdQuery query, CancellationToken cancellationToken)
+        => await gymRepository.FindByAdminIdAsync(query.AdminId, cancellationToken);
 }

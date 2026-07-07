@@ -15,4 +15,14 @@ public class TechnicalTicketRepository(AppDbContext context)
         => await Context.Set<TechnicalTicket>()
             .Where(t => t.MaintenanceId == maintenanceId)
             .ToListAsync(cancellationToken);
+
+    public async Task<IEnumerable<TechnicalTicket>> FindAllByAdminIdAsync(
+        int adminId,
+        CancellationToken cancellationToken = default)
+        => await (
+            from t in Context.Set<TechnicalTicket>()
+            join m in Context.Set<Maintenance>() on t.MaintenanceId equals m.Id
+            where m.RequestedByAdminId == adminId
+            select t
+        ).ToListAsync(cancellationToken);
 }

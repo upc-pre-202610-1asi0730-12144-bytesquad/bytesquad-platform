@@ -3,7 +3,7 @@ using SpotTrack.Platform.Analytics.Domain.Model.ValueObjects;
 
 namespace SpotTrack.Platform.Analytics.Domain.Model.Aggregates
 {
-    public class ActivityReport
+    public partial class ActivityReport
     {
         public long Id { get; private set; }
         public ActivityReportId ActivityReportId { get; private set; } = null!;

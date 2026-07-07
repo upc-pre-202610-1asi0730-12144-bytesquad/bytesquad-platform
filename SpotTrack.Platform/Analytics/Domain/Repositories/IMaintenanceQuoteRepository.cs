@@ -8,4 +8,5 @@ public interface IMaintenanceQuoteRepository
     Task AddAsync(MaintenanceQuote maintenanceQuote);
     Task UpdateAsync(MaintenanceQuote maintenanceQuote);
     Task<MaintenanceQuote?> FindByMaintenanceQuoteIdAsync(MaintenanceQuoteId maintenanceQuoteId);
+    Task<IEnumerable<MaintenanceQuote>> FindAllByAdminIdAsync(int adminId, CancellationToken cancellationToken = default);
 }

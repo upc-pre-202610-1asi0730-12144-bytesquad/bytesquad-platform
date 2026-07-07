@@ -84,7 +84,7 @@ public static class DevDataSeeder
             new UpdateClientProfileCommand(client!.Id, "Demo", "Client", "988888888"), default);
 
         var gym = (await gymCommandService.Handle(
-            new CreateGymCommand(adminUserId, "SpotTrack Demo Gym", "Av. Demo 123", "Miraflores", "Lima"),
+            new CreateGymCommand(adminUserId, "SpotTrack Demo Gym"),
             default)).Value!;
 
         // Branch creation checks the admin's branch limit against their active membership,

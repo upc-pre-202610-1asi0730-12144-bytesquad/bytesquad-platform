@@ -95,6 +95,27 @@ public class GymsController(
         return Ok(equipment.Select(EquipmentResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
+    [HttpGet("by-admin/{adminId:int}")]
+    [SwaggerOperation(
+        Summary = "Get gym by admin",
+        OperationId = "GetGymByAdmin")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Gym found", typeof(GymResource))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Access denied")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "No gym found for this admin")]
+    public async Task<IActionResult> GetGymByAdmin(
+        [FromRoute] int adminId,
+        CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        if (adminId != authenticatedAdminId) return Forbid();
+
+        var gym = await gymQueryService.Handle(new GetGymByAdminIdQuery(adminId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, GymError.GymNotFound, "No gym found for this admin.");
+        return Ok(GymResourceFromEntityAssembler.ToResourceFromEntity(gym));
+    }
+
     [HttpPost]
     [Authorize(UserRole.Admin)]
     [SwaggerOperation(

@@ -11,4 +11,8 @@ public interface IGymContextFacade
     Task<Equipment?> FindEquipmentByIdAsync(int equipmentId);
     Task<IEnumerable<Equipment>> FindAvailableAlternativesAsync(string equipmentName, int excludeEquipmentId);
     Task<int?> GetAdminIdByEquipmentIdAsync(int equipmentId, CancellationToken cancellationToken);
+    Task<IEnumerable<int>> GetEquipmentIdsByAdminIdAsync(int adminId, CancellationToken cancellationToken = default);
+    Task<int> CreateGymWithBranchAsync(int adminId, string gymName, string branchName,
+        string street, string district, string city,
+        CancellationToken cancellationToken = default);
 }

@@ -30,6 +30,10 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("int")
                         .HasColumnName("admin_id");
 
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at");
+
                     b.Property<long>("DowntimeCost")
                         .HasColumnType("bigint")
                         .HasColumnName("downtime_cost");
@@ -41,6 +45,10 @@ namespace SpotTrack.Platform.Migrations
                     b.Property<long>("TotalUsageTime")
                         .HasColumnType("bigint")
                         .HasColumnName("total_usage_time");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id")
                         .HasName("p_k_activity_reports");
@@ -63,6 +71,10 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("double")
                         .HasColumnName("corrective_actions_cost");
 
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at");
+
                     b.Property<double>("PreventiveCost")
                         .HasColumnType("double")
                         .HasColumnName("preventive_cost");
@@ -74,6 +86,10 @@ namespace SpotTrack.Platform.Migrations
                     b.Property<double>("TotalMaintenanceCost")
                         .HasColumnType("double")
                         .HasColumnName("total_maintenance_cost");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id")
                         .HasName("p_k_maintenance_quotes");
@@ -92,6 +108,10 @@ namespace SpotTrack.Platform.Migrations
                         .HasColumnType("int")
                         .HasColumnName("admin_id");
 
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at");
+
                     b.Property<string>("DemandStatus")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -109,6 +129,10 @@ namespace SpotTrack.Platform.Migrations
                     b.Property<double>("RoiIndex")
                         .HasColumnType("double")
                         .HasColumnName("roi_index");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id")
                         .HasName("p_k_roi_projections");
@@ -680,6 +704,63 @@ namespace SpotTrack.Platform.Migrations
                     b.ToTable("anomalies", (string)null);
                 });
 
+            modelBuilder.Entity("SpotTrack.Platform.Memberships.Domain.Model.Aggregates.Payment", b =>
+                {
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("payment_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("varchar(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<string>("GatewayTransactionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("gateway_transaction_id");
+
+                    b.Property<int?>("MembershipId")
+                        .HasColumnType("int")
+                        .HasColumnName("membership_id");
+
+                    b.Property<string>("MembershipPlan")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("membership_plan");
+
+                    b.Property<Guid?>("PendingRegistrationId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("pending_registration_id");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("purpose");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("status");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("PaymentId")
+                        .HasName("p_k_payments");
+
+                    b.ToTable("payments");
+                });
+
             modelBuilder.Entity("SpotTrack.Platform.Profiles.Domain.Model.Aggregates.Admin", b =>
                 {
                     b.Property<int>("Id")
@@ -703,6 +784,57 @@ namespace SpotTrack.Platform.Migrations
                         .HasName("p_k_admins");
 
                     b.ToTable("admins");
+                });
+
+            modelBuilder.Entity("SpotTrack.Platform.Profiles.Domain.Model.Aggregates.Business", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int")
+                        .HasColumnName("admin_id");
+
+                    b.Property<string>("CompanyEmail")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("company_email");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("company_name");
+
+                    b.Property<string>("CompanyPhone")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("varchar(15)")
+                        .HasColumnName("company_phone");
+
+                    b.Property<string>("LegalStructure")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("legal_structure");
+
+                    b.Property<string>("Ruc")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("varchar(11)")
+                        .HasColumnName("ruc");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_businesses");
+
+                    b.HasIndex("AdminId")
+                        .IsUnique()
+                        .HasDatabaseName("i_x_businesses_admin_id");
+
+                    b.ToTable("businesses");
                 });
 
             modelBuilder.Entity("SpotTrack.Platform.Profiles.Domain.Model.Aggregates.Client", b =>
@@ -1028,40 +1160,6 @@ namespace SpotTrack.Platform.Migrations
 
             modelBuilder.Entity("SpotTrack.Platform.Gyms.Domain.Model.Aggregates.Gym", b =>
                 {
-                    b.OwnsOne("SpotTrack.Platform.Gyms.Domain.Model.ValueObjects.Address", "Address", b1 =>
-                        {
-                            b1.Property<int>("Id")
-                                .HasColumnType("int")
-                                .HasColumnName("id");
-
-                            b1.Property<string>("City")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("varchar(100)")
-                                .HasColumnName("city");
-
-                            b1.Property<string>("District")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("varchar(100)")
-                                .HasColumnName("district");
-
-                            b1.Property<string>("Street")
-                                .IsRequired()
-                                .HasMaxLength(200)
-                                .HasColumnType("varchar(200)")
-                                .HasColumnName("street");
-
-                            b1.HasKey("Id")
-                                .HasName("p_k_gyms");
-
-                            b1.ToTable("gyms");
-
-                            b1.WithOwner()
-                                .HasForeignKey("Id")
-                                .HasConstraintName("f_k_gyms_gyms_id");
-                        });
-
                     b.OwnsOne("SpotTrack.Platform.Gyms.Domain.Model.ValueObjects.GymName", "Name", b1 =>
                         {
                             b1.Property<int>("Id")
@@ -1083,9 +1181,6 @@ namespace SpotTrack.Platform.Migrations
                                 .HasForeignKey("Id")
                                 .HasConstraintName("f_k_gyms_gyms_id");
                         });
-
-                    b.Navigation("Address")
-                        .IsRequired();
 
                     b.Navigation("Name")
                         .IsRequired();

@@ -6,4 +6,5 @@ namespace SpotTrack.Platform.Maintenances.Application.QueryServices;
 public interface ITechnicalTicketQueryService
 {
     Task<TechnicalTicket?> Handle(GetTechnicalTicketByIdQuery query, CancellationToken cancellationToken);
+    Task<IEnumerable<TechnicalTicket>> Handle(GetAllTechnicalTicketsByAdminIdQuery query, CancellationToken cancellationToken);
 }

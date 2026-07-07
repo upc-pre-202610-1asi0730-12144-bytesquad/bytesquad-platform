@@ -10,4 +10,7 @@ public class TechnicalTicketQueryService(ITechnicalTicketRepository technicalTic
 {
     public async Task<TechnicalTicket?> Handle(GetTechnicalTicketByIdQuery query, CancellationToken cancellationToken)
         => await technicalTicketRepository.FindByIdAsync(query.TechnicalTicketId, cancellationToken);
+
+    public async Task<IEnumerable<TechnicalTicket>> Handle(GetAllTechnicalTicketsByAdminIdQuery query, CancellationToken cancellationToken)
+        => await technicalTicketRepository.FindAllByAdminIdAsync(query.AdminId, cancellationToken);
 }

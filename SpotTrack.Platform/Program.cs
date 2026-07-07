@@ -1,5 +1,7 @@
 using SpotTrack.Platform.Analytics.Application.CommandServices;
 using SpotTrack.Platform.Analytics.Application.Internal.CommandServices;
+using SpotTrack.Platform.Analytics.Application.Internal.QueryServices;
+using SpotTrack.Platform.Analytics.Application.QueryServices;
 using SpotTrack.Platform.Analytics.Domain.Repositories;
 using SpotTrack.Platform.Analytics.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Profiles.Application.Acl;
@@ -75,6 +77,7 @@ using SpotTrack.Platform.Memberships.Application.QueryServices;
 using SpotTrack.Platform.Memberships.Domain.Repositories;
 using SpotTrack.Platform.Memberships.Infrastructure.BackgroundServices;
 using SpotTrack.Platform.Memberships.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using SpotTrack.Platform.Memberships.Infrastructure.Stripe;
 using SpotTrack.Platform.Memberships.Resources;
 using SpotTrack.Platform.Maintenances.Application.CommandServices;
 using SpotTrack.Platform.Maintenances.Application.Internal.CommandServices;
@@ -177,19 +180,25 @@ builder.Services.AddScoped<IROIProjectionRepository, ROIProjectionRepository>();
 builder.Services.AddScoped<IActivityReportCommandService, ActivityReportCommandService>();
 builder.Services.AddScoped<IMaintenanceQuoteCommandService, MaintenanceQuoteCommandService>();
 builder.Services.AddScoped<IROIProjectionCommandService, ROIProjectionCommandService>();
+builder.Services.AddScoped<IActivityReportQueryService, ActivityReportQueryService>();
+builder.Services.AddScoped<IMaintenanceQuoteQueryService, MaintenanceQuoteQueryService>();
+builder.Services.AddScoped<IROIProjectionQueryService, ROIProjectionQueryService>();
 
 // Profiles Bounded Context
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IClientGymAssociationRepository, ClientGymAssociationRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
 builder.Services.AddScoped<IClientCommandService, ClientCommandService>();
 builder.Services.AddScoped<IAdminCommandService, AdminCommandService>();
+builder.Services.AddScoped<IBusinessCommandService, BusinessCommandService>();
 builder.Services.AddScoped<IClientQueryService, ClientQueryService>();
 builder.Services.AddScoped<IAdminQueryService, AdminQueryService>();
 builder.Services.AddScoped<IProfilesContextFacade, ProfilesContextFacade>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IReservationCommandService, ReservationCommandService>();
 builder.Services.AddScoped<IReservationQueryService, ReservationQueryService>();
+builder.Services.AddScoped<IEquipmentUsageStatsQueryService, EquipmentUsageStatsQueryService>();
 builder.Services.AddScoped<IReservationsMembershipContextFacade, ReservationsMembershipContextFacade>();
 builder.Services.AddSingleton<IStringLocalizer<ReservationMessages>, StringLocalizer<ReservationMessages>>();
 
@@ -219,11 +228,14 @@ builder.Services.AddSingleton<IStringLocalizer<GymMessages>, StringLocalizer<Gym
 builder.Services.AddSingleton<IStringLocalizer<EquipmentMessages>, StringLocalizer<EquipmentMessages>>();
 
 // Membership Bounded Context
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
 builder.Services.AddScoped<IMembershipCommandService, MembershipCommandService>();
 builder.Services.AddScoped<IMembershipQueryService, MembershipQueryService>();
 builder.Services.AddScoped<IBranchAccessRepository, BranchAccessRepository>();
 builder.Services.AddScoped<IBranchAccessCommandService, BranchAccessCommandService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentCommandService, PaymentCommandService>();
 builder.Services.AddSingleton<IStringLocalizer<MembershipMessages>, StringLocalizer<MembershipMessages>>();
 builder.Services.AddHostedService<MembershipExpirationBackgroundService>();
 builder.Services.AddHostedService<ReservationTimerExpiryBackgroundService>();

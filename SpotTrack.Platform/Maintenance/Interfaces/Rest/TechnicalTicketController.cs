@@ -26,6 +26,24 @@ public class TechnicalTicketController(
     ITechnicalTicketQueryService technicalTicketQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet("by-admin/{adminId:int}")]
+    [SwaggerOperation(
+        Summary = "Get all technical tickets by admin",
+        OperationId = "GetTechnicalTicketsByAdmin")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Technical tickets retrieved successfully",
+        typeof(IEnumerable<TechnicalTicketResource>))]
+    public async Task<IActionResult> GetTechnicalTicketsByAdmin(
+        [FromRoute] int adminId,
+        CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        if (adminId != authenticatedAdminId) return Forbid();
+
+        var tickets = await technicalTicketQueryService.Handle(
+            new GetAllTechnicalTicketsByAdminIdQuery(adminId), cancellationToken);
+        return Ok(tickets.Select(TechnicalTicketResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpGet("{id:int}")]
     [SwaggerOperation(
         Summary = "Get a technical ticket by id",

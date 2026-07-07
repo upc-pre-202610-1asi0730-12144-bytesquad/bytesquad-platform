@@ -18,4 +18,7 @@ public static class IamErrors
 
     public static Error InternalServerError(string message) =>
         new($"{nameof(IamError)}.{nameof(IamError.InternalServerError)}", message);
+
+    public static Error InvalidCurrentPassword(string message) =>
+        new($"{nameof(IamError)}.{nameof(IamError.InvalidCurrentPassword)}", message);
 }

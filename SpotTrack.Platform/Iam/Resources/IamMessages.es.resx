@@ -30,4 +30,7 @@
   <data name="UserCreatedSuccessfully" xml:space="preserve">
     <value>Usuario creado exitosamente.</value>
   </data>
+  <data name="InvalidCurrentPassword" xml:space="preserve">
+    <value>La contraseña actual es incorrecta.</value>
+  </data>
 </root>

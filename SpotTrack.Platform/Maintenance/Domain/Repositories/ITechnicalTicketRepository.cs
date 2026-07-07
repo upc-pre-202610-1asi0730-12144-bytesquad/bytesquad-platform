@@ -7,4 +7,7 @@ public interface ITechnicalTicketRepository : IBaseRepository<TechnicalTicket>
 {
     Task<IEnumerable<TechnicalTicket>> FindAllByMaintenanceIdAsync(int maintenanceId,
         CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<TechnicalTicket>> FindAllByAdminIdAsync(int adminId,
+        CancellationToken cancellationToken = default);
 }

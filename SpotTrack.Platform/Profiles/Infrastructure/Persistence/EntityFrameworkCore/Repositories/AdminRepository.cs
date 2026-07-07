@@ -20,4 +20,10 @@ public class AdminRepository(AppDbContext context)
         return await Context.Set<Admin>()
             .AnyAsync(a => a.Email != null && a.Email.Address == email, cancellationToken);
     }
+
+    public async Task<Admin?> FindByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<Admin>()
+            .FirstOrDefaultAsync(a => a.UserId == userId, cancellationToken);
+    }
 }
