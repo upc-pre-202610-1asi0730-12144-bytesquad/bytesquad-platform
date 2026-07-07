@@ -12,7 +12,7 @@ public interface IProfilesContextFacade
     Task<int> CreateAdminAsync(int userId, string email, string firstName, string lastName, string phoneNumber,
         string dni);
 
-    Task<int> RegisterClientAsync(int userId);
+    Task<int> RegisterClientAsync(int userId, string email);
     Task<int> RegisterAdminAsync(int userId);
 
     Task<int> ProvisionBusinessAsync(int adminId, string companyName, string ruc,

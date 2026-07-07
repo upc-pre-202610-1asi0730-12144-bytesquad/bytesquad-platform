@@ -32,9 +32,9 @@ public class ProfilesContextFacade(
         return result.IsFailure ? 0 : result.Value!.Id;
     }
 
-    public async Task<int> RegisterClientAsync(int userId)
+    public async Task<int> RegisterClientAsync(int userId, string email)
     {
-        var command = new RegisterClientCommand(userId);
+        var command = new RegisterClientCommand(userId, email);
         var result = await clientCommandService.Handle(command, CancellationToken.None);
         return result.IsFailure ? 0 : result.Value!.Id;
     }

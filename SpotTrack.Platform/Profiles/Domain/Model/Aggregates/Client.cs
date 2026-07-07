@@ -18,6 +18,7 @@ public partial class Client
     public Client(RegisterClientCommand command)
     {
         UserId = command.UserId;
+        Email = new ValueObjects.EmailAddress(command.Email);
     }
 
     public Client(CreateClientCommand command)

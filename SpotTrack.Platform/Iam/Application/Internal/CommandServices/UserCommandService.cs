@@ -58,7 +58,7 @@ public class UserCommandService(
                 localizer[nameof(IamError.InternalServerError)]);
         }
 
-        await profilesFacade.RegisterClientAsync(user.Id);
+        await profilesFacade.RegisterClientAsync(user.Id, user.Username);
 
         return Result.Success();
     }
