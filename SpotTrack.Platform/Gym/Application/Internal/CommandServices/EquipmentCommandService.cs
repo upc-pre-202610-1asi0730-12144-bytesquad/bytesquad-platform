@@ -3,6 +3,7 @@ using Microsoft.Extensions.Localization;
 using SpotTrack.Platform.Gyms.Domain.Model;
 using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
+using SpotTrack.Platform.Gyms.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Resources;
@@ -175,6 +176,121 @@ public class EquipmentCommandService(
         try
         {
             equipment.MarkAvailable();
+            equipmentRepository.Update(equipment);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Equipment>.Success(equipment);
+        }
+        catch (InvalidOperationException)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.InvalidEquipmentStatus,
+                localizer[nameof(EquipmentError.InvalidEquipmentStatus)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.DatabaseError,
+                localizer[nameof(EquipmentError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.InternalServerError,
+                localizer[nameof(EquipmentError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result<Equipment>> Handle(UpdateEquipmentStatusCommand command, CancellationToken cancellationToken)
+    {
+        var equipment = await equipmentRepository.FindByIdAsync(command.EquipmentId, cancellationToken);
+        if (equipment is null)
+            return Result<Equipment>.Failure(
+                EquipmentError.EquipmentNotFound,
+                localizer[nameof(EquipmentError.EquipmentNotFound)]);
+
+        if (!Enum.TryParse<EquipmentStatus>(command.Status, ignoreCase: true, out var newStatus))
+            return Result<Equipment>.Failure(
+                EquipmentError.InvalidData,
+                localizer[nameof(EquipmentError.InvalidData)]);
+
+        try
+        {
+            equipment.SetStatus(newStatus);
+            equipmentRepository.Update(equipment);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Equipment>.Success(equipment);
+        }
+        catch (InvalidOperationException)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.InvalidEquipmentStatus,
+                localizer[nameof(EquipmentError.InvalidEquipmentStatus)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.DatabaseError,
+                localizer[nameof(EquipmentError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.InternalServerError,
+                localizer[nameof(EquipmentError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result<Equipment>> Handle(DecommissionEquipmentCommand command, CancellationToken cancellationToken)
+    {
+        var equipment = await equipmentRepository.FindByIdAsync(command.EquipmentId, cancellationToken);
+        if (equipment is null)
+            return Result<Equipment>.Failure(
+                EquipmentError.EquipmentNotFound,
+                localizer[nameof(EquipmentError.EquipmentNotFound)]);
+
+        try
+        {
+            equipment.Decommission();
+            equipmentRepository.Update(equipment);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Equipment>.Success(equipment);
+        }
+        catch (InvalidOperationException)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.InvalidEquipmentStatus,
+                localizer[nameof(EquipmentError.InvalidEquipmentStatus)]);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.DatabaseError,
+                localizer[nameof(EquipmentError.DatabaseError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Equipment>.Failure(
+                EquipmentError.InternalServerError,
+                localizer[nameof(EquipmentError.InternalServerError)]);
+        }
+    }
+
+    public async Task<Result<Equipment>> Handle(RelocateEquipmentCommand command, CancellationToken cancellationToken)
+    {
+        var equipment = await equipmentRepository.FindByIdAsync(command.EquipmentId, cancellationToken);
+        if (equipment is null)
+            return Result<Equipment>.Failure(
+                EquipmentError.EquipmentNotFound,
+                localizer[nameof(EquipmentError.EquipmentNotFound)]);
+
+        if (!await gymRepository.ExistsZoneByIdAsync(command.NewZoneId, cancellationToken))
+            return Result<Equipment>.Failure(
+                EquipmentError.ZoneNotFound,
+                localizer[nameof(EquipmentError.ZoneNotFound)]);
+
+        try
+        {
+            equipment.Relocate(command.NewZoneId);
             equipmentRepository.Update(equipment);
             await unitOfWork.CompleteAsync(cancellationToken);
             return Result<Equipment>.Success(equipment);
