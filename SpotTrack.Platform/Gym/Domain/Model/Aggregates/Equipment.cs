@@ -57,4 +57,30 @@ public partial class Equipment
 
         Status = EquipmentStatus.Available;
     }
+
+    public void SetStatus(EquipmentStatus newStatus)
+    {
+        if (Status == EquipmentStatus.Decommissioned)
+            throw new InvalidOperationException("Cannot change status of a decommissioned equipment.");
+        if (newStatus == EquipmentStatus.Decommissioned)
+            throw new InvalidOperationException("Use Decommission() to decommission equipment.");
+
+        Status = newStatus;
+    }
+
+    public void Decommission()
+    {
+        if (Status == EquipmentStatus.Decommissioned)
+            throw new InvalidOperationException("Equipment is already decommissioned.");
+
+        Status = EquipmentStatus.Decommissioned;
+    }
+
+    public void Relocate(int newZoneId)
+    {
+        if (Status == EquipmentStatus.Decommissioned)
+            throw new InvalidOperationException("Cannot relocate decommissioned equipment.");
+
+        ZoneId = new ZoneId(newZoneId);
+    }
 }
