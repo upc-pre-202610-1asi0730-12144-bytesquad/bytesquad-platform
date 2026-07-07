@@ -159,6 +159,35 @@ public class EquipmentController(
             this);
     }
 
+    [HttpPatch("{equipmentId:int}/maintenance-threshold")]
+    [SwaggerOperation(
+        Summary = "Set maintenance threshold for equipment",
+        Description = "Defines the usage count after which the equipment should undergo preventive maintenance.",
+        OperationId = "SetMaintenanceThreshold")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Maintenance threshold set", typeof(EquipmentResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid threshold value")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Access denied")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Equipment not found")]
+    public async Task<IActionResult> SetMaintenanceThreshold(
+        [FromRoute] int equipmentId,
+        [FromBody] SetMaintenanceThresholdResource resource,
+        CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        var ownerAdminId = await gymContextFacade.GetAdminIdByEquipmentIdAsync(equipmentId, cancellationToken);
+        if (ownerAdminId != authenticatedAdminId) return Forbid();
+
+        var command = new SetMaintenanceThresholdCommand(equipmentId, resource.ThresholdUsageCount);
+        var result = await equipmentCommandService.Handle(command, cancellationToken);
+        if (result.IsFailure)
+            return EquipmentActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return EquipmentActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            EquipmentResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
     [HttpGet("by-admin/{adminId:int}")]
     [SwaggerOperation(
         Summary = "Get equipment by admin",
