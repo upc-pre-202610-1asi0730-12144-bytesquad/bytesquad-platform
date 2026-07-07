@@ -5,5 +5,8 @@ public enum MonitoringError
     InvalidAnomalyData,
     OperationCancelled,
     DatabaseError,
-    InternalServerError
+    InternalServerError,
+    InvalidSensorData,
+    SensorNotFound,
+    InvalidSensorStatus
 }

@@ -10,8 +10,10 @@ public static class MonitoringActionResultAssembler
 {
     private static int MapErrorToStatusCode(Enum error) => error switch
     {
-        MonitoringError.InvalidAnomalyData => StatusCodes.Status400BadRequest,
-        _                                  => StatusCodes.Status500InternalServerError
+        MonitoringError.InvalidAnomalyData or MonitoringError.InvalidSensorData
+            or MonitoringError.InvalidSensorStatus => StatusCodes.Status400BadRequest,
+        MonitoringError.SensorNotFound             => StatusCodes.Status404NotFound,
+        _                                          => StatusCodes.Status500InternalServerError
     };
 
     public static IActionResult ToSuccessActionResult<TEntity, TResource>(

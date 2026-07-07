@@ -12,4 +12,13 @@
   <data name="InternalServerError" xml:space="preserve">
     <value>An unexpected internal error occurred in Monitoring.</value>
   </data>
+  <data name="InvalidSensorData" xml:space="preserve">
+    <value>Invalid sensor data provided.</value>
+  </data>
+  <data name="SensorNotFound" xml:space="preserve">
+    <value>Sensor not found.</value>
+  </data>
+  <data name="InvalidSensorStatus" xml:space="preserve">
+    <value>Invalid sensor status transition.</value>
+  </data>
 </root>

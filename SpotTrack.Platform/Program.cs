@@ -39,7 +39,10 @@ using SpotTrack.Platform.Reservations.Infrastructure.Persistence.EntityFramework
 using SpotTrack.Platform.Reservations.Resources;
 using SpotTrack.Platform.Monitoring.Application.CommandServices;
 using SpotTrack.Platform.Monitoring.Application.Internal.CommandServices;
+using SpotTrack.Platform.Monitoring.Application.QueryServices;
+using SpotTrack.Platform.Monitoring.Application.Internal.QueryServices;
 using SpotTrack.Platform.Monitoring.Domain.Repositories;
+using SpotTrack.Platform.Monitoring.Infrastructure.BackgroundServices;
 using SpotTrack.Platform.Monitoring.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Monitoring.Resources;
 using SpotTrack.Platform.Routines.Application.CommandServices;
@@ -214,6 +217,9 @@ builder.Services.AddSingleton<IStringLocalizer<RoutinesMessages>, StringLocalize
 // Monitoring Bounded Context
 builder.Services.AddScoped<IAnomalyRepository, AnomalyRepository>();
 builder.Services.AddScoped<IAnomalyCommandService, AnomalyCommandService>();
+builder.Services.AddScoped<ISensorRepository, SensorRepository>();
+builder.Services.AddScoped<ISensorCommandService, SensorCommandService>();
+builder.Services.AddScoped<ISensorQueryService, SensorQueryService>();
 builder.Services.AddSingleton<IStringLocalizer<MonitoringMessages>, StringLocalizer<MonitoringMessages>>();
 
 // Gym Bounded Context
@@ -240,6 +246,7 @@ builder.Services.AddScoped<IPaymentCommandService, PaymentCommandService>();
 builder.Services.AddSingleton<IStringLocalizer<MembershipMessages>, StringLocalizer<MembershipMessages>>();
 builder.Services.AddHostedService<MembershipExpirationBackgroundService>();
 builder.Services.AddHostedService<ReservationTimerExpiryBackgroundService>();
+builder.Services.AddHostedService<SensorConnectivityBackgroundService>();
 
 // Maintenance Bounded Context
 builder.Services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
