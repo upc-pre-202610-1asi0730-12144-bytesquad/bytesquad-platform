@@ -7,4 +7,5 @@ public interface IClientRepository : IBaseRepository<Client>
 {
     Task<Client?> FindByEmailAsync(string email, CancellationToken cancellationToken = default);
     Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<Client?> FindByUserIdAsync(int userId, CancellationToken cancellationToken = default);
 }
