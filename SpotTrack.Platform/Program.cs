@@ -179,6 +179,7 @@ builder.Services.AddScoped<IROIProjectionQueryService, ROIProjectionQueryService
 
 // Profiles Bounded Context
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<IClientGymAssociationRepository, ClientGymAssociationRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
 builder.Services.AddScoped<IClientCommandService, ClientCommandService>();
