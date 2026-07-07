@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Iam.Application.CommandServices;
 using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Iam.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Iam.Interfaces.Rest.Transform;
@@ -77,5 +78,49 @@ public class AuthenticationController(
             return IamActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
         var (user, token) = result.Value!;
         return IamActionResultAssembler.ToSignInSuccessActionResult(user, token, this);
+    }
+
+    [HttpGet("/api/v1/roles")]
+    [AllowAnonymous]
+    [SwaggerOperation(Summary = "List all roles", Description = "Returns the available user role values.", OperationId = "GetRoles")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of roles")]
+    public IActionResult GetRoles() => Ok(Enum.GetNames<UserRole>());
+
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    [SwaggerOperation(
+        Summary = "Request a password reset code",
+        Description = "Generates a 6-digit reset code and logs it to the server console. Always returns 200 to avoid revealing whether the username exists.",
+        OperationId = "ForgotPassword")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Reset code sent (or username does not exist)")]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordResource resource,
+        CancellationToken cancellationToken)
+    {
+        var result = await userCommandService.Handle(new Domain.Model.Commands.ForgotPasswordCommand(resource.Username), cancellationToken);
+        if (result.IsFailure)
+            return IamActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return Ok();
+    }
+
+    [HttpPost("forgot-password/verify")]
+    [AllowAnonymous]
+    [SwaggerOperation(
+        Summary = "Verify reset code and set new password",
+        Description = "Validates the reset code and updates the user's password. Code expires after 15 minutes.",
+        OperationId = "VerifyForgotPassword")]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "Password reset successfully")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid or expired reset code")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "User not found")]
+    public async Task<IActionResult> VerifyForgotPassword(
+        [FromBody] VerifyForgotPasswordResource resource,
+        CancellationToken cancellationToken)
+    {
+        var result = await userCommandService.Handle(
+            new Domain.Model.Commands.VerifyForgotPasswordCommand(resource.Username, resource.Code, resource.NewPassword),
+            cancellationToken);
+        if (result.IsFailure)
+            return IamActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return NoContent();
     }
 }

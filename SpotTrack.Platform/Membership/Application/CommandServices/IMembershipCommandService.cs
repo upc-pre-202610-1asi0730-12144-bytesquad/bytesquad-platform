@@ -12,4 +12,7 @@ public interface IMembershipCommandService
     Task<Result<Membership>> Handle(CreateRenewMembershipCommand command, CancellationToken cancellationToken);
     Task<Result<Membership>> Handle(CreateCancelMembershipCommand command, CancellationToken cancellationToken);
     Task<Result<Membership>> Handle(CreateDowngradeMembershipPlanCommand command, CancellationToken cancellationToken);
+    Task<Result<Membership>> Handle(CreateUndoCancelMembershipCommand command, CancellationToken cancellationToken);
+    Task<Result<Membership>> Handle(CreatePayDebtCommand command, CancellationToken cancellationToken);
+    Task<Result<Membership>> Handle(CreateResubscribeCommand command, CancellationToken cancellationToken);
 }
