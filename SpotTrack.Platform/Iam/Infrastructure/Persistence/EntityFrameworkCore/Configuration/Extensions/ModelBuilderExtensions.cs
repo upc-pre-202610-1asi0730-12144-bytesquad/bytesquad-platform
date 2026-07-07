@@ -20,6 +20,12 @@ public static class ModelBuilderExtensions
                 .HasConversion<string>()
                 .HasMaxLength(20)
                 .HasColumnName("role");
+            entity.Property(u => u.PasswordResetCodeHash)
+                .IsRequired(false)
+                .HasColumnName("password_reset_code_hash");
+            entity.Property(u => u.PasswordResetExpiresAt)
+                .IsRequired(false)
+                .HasColumnName("password_reset_expires_at");
         });
 
         builder.Entity<PendingRegistration>(entity =>
