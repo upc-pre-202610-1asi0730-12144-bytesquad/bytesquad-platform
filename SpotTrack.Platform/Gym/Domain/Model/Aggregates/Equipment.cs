@@ -15,6 +15,8 @@ public partial class Equipment
 
     public int? MaintenanceThreshold { get; private set; }
 
+    public decimal? PurchasePrice { get; private set; }
+
     private Equipment() { }
 
     public Equipment(RegisterEquipmentCommand command)
@@ -22,6 +24,7 @@ public partial class Equipment
         Name = new EquipmentName(command.Name);
         ZoneId = new ZoneId(command.ZoneId);
         Status = EquipmentStatus.Available;
+        PurchasePrice = command.PurchasePrice;
     }
 
     public void Occupy()
