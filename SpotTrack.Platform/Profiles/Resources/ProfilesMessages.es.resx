@@ -21,4 +21,13 @@
   <data name="InternalServerError" xml:space="preserve">
     <value>Ocurrió un error interno inesperado en Profiles.</value>
   </data>
+  <data name="ProfileIncomplete" xml:space="preserve">
+    <value>Completa tu perfil antes de asociarte a un gimnasio.</value>
+  </data>
+  <data name="AlreadyAssociatedWithGym" xml:space="preserve">
+    <value>Ya estás asociado a este gimnasio.</value>
+  </data>
+  <data name="GymAssociationNotFound" xml:space="preserve">
+    <value>No estás asociado a este gimnasio.</value>
+  </data>
 </root>

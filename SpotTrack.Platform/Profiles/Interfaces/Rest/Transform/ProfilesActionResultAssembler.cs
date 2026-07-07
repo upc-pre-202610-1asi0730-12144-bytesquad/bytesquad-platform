@@ -10,10 +10,13 @@ public static class ProfilesActionResultAssembler
 {
     private static int MapErrorToStatusCode(Enum error) => error switch
     {
-        ProfilesError.ClientNotFound or ProfilesError.AdminNotFound => StatusCodes.Status404NotFound,
-        ProfilesError.EmailAlreadyRegistered                        => StatusCodes.Status409Conflict,
-        ProfilesError.InvalidProfileData                            => StatusCodes.Status400BadRequest,
-        _                                                           => StatusCodes.Status500InternalServerError
+        ProfilesError.ClientNotFound or ProfilesError.AdminNotFound
+            or ProfilesError.GymAssociationNotFound              => StatusCodes.Status404NotFound,
+        ProfilesError.EmailAlreadyRegistered
+            or ProfilesError.AlreadyAssociatedWithGym             => StatusCodes.Status409Conflict,
+        ProfilesError.InvalidProfileData
+            or ProfilesError.ProfileIncomplete                    => StatusCodes.Status400BadRequest,
+        _                                                         => StatusCodes.Status500InternalServerError
     };
 
     public static IActionResult ToSuccessActionResult<TEntity, TResource>(
