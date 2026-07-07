@@ -2,9 +2,11 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
+using SpotTrack.Platform.Gyms.Domain.Model.Queries;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
+using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
 using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
@@ -19,8 +21,28 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest;
 [SwaggerTag("Equipment management endpoints")]
 public class EquipmentController(
     IEquipmentCommandService equipmentCommandService,
+    IEquipmentQueryService equipmentQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet("by-admin/{adminId:int}")]
+    [SwaggerOperation(
+        Summary = "Get equipment by admin",
+        Description = "Returns all equipment belonging to the authenticated admin's gym.",
+        OperationId = "GetEquipmentByAdmin")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of equipment", typeof(IEnumerable<EquipmentResource>))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Access denied")]
+    public async Task<IActionResult> GetEquipmentByAdmin(
+        [FromRoute] int adminId,
+        CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        if (adminId != authenticatedAdminId) return Forbid();
+
+        var equipment = await equipmentQueryService.Handle(
+            new GetEquipmentByAdminIdQuery(adminId), cancellationToken);
+        return Ok(equipment.Select(EquipmentResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpPost]
     [SwaggerOperation(
         Summary = "Register new equipment",
