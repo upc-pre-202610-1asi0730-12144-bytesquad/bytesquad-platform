@@ -44,6 +44,12 @@ using SpotTrack.Platform.Monitoring.Application.Internal.QueryServices;
 using SpotTrack.Platform.Monitoring.Domain.Repositories;
 using SpotTrack.Platform.Monitoring.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Monitoring.Resources;
+using SpotTrack.Platform.Alerts.Application.CommandServices;
+using SpotTrack.Platform.Alerts.Application.Internal.CommandServices;
+using SpotTrack.Platform.Alerts.Application.QueryServices;
+using SpotTrack.Platform.Alerts.Application.Internal.QueryServices;
+using SpotTrack.Platform.Alerts.Domain.Repositories;
+using SpotTrack.Platform.Alerts.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using SpotTrack.Platform.Routines.Application.CommandServices;
 using SpotTrack.Platform.Routines.Application.Internal.CommandServices;
 using SpotTrack.Platform.Routines.Application.Internal.QueryServices;
@@ -228,6 +234,11 @@ builder.Services.AddScoped<ISensorRepository, SensorRepository>();
 builder.Services.AddScoped<ISensorCommandService, SensorCommandService>();
 builder.Services.AddScoped<ISensorQueryService, SensorQueryService>();
 builder.Services.AddSingleton<IStringLocalizer<MonitoringMessages>, StringLocalizer<MonitoringMessages>>();
+
+// Alerts Bounded Context
+builder.Services.AddScoped<IAlertRepository, AlertRepository>();
+builder.Services.AddScoped<IAlertCommandService, AlertCommandService>();
+builder.Services.AddScoped<IAlertQueryService, AlertQueryService>();
 
 // Gym Bounded Context
 builder.Services.AddScoped<IGymRepository, GymRepository>();

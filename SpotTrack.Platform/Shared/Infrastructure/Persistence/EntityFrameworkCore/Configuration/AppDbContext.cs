@@ -1,3 +1,4 @@
+using SpotTrack.Platform.Alerts.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 using SpotTrack.Platform.Analytics.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 using SpotTrack.Platform.Gyms.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 using SpotTrack.Platform.Memberships.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
@@ -53,6 +54,7 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         builder.ApplyMaintenanceConfiguration();
         builder.ApplyAnalyticsConfiguration();
         builder.ApplyMonitoringConfiguration();
+        builder.ApplyAlertsConfiguration();
 
         builder.UseSnakeCaseNamingConvention();
     }

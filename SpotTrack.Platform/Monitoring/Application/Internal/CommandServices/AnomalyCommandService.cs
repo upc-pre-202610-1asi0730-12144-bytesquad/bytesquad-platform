@@ -1,8 +1,10 @@
+using Cortex.Mediator;
 using Microsoft.EntityFrameworkCore;
 using SpotTrack.Platform.Monitoring.Application.CommandServices;
 using SpotTrack.Platform.Monitoring.Domain.Model;
 using SpotTrack.Platform.Monitoring.Domain.Model.Aggregates;
 using SpotTrack.Platform.Monitoring.Domain.Model.Commands;
+using SpotTrack.Platform.Monitoring.Domain.Model.Events;
 using SpotTrack.Platform.Monitoring.Domain.Repositories;
 using SpotTrack.Platform.Shared.Application.Model;
 using SpotTrack.Platform.Shared.Domain.Repositories;
@@ -12,7 +14,8 @@ namespace SpotTrack.Platform.Monitoring.Application.Internal.CommandServices;
 public class AnomalyCommandService(
     IAnomalyRepository anomalyRepository,
     ISensorRepository sensorRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IMediator mediator)
     : IAnomalyCommandService
 {
     public async Task<Result<Anomaly>> Handle(ReportAnomalyCommand command, CancellationToken cancellationToken)
@@ -27,6 +30,7 @@ public class AnomalyCommandService(
         {
             await anomalyRepository.AddAsync(anomaly, cancellationToken);
             await unitOfWork.CompleteAsync(cancellationToken);
+            await mediator.PublishAsync(AnomalyReportedEvent.FromAnomaly(anomaly), cancellationToken);
             return Result<Anomaly>.Success(anomaly);
         }
         catch (OperationCanceledException)
