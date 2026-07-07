@@ -6,5 +6,5 @@ namespace SpotTrack.Platform.Profiles.Interfaces.Rest.Transform;
 public static class UpdateClientProfileCommandFromResourceAssembler
 {
     public static UpdateClientProfileCommand ToCommandFromResource(int clientId, UpdateClientProfileResource resource) =>
-        new(clientId, resource.FirstName, resource.LastName, resource.PhoneNumber);
+        new(clientId, resource.FirstName, resource.LastName, resource.PhoneNumber, resource.Dni);
 }

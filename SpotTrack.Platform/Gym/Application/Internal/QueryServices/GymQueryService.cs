@@ -12,4 +12,7 @@ public class GymQueryService(IGymRepository gymRepository) : IGymQueryService
 
     public async Task<Gym?> Handle(GetGymByAdminIdQuery query, CancellationToken cancellationToken)
         => await gymRepository.FindByAdminIdAsync(query.AdminId, cancellationToken);
+
+    public async Task<IEnumerable<Gym>> Handle(GetAllGymsQuery query, CancellationToken cancellationToken)
+        => await gymRepository.ListAsync(cancellationToken);
 }

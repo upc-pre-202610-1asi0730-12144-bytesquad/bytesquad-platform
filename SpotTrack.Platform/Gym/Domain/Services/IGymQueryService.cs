@@ -7,4 +7,5 @@ public interface IGymQueryService
 {
     Task<Gym?> Handle(GetGymByIdQuery query, CancellationToken cancellationToken);
     Task<Gym?> Handle(GetGymByAdminIdQuery query, CancellationToken cancellationToken);
+    Task<IEnumerable<Gym>> Handle(GetAllGymsQuery query, CancellationToken cancellationToken);
 }
