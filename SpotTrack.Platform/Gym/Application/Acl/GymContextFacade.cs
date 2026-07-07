@@ -1,6 +1,7 @@
 using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
 using SpotTrack.Platform.Gyms.Domain.Repositories;
+using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Interfaces.Acl;
 using SpotTrack.Platform.Shared.Domain.Repositories;
 
