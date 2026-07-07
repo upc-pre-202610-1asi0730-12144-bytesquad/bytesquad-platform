@@ -189,6 +189,7 @@ builder.Services.AddScoped<IProfilesContextFacade, ProfilesContextFacade>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IReservationCommandService, ReservationCommandService>();
 builder.Services.AddScoped<IReservationQueryService, ReservationQueryService>();
+builder.Services.AddScoped<IEquipmentUsageStatsQueryService, EquipmentUsageStatsQueryService>();
 builder.Services.AddScoped<IReservationsMembershipContextFacade, ReservationsMembershipContextFacade>();
 builder.Services.AddSingleton<IStringLocalizer<ReservationMessages>, StringLocalizer<ReservationMessages>>();
 
