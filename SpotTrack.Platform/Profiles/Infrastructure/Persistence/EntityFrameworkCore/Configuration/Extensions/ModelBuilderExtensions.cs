@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SpotTrack.Platform.Profiles.Domain.Model.Aggregates;
+using SpotTrack.Platform.Profiles.Domain.Model.Entities;
 
 namespace SpotTrack.Platform.Profiles.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
 
@@ -7,6 +8,17 @@ public static class ModelBuilderExtensions
 {
     public static void ApplyProfilesConfiguration(this ModelBuilder builder)
     {
+        builder.Entity<ClientGymAssociation>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.Id).ValueGeneratedOnAdd();
+            entity.Property(a => a.ClientId).IsRequired();
+            entity.Property(a => a.GymId).IsRequired();
+            entity.Property(a => a.Active).IsRequired();
+            entity.HasIndex(a => new { a.ClientId, a.GymId }).IsUnique();
+            entity.ToTable("client_gym_associations");
+        });
+
         builder.Entity<Client>(entity =>
         {
             entity.HasKey(c => c.Id);
@@ -79,6 +91,32 @@ public static class ModelBuilderExtensions
                 dni.Property(d => d.Value).HasMaxLength(8).HasColumnName("dni");
             });
             entity.Navigation(a => a.Dni).IsRequired(false);
+        });
+
+        builder.Entity<Business>(entity =>
+        {
+            entity.HasKey(b => b.Id);
+            entity.Property(b => b.Id).ValueGeneratedOnAdd();
+
+            entity.Property(b => b.AdminId).IsRequired();
+            entity.HasIndex(b => b.AdminId).IsUnique();
+
+            entity.Property(b => b.CompanyName).IsRequired().HasMaxLength(100);
+            entity.Property(b => b.Ruc).IsRequired().HasMaxLength(11);
+            entity.Property(b => b.LegalStructure).IsRequired().HasMaxLength(50);
+            entity.Property(b => b.CompanyPhone).HasMaxLength(15);
+            entity.Property(b => b.CompanyEmail).HasMaxLength(100);
+        });
+
+        builder.Entity<ClientGymAssociation>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.Id).ValueGeneratedOnAdd();
+            entity.Property(a => a.ClientId).IsRequired();
+            entity.Property(a => a.GymId).IsRequired();
+            entity.Property(a => a.Active).IsRequired();
+            entity.HasIndex(a => new { a.ClientId, a.GymId }).IsUnique();
+            entity.ToTable("client_gym_associations");
         });
     }
 }

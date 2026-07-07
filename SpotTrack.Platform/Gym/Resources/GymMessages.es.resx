@@ -9,6 +9,12 @@
   <data name="InvalidData" xml:space="preserve">
     <value>Datos del gimnasio inválidos.</value>
   </data>
+  <data name="Forbidden" xml:space="preserve">
+    <value>No tienes permisos para realizar esta operación en el gimnasio.</value>
+  </data>
+  <data name="BranchLimitExceeded" xml:space="preserve">
+    <value>Tu plan de membresía no permite agregar más sucursales a este gimnasio.</value>
+  </data>
   <data name="OperationCancelled" xml:space="preserve">
     <value>La operación del gimnasio fue cancelada.</value>
   </data>
@@ -17,5 +23,14 @@
   </data>
   <data name="InternalServerError" xml:space="preserve">
     <value>Ocurrió un error interno inesperado.</value>
+  </data>
+  <data name="DniAlreadyAuthorized" xml:space="preserve">
+    <value>Este DNI ya está en la lista blanca de este gimnasio.</value>
+  </data>
+  <data name="DniNotFound" xml:space="preserve">
+    <value>Este DNI no está en la lista blanca de este gimnasio.</value>
+  </data>
+  <data name="DniInvalid" xml:space="preserve">
+    <value>El DNI debe tener exactamente 8 dígitos.</value>
   </data>
 </root>

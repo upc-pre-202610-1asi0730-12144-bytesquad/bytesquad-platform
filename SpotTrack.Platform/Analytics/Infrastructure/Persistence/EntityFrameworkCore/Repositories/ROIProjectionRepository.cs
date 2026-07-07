@@ -32,4 +32,11 @@ public class ROIProjectionRepository : IROIProjectionRepository
         return await _context.Set<ROIProjection>()
             .FirstOrDefaultAsync(p => p.RoiProjectionId.Value == roiProjectionId.Value);
     }
+
+    public async Task<IEnumerable<ROIProjection>> FindAllByAdminIdAsync(int adminId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<ROIProjection>()
+            .Where(p => p.AdminId == adminId)
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -36,6 +36,11 @@ public class MaintenanceLogCommandService(
                 MaintenanceLogError.TicketNotResolved,
                 localizer[nameof(MaintenanceLogError.TicketNotResolved)]);
 
+        if (await maintenanceLogRepository.ExistsByTechnicalTicketIdAsync(command.TechnicalTicketId, cancellationToken))
+            return Result<MaintenanceLog>.Failure(
+                MaintenanceLogError.LogAlreadyExists,
+                localizer[nameof(MaintenanceLogError.LogAlreadyExists)]);
+
         var log = new MaintenanceLog(command, ticket.EquipmentId);
 
         try

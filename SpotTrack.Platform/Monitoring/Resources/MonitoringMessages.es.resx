@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="InvalidAnomalyData" xml:space="preserve">
+    <value>Datos de anomalía inválidos.</value>
+  </data>
+  <data name="OperationCancelled" xml:space="preserve">
+    <value>La operación de reporte de anomalía fue cancelada.</value>
+  </data>
+  <data name="DatabaseError" xml:space="preserve">
+    <value>Ocurrió un error de base de datos al reportar la anomalía.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Ocurrió un error interno inesperado en Monitoring.</value>
+  </data>
+  <data name="InvalidSensorData" xml:space="preserve">
+    <value>Datos de sensor inválidos.</value>
+  </data>
+  <data name="SensorNotFound" xml:space="preserve">
+    <value>Sensor no encontrado.</value>
+  </data>
+  <data name="InvalidSensorStatus" xml:space="preserve">
+    <value>Transición de estado de sensor inválida.</value>
+  </data>
+</root>

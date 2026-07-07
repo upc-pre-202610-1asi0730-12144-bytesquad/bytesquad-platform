@@ -9,6 +9,9 @@
     <data name="InvalidMaintenanceStatus" xml:space="preserve">
     <value>The current maintenance status does not allow this operation.</value>
   </data>
+    <data name="Forbidden" xml:space="preserve">
+    <value>You do not have permission to perform this operation on the maintenance record.</value>
+  </data>
     <data name="OperationCancelled" xml:space="preserve">
     <value>The maintenance operation was cancelled.</value>
   </data>

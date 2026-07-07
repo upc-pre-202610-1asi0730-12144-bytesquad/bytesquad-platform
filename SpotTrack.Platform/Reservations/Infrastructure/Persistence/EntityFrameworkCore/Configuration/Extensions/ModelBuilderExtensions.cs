@@ -20,6 +20,7 @@ public static class ModelBuilderExtensions
             
             entity.Property(r => r.StartDate).IsRequired();
             entity.Property(r => r.EndDate).IsRequired();
+            entity.Property(r => r.TimerExpiry);
 
            
             entity.Ignore(r => r.Period);

@@ -4,6 +4,7 @@ public enum MaintenanceLogError
 {
     TechnicalTicketNotFound,
     TicketNotResolved,
+    LogAlreadyExists,
     OperationCancelled,
     DatabaseError,
     InternalServerError

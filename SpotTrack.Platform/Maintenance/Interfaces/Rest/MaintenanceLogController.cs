@@ -1,7 +1,12 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Maintenances.Application.CommandServices;
+using SpotTrack.Platform.Maintenances.Application.QueryServices;
+using SpotTrack.Platform.Maintenances.Domain.Model.Queries;
 using SpotTrack.Platform.Maintenances.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Maintenances.Interfaces.Rest.Transform;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
@@ -12,11 +17,31 @@ namespace SpotTrack.Platform.Maintenances.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/maintenance-logs")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Admin)]
 [SwaggerTag("Maintenance log management endpoints")]
 public class MaintenanceLogController(
     IMaintenanceLogCommandService maintenanceLogCommandService,
+    IMaintenanceLogQueryService maintenanceLogQueryService,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet("by-admin/{adminId:int}")]
+    [SwaggerOperation(
+        Summary = "Get maintenance logs by admin",
+        OperationId = "GetMaintenanceLogsByAdmin")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Maintenance logs retrieved successfully",
+        typeof(IEnumerable<MaintenanceLogResource>))]
+    public async Task<IActionResult> GetMaintenanceLogsByAdmin(
+        [FromRoute] int adminId,
+        CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        if (adminId != authenticatedAdminId) return Forbid();
+
+        var logs = await maintenanceLogQueryService.Handle(
+            new GetAllMaintenanceLogsByAdminIdQuery(adminId), cancellationToken);
+        return Ok(logs.Select(MaintenanceLogResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpPost]
     [SwaggerOperation(
         Summary = "Register a maintenance completion log",

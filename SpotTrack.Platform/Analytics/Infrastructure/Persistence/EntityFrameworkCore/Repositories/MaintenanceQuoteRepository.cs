@@ -32,4 +32,11 @@ public class MaintenanceQuoteRepository : IMaintenanceQuoteRepository
         return await _context.Set<MaintenanceQuote>()
             .FirstOrDefaultAsync(q => q.MaintenanceQuoteId.Value == maintenanceQuoteId.Value);
     }
+
+    public async Task<IEnumerable<MaintenanceQuote>> FindAllByAdminIdAsync(int adminId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<MaintenanceQuote>()
+            .Where(q => q.AdminId == adminId)
+            .ToListAsync(cancellationToken);
+    }
 }

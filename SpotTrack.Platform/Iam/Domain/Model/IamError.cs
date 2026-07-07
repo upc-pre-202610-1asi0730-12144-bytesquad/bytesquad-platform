@@ -4,8 +4,15 @@ public enum IamError
 {
     InvalidCredentials,
     UsernameAlreadyTaken,
-    InvalidRole,
     OperationCancelled,
     DatabaseError,
-    InternalServerError
+    InternalServerError,
+    PendingRegistrationEmailAlreadyRegistered,
+    PendingRegistrationNotFound,
+    PendingRegistrationExpired,
+    PendingRegistrationAlreadyConsumed,
+    InvalidCurrentPassword,
+    UserNotFound,
+    InvalidResetCode,
+    ResetCodeExpired
 }

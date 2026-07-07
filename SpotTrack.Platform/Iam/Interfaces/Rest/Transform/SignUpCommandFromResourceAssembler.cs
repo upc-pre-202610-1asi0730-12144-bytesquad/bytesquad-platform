@@ -6,5 +6,5 @@ namespace SpotTrack.Platform.Iam.Interfaces.Rest.Transform;
 public static class SignUpCommandFromResourceAssembler
 {
     public static SignUpCommand ToCommandFromResource(SignUpResource resource) =>
-        new(resource.Username, resource.Password, resource.Role);
+        new(resource.Username, resource.Password);
 }

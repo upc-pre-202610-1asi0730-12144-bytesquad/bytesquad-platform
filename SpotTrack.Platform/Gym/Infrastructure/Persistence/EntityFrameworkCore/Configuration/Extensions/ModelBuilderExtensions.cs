@@ -21,6 +21,8 @@ public static class ModelBuilderExtensions
                 name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
             });
 
+            entity.Property(e => e.Model).IsRequired().HasMaxLength(100).HasColumnName("model");
+
             entity.OwnsOne(e => e.ZoneId, zoneId =>
             {
                 zoneId.WithOwner().HasForeignKey("Id");
@@ -32,6 +34,10 @@ public static class ModelBuilderExtensions
                 .HasMaxLength(20)
                 .HasColumnName("status")
                 .IsRequired();
+
+            entity.Property(e => e.MaintenanceThreshold)
+                .HasColumnName("maintenance_threshold")
+                .IsRequired(false);
         });
     }
 
@@ -41,19 +47,12 @@ public static class ModelBuilderExtensions
         {
             entity.HasKey(g => g.Id);
             entity.Property(g => g.Id).ValueGeneratedOnAdd();
+            entity.Property(g => g.AdminId).IsRequired().HasColumnName("admin_id");
 
             entity.OwnsOne(g => g.Name, name =>
             {
                 name.WithOwner().HasForeignKey("Id");
                 name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
-            });
-
-            entity.OwnsOne(g => g.Address, address =>
-            {
-                address.WithOwner().HasForeignKey("Id");
-                address.Property(a => a.Street).IsRequired().HasMaxLength(200).HasColumnName("street");
-                address.Property(a => a.District).IsRequired().HasMaxLength(100).HasColumnName("district");
-                address.Property(a => a.City).IsRequired().HasMaxLength(100).HasColumnName("city");
             });
 
             entity.HasMany(g => g.Branches)
@@ -85,7 +84,7 @@ public static class ModelBuilderExtensions
 
             entity.HasMany(b => b.Zones)
                 .WithOne()
-                .HasForeignKey("branch_id")
+                .HasForeignKey(z => z.BranchId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         });
@@ -95,12 +94,23 @@ public static class ModelBuilderExtensions
             entity.HasKey(z => z.Id);
             entity.Property(z => z.Id).ValueGeneratedOnAdd();
             entity.ToTable("zones");
+            entity.Property(z => z.MaximumOccupancy).IsRequired().HasColumnName("maximum_occupancy");
 
             entity.OwnsOne(z => z.Name, name =>
             {
                 name.WithOwner().HasForeignKey("Id");
                 name.Property(n => n.Value).IsRequired().HasMaxLength(100).HasColumnName("name");
             });
+        });
+
+        builder.Entity<AuthorizedDni>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.Id).ValueGeneratedOnAdd();
+            entity.Property(a => a.GymId).IsRequired().HasColumnName("gym_id");
+            entity.Property(a => a.Dni).IsRequired().HasMaxLength(8).HasColumnName("dni");
+            entity.HasIndex(a => new { a.GymId, a.Dni }).IsUnique();
+            entity.ToTable("gym_authorized_dnis");
         });
     }
 }

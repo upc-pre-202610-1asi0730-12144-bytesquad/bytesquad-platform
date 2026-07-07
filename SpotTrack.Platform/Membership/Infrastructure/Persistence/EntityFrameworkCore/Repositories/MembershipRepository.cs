@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SpotTrack.Platform.Memberships.Domain.Model;
 using SpotTrack.Platform.Memberships.Domain.Model.Aggregates;
 using SpotTrack.Platform.Memberships.Domain.Repositories;
 using SpotTrack.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
@@ -14,5 +15,14 @@ public class MembershipRepository(AppDbContext context)
         CancellationToken cancellationToken = default)
         => await Context.Set<Membership>()
             .Where(m => m.ClientId == clientId)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IEnumerable<Membership>> FindAllExpiredAsync(
+        DateTimeOffset asOf,
+        CancellationToken cancellationToken = default)
+        => await Context.Set<Membership>()
+            .Where(m => m.EndDate <= asOf &&
+                        (m.Status == EMembershipStatus.Active ||
+                         m.Status == EMembershipStatus.PendingCancellation))
             .ToListAsync(cancellationToken);
 }

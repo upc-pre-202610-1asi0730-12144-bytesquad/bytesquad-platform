@@ -18,6 +18,7 @@ public static class ModelBuilderExtensions
                 ownedId.Property(x => x.Value).IsRequired().HasColumnName("activity_report_id");
             });
 
+            entity.Property(a => a.AdminId).IsRequired().HasColumnName("admin_id");
             entity.Property(a => a.TotalUsageTime).IsRequired();
             entity.Property(a => a.DowntimeCost).IsRequired();
             entity.Property(a => a.PercentageComparison).IsRequired();
@@ -34,6 +35,7 @@ public static class ModelBuilderExtensions
                 ownedId.Property(x => x.Value).IsRequired().HasColumnName("maintenance_quote_id");
             });
 
+            entity.Property(m => m.AdminId).IsRequired().HasColumnName("admin_id");
             entity.Property(m => m.CorrectiveActionsCost).IsRequired();
             entity.Property(m => m.SparePartsCost).IsRequired();
             entity.Property(m => m.PreventiveCost).IsRequired();
@@ -52,6 +54,7 @@ public static class ModelBuilderExtensions
                 ownedId.Property(x => x.Value).IsRequired().HasColumnName("roi_projection_id");
             });
 
+            entity.Property(r => r.AdminId).IsRequired().HasColumnName("admin_id");
             entity.Property(r => r.ProjectedDowntimeCost).IsRequired();
             entity.Property(r => r.ProjectedEarnings).IsRequired();
             entity.Property(r => r.RoiIndex).IsRequired();

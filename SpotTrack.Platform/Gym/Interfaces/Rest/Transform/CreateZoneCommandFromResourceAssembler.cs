@@ -6,5 +6,5 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
 public static class CreateZoneCommandFromResourceAssembler
 {
     public static CreateZoneCommand ToCommandFromResource(int gymId, int branchId, CreateZoneResource resource) =>
-        new(gymId, branchId, resource.Name);
+        new(gymId, branchId, resource.Name, resource.MaximumOccupancy);
 }

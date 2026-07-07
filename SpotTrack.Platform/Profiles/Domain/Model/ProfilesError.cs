@@ -8,5 +8,9 @@ public enum ProfilesError
     InvalidProfileData,
     OperationCancelled,
     DatabaseError,
-    InternalServerError
+    InternalServerError,
+    ProfileIncomplete,
+    AlreadyAssociatedWithGym,
+    GymAssociationNotFound,
+    GymAccessDenied
 }

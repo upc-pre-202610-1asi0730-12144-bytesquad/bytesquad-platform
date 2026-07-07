@@ -5,6 +5,7 @@ public enum TechnicalTicketError
     TechnicalTicketNotFound,
     MaintenanceNotFound,
     InvalidTechnicalTicketStatus,
+    Forbidden,
     EquipmentUpdateFailed,
     OperationCancelled,
     DatabaseError,

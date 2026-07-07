@@ -6,8 +6,17 @@
   <data name="UsernameAlreadyTaken" xml:space="preserve">
     <value>El nombre de usuario {0} ya está en uso.</value>
   </data>
-  <data name="InvalidRole" xml:space="preserve">
-    <value>Rol inválido proporcionado. Los roles válidos son: Client, Admin.</value>
+  <data name="PendingRegistrationEmailAlreadyRegistered" xml:space="preserve">
+    <value>Ya existe una cuenta con el correo {0}.</value>
+  </data>
+  <data name="PendingRegistrationNotFound" xml:space="preserve">
+    <value>Registro pendiente no encontrado.</value>
+  </data>
+  <data name="PendingRegistrationExpired" xml:space="preserve">
+    <value>Este enlace de registro ha expirado. Por favor inicia el proceso de registro nuevamente.</value>
+  </data>
+  <data name="PendingRegistrationAlreadyConsumed" xml:space="preserve">
+    <value>Este registro ya ha sido completado.</value>
   </data>
   <data name="OperationCancelled" xml:space="preserve">
     <value>La operación de IAM fue cancelada.</value>
@@ -20,5 +29,8 @@
   </data>
   <data name="UserCreatedSuccessfully" xml:space="preserve">
     <value>Usuario creado exitosamente.</value>
+  </data>
+  <data name="InvalidCurrentPassword" xml:space="preserve">
+    <value>La contraseña actual es incorrecta.</value>
   </data>
 </root>

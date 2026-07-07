@@ -19,6 +19,8 @@ public partial class Maintenance
         EquipmentId = command.EquipmentId;
         RequestedByAdminId = command.RequestedByAdminId;
         Reason = command.Reason;
+        Priority = command.Priority;
+        Type = command.Type;
         Status = EMaintenanceStatus.Requested;
     }
 
@@ -26,5 +28,41 @@ public partial class Maintenance
     public int EquipmentId { get; private set; }
     public int RequestedByAdminId { get; private set; }
     public string Reason { get; private set; } = string.Empty;
+    public EMaintenancePriority Priority { get; private set; }
+    public EMaintenanceType Type { get; private set; }
     public EMaintenanceStatus Status { get; private set; }
+
+    /// <summary>Triggered when a TechnicalTicket is created for this maintenance request.</summary>
+    public void Accept()
+    {
+        if (Status is not EMaintenanceStatus.Requested)
+            throw new InvalidOperationException(
+                $"Cannot accept a maintenance that is in '{Status}' status.");
+        Status = EMaintenanceStatus.InProgress;
+    }
+
+    /// <summary>Triggered when a technician is assigned to the associated TechnicalTicket.</summary>
+    public void MarkInProgress()
+    {
+        if (Status is not EMaintenanceStatus.Requested)
+            throw new InvalidOperationException(
+                $"Cannot mark as in-progress a maintenance that is in '{Status}' status.");
+        Status = EMaintenanceStatus.InProgress;
+    }
+
+    public void Complete()
+    {
+        if (Status is not EMaintenanceStatus.InProgress)
+            throw new InvalidOperationException(
+                $"Cannot complete a maintenance that is in '{Status}' status.");
+        Status = EMaintenanceStatus.Completed;
+    }
+
+    public void Cancel()
+    {
+        if (Status is EMaintenanceStatus.Completed or EMaintenanceStatus.Cancelled)
+            throw new InvalidOperationException(
+                $"Cannot cancel a maintenance that is already in '{Status}' status.");
+        Status = EMaintenanceStatus.Cancelled;
+    }
 }

@@ -5,6 +5,7 @@ public enum MaintenanceError
     MaintenanceNotFound,
     InvalidMaintenanceData,
     InvalidMaintenanceStatus,
+    Forbidden,
     OperationCancelled,
     DatabaseError,
     InternalServerError

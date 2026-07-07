@@ -17,6 +17,7 @@ namespace SpotTrack.Platform.Maintenances.Application.Internal.CommandServices;
 public class TechnicalTicketCommandService(
     ITechnicalTicketRepository technicalTicketRepository,
     IMaintenanceRepository maintenanceRepository,
+    IMaintenanceLogRepository maintenanceLogRepository,
     IUnitOfWork unitOfWork,
     IMediator mediator,
     IStringLocalizer<MaintenanceMessages> localizer,
@@ -33,6 +34,11 @@ public class TechnicalTicketCommandService(
                 TechnicalTicketError.MaintenanceNotFound,
                 localizer[nameof(TechnicalTicketError.MaintenanceNotFound)]);
 
+        if (maintenance.RequestedByAdminId != command.AuthenticatedAdminId)
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
+
         TechnicalTicket ticket;
         try
         {
@@ -47,7 +53,19 @@ public class TechnicalTicketCommandService(
 
         try
         {
+            maintenance.Accept();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.InvalidTechnicalTicketStatus,
+                ex.Message);
+        }
+
+        try
+        {
             await technicalTicketRepository.AddAsync(ticket, cancellationToken);
+            maintenanceRepository.Update(maintenance);
             await unitOfWork.CompleteAsync(cancellationToken);
         }
         catch (OperationCanceledException)
@@ -82,6 +100,13 @@ public class TechnicalTicketCommandService(
         return Result<TechnicalTicket>.Success(ticket);
     }
 
+    private async Task<bool> IsAdminOwnerOfTicketAsync(
+        TechnicalTicket ticket, int authenticatedAdminId, CancellationToken cancellationToken)
+    {
+        var maintenance = await maintenanceRepository.FindByIdAsync(ticket.MaintenanceId, cancellationToken);
+        return maintenance is not null && maintenance.RequestedByAdminId == authenticatedAdminId;
+    }
+
     public async Task<Result<TechnicalTicket>> Handle(
         AssignTechnicalTicketCommand command,
         CancellationToken cancellationToken)
@@ -91,6 +116,11 @@ public class TechnicalTicketCommandService(
             return Result<TechnicalTicket>.Failure(
                 TechnicalTicketError.TechnicalTicketNotFound,
                 localizer[nameof(TechnicalTicketError.TechnicalTicketNotFound)]);
+
+        if (!await IsAdminOwnerOfTicketAsync(ticket, command.AuthenticatedAdminId, cancellationToken))
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
 
         try
         {
@@ -137,6 +167,11 @@ public class TechnicalTicketCommandService(
                 TechnicalTicketError.TechnicalTicketNotFound,
                 localizer[nameof(TechnicalTicketError.TechnicalTicketNotFound)]);
 
+        if (!await IsAdminOwnerOfTicketAsync(ticket, command.AuthenticatedAdminId, cancellationToken))
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
+
         try
         {
             ticket.ModifyStatus(command.NewStatus);
@@ -182,6 +217,11 @@ public class TechnicalTicketCommandService(
                 TechnicalTicketError.TechnicalTicketNotFound,
                 localizer[nameof(TechnicalTicketError.TechnicalTicketNotFound)]);
 
+        if (!await IsAdminOwnerOfTicketAsync(ticket, command.AuthenticatedAdminId, cancellationToken))
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
+
         try
         {
             ticket.RequestMaintenanceStatusUpdate();
@@ -226,6 +266,11 @@ public class TechnicalTicketCommandService(
             return Result<TechnicalTicket>.Failure(
                 TechnicalTicketError.TechnicalTicketNotFound,
                 localizer[nameof(TechnicalTicketError.TechnicalTicketNotFound)]);
+
+        if (!await IsAdminOwnerOfTicketAsync(ticket, command.AuthenticatedAdminId, cancellationToken))
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
 
         try
         {
@@ -283,8 +328,36 @@ public class TechnicalTicketCommandService(
                 ex.Message);
         }
 
+        var maintenance = await maintenanceRepository.FindByIdAsync(ticket.MaintenanceId, cancellationToken);
+        if (maintenance is null)
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.MaintenanceNotFound,
+                localizer[nameof(TechnicalTicketError.MaintenanceNotFound)]);
+
+        if (maintenance.RequestedByAdminId != command.AuthenticatedAdminId)
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.Forbidden,
+                localizer[nameof(TechnicalTicketError.Forbidden)]);
+
         try
         {
+            maintenance.Complete();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<TechnicalTicket>.Failure(
+                TechnicalTicketError.InvalidTechnicalTicketStatus,
+                ex.Message);
+        }
+
+        var logCommand = new RegisterMaintenanceCompletionCommand(
+            ticket.Id, command.AuthenticatedAdminId, command.Notes ?? string.Empty);
+        var log = new MaintenanceLog(logCommand, ticket.EquipmentId);
+
+        try
+        {
+            maintenanceRepository.Update(maintenance);
+            await maintenanceLogRepository.AddAsync(log, cancellationToken);
             await unitOfWork.CompleteAsync(cancellationToken);
         }
         catch (DbUpdateException)

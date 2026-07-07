@@ -52,6 +52,14 @@ public class RequestAuthorizationMiddleware(RequestDelegate next)
         }
 
         context.Items["User"] = user;
+
+        var requiredRole = endpoint.Metadata.GetMetadata<AuthorizeAttribute>()?.Role;
+        if (requiredRole.HasValue && user.Role != requiredRole.Value)
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return;
+        }
+
         await next(context);
     }
 }

@@ -70,7 +70,7 @@ public class RoutineCommandService(
 
         try
         {
-            routine.AddExerciseBlock(command.ExerciseName, command.ExerciseType, command.Order);
+            routine.AddExerciseBlock(command.ExerciseName, command.ExerciseType, command.Order, command.Sets, command.Reps);
         }
         catch (ArgumentException)
         {

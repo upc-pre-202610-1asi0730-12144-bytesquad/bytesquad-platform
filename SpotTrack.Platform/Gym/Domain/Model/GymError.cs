@@ -4,7 +4,12 @@ public enum GymError
 {
     GymNotFound,
     InvalidData,
+    Forbidden,
+    BranchLimitExceeded,
     OperationCancelled,
     DatabaseError,
-    InternalServerError
+    InternalServerError,
+    DniAlreadyAuthorized,
+    DniNotFound,
+    DniInvalid
 }

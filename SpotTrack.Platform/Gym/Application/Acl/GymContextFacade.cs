@@ -1,10 +1,17 @@
+using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
+using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Interfaces.Acl;
 
 namespace SpotTrack.Platform.Gyms.Application.Acl;
 
-public class GymContextFacade(IEquipmentCommandService equipmentCommandService) : IGymContextFacade
+public class GymContextFacade(
+    IEquipmentCommandService equipmentCommandService,
+    IEquipmentRepository equipmentRepository,
+    IGymRepository gymRepository,
+    IAuthorizedDniRepository authorizedDniRepository)
+    : IGymContextFacade
 {
     public async Task<bool> OccupyEquipmentAsync(int equipmentId)
     {
@@ -32,5 +39,35 @@ public class GymContextFacade(IEquipmentCommandService equipmentCommandService) 
         var command = new MarkEquipmentAvailableCommand(equipmentId);
         var result = await equipmentCommandService.Handle(command, CancellationToken.None);
         return !result.IsFailure;
+    }
+
+    public async Task<Equipment?> FindEquipmentByIdAsync(int equipmentId)
+    {
+        return await equipmentRepository.FindByIdAsync(equipmentId, CancellationToken.None);
+    }
+
+    public async Task<IEnumerable<Equipment>> FindAvailableAlternativesAsync(string equipmentName, int excludeEquipmentId)
+    {
+        return await equipmentRepository.FindAvailableAlternativesAsync(
+            equipmentName, excludeEquipmentId, CancellationToken.None);
+    }
+
+    public async Task<int?> GetAdminIdByEquipmentIdAsync(
+        int equipmentId,
+        CancellationToken cancellationToken)
+        => await gymRepository.FindAdminIdByEquipmentIdAsync(equipmentId, cancellationToken);
+
+    public async Task<IEnumerable<int>> GetEquipmentIdsByAdminIdAsync(
+        int adminId,
+        CancellationToken cancellationToken = default)
+        => await gymRepository.FindAllEquipmentIdsByAdminIdAsync(adminId, cancellationToken);
+
+    public async Task<bool> IsDniWhitelistedForGymAsync(int gymId, string dni, CancellationToken cancellationToken = default)
+        => await authorizedDniRepository.ExistsByGymIdAndDniAsync(gymId, dni, cancellationToken);
+
+    public async Task<int> GetAdminIdByGymIdAsync(int gymId, CancellationToken cancellationToken = default)
+    {
+        var gym = await gymRepository.FindByIdAsync(gymId, cancellationToken);
+        return gym?.AdminId ?? 0;
     }
 }

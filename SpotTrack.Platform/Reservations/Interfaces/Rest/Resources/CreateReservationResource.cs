@@ -6,4 +6,5 @@ public record CreateReservationResource(
     int EquipmentId,
     DateTimeOffset StartDate,
     DateTimeOffset EndDate,
-    string Status);
+    string Status,
+    DateTimeOffset? TimerExpiry);

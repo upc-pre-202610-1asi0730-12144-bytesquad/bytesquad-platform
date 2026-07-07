@@ -1,6 +1,10 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Gyms.Interfaces.Acl;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
+using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Extensions;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
 using SpotTrack.Platform.Reservations.Application.QueryServices;
 using SpotTrack.Platform.Reservations.Domain.Model;
@@ -16,10 +20,12 @@ namespace SpotTrack.Platform.Reservations.Interfaces.Rest;
 [ApiController]
 [Route("api/v1/reservations")]
 [Produces(MediaTypeNames.Application.Json)]
+[Authorize(UserRole.Client)]
 [SwaggerTag("Reservation management endpoints")]
 public class ReservationsController(
     IReservationCommandService reservationCommandService,
     IReservationQueryService reservationQueryService,
+    IGymContextFacade gymContextFacade,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
     [HttpPost("express")]
@@ -34,7 +40,8 @@ public class ReservationsController(
         [FromBody] CreateInitiateExpressReservationResource resource,
         CancellationToken cancellationToken)
     {
-        var command = CreateInitiateExpressReservationCommandFromResourceAssembler.ToCommandFromResource(resource);
+        var userId = HttpContext.GetAuthenticatedUserId() ?? 0;
+        var command = CreateInitiateExpressReservationCommandFromResourceAssembler.ToCommandFromResource(userId, resource);
         var result = await reservationCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)
@@ -147,6 +154,57 @@ public class ReservationsController(
             this);
     }
 
+    [HttpPatch("{id}/alternative")]
+    [SwaggerOperation(
+        Summary = "Request alternative equipment",
+        Description = "Marks the reservation's request as needing alternative equipment (e.g. the assigned equipment is broken or otherwise unusable).",
+        OperationId = "RequestAlternativeEquipment")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Alternative equipment requested successfully", typeof(CreateReservationResource))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Reservation not found")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Reservation status does not allow this operation")]
+    public async Task<IActionResult> RequestAlternativeEquipment(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateRequestAlternativeEquipmentCommand(id);
+        var result = await reservationCommandService.Handle(command, cancellationToken);
+
+        if (result.IsFailure)
+            return ReservationsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+
+        return ReservationsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            ReservationResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status200OK,
+            this);
+    }
+
+    [HttpGet("{id:int}/alternatives")]
+    [SwaggerOperation(
+        Summary = "View available alternative equipment",
+        Description = "Returns other available equipment of the same kind as the one assigned to this reservation.",
+        OperationId = "GetAvailableAlternatives")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of available alternatives", typeof(IEnumerable<AlternativeEquipmentResource>))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Reservation or equipment not found")]
+    public async Task<IActionResult> GetAvailableAlternatives(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var reservation = await reservationQueryService.Handle(new GetReservationByIdQuery(id), cancellationToken);
+        if (reservation is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ReservationsError.ReservationNotFound, "Reservation not found.");
+
+        var equipment = await gymContextFacade.FindEquipmentByIdAsync(reservation.EquipmentId);
+        if (equipment is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, ReservationsError.ReservationNotFound, "Equipment not found.");
+
+        var alternatives = await gymContextFacade.FindAvailableAlternativesAsync(equipment.Name.Value, equipment.Id);
+        var resources = alternatives.Select(e => new AlternativeEquipmentResource(e.Id, e.Name.Value, e.Model));
+        return Ok(resources);
+    }
+
     [HttpGet("{id:int}")]
     [SwaggerOperation(
         Summary = "Get a reservation by ID",
@@ -207,9 +265,10 @@ public class ReservationsController(
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Reservation cannot be started or equipment occupy failed")]
     public async Task<IActionResult> StartReservationTimer(
         [FromRoute] int id,
+        [FromBody] StartReservationTimerResource resource,
         CancellationToken cancellationToken)
     {
-        var command = new CreateStartReservationTimerCommand(id);
+        var command = new CreateStartReservationTimerCommand(id, resource.DurationMinutes);
         var result = await reservationCommandService.Handle(command, cancellationToken);
 
         if (result.IsFailure)

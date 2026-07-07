@@ -4,4 +4,5 @@ public record UpdateClientProfileCommand(
     int ClientId,
     string FirstName,
     string LastName,
-    string PhoneNumber);
+    string PhoneNumber,
+    string Dni);

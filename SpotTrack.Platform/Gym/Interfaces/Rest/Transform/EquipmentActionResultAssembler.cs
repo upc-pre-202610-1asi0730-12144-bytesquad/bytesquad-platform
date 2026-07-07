@@ -10,9 +10,11 @@ public static class EquipmentActionResultAssembler
 {
     private static int MapErrorToStatusCode(Enum error) => error switch
     {
-        EquipmentError.ZoneNotFound      => StatusCodes.Status404NotFound,
-        EquipmentError.InvalidData       => StatusCodes.Status400BadRequest,
-        _                                => StatusCodes.Status500InternalServerError
+        EquipmentError.ZoneNotFound           => StatusCodes.Status404NotFound,
+        EquipmentError.EquipmentNotFound      => StatusCodes.Status404NotFound,
+        EquipmentError.InvalidData            => StatusCodes.Status400BadRequest,
+        EquipmentError.InvalidEquipmentStatus => StatusCodes.Status400BadRequest,
+        _                                     => StatusCodes.Status500InternalServerError
     };
 
     public static IActionResult ToSuccessActionResult<TEntity, TResource>(

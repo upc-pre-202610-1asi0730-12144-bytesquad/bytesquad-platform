@@ -7,5 +7,6 @@ public interface IAdminQueryService
 {
     Task<Admin?> Handle(GetAdminByIdQuery query, CancellationToken cancellationToken);
     Task<Admin?> Handle(GetAdminByEmailQuery query, CancellationToken cancellationToken);
+    Task<Admin?> Handle(GetAdminByUserIdQuery query, CancellationToken cancellationToken);
     Task<IEnumerable<Admin>> Handle(GetAllAdminsQuery query, CancellationToken cancellationToken);
 }

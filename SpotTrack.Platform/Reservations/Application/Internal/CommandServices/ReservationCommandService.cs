@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using SpotTrack.Platform.Gyms.Interfaces.Acl;
 using SpotTrack.Platform.Reservations.Application.CommandServices;
+using SpotTrack.Platform.Reservations.Interfaces.Acl;
 using SpotTrack.Platform.Reservations.Domain.Model;
 using SpotTrack.Platform.Reservations.Domain.Model.Aggregates;
 using SpotTrack.Platform.Reservations.Domain.Model.Commands;
@@ -19,13 +20,21 @@ public class ReservationCommandService(
     IUnitOfWork unitOfWork,
     IMediator mediator,
     IStringLocalizer<ReservationMessages> localizer,
-    IGymContextFacade gymContextFacade)
+    IGymContextFacade gymContextFacade,
+    IReservationsMembershipContextFacade membershipContextFacade)
     : IReservationCommandService
 {
     public async Task<Result<Reservation>> Handle(
         CreateInitiateExpressReservationCommand command,
         CancellationToken cancellationToken)
     {
+        var gymIsActive = await membershipContextFacade
+            .ClientGymHasActiveMembershipAsync(command.UserId, command.EquipmentId, cancellationToken);
+        if (!gymIsActive)
+            return Result<Reservation>.Failure(
+                ReservationsError.GymMembershipInactive,
+                localizer[nameof(ReservationsError.GymMembershipInactive)]);
+
         Reservation reservation;
 
         try
@@ -94,7 +103,6 @@ public class ReservationCommandService(
         try
         {
             await unitOfWork.CompleteAsync(cancellationToken);
-            return Result<Reservation>.Success(reservation);
         }
         catch (DbUpdateException)
         {
@@ -102,6 +110,11 @@ public class ReservationCommandService(
                 ReservationsError.DatabaseError,
                 localizer[nameof(ReservationsError.DatabaseError)]);
         }
+
+        // Best-effort: only matters if the reservation had already occupied the equipment.
+        await gymContextFacade.ReleaseEquipmentAsync(reservation.EquipmentId);
+
+        return Result<Reservation>.Success(reservation);
     }
 
     public async Task<Result<Reservation>> Handle(
@@ -166,7 +179,6 @@ public class ReservationCommandService(
         try
         {
             await unitOfWork.CompleteAsync(cancellationToken);
-            return Result<Reservation>.Success(reservation);
         }
         catch (DbUpdateException)
         {
@@ -174,12 +186,18 @@ public class ReservationCommandService(
                 ReservationsError.DatabaseError,
                 localizer[nameof(ReservationsError.DatabaseError)]);
         }
+
+        // Best-effort: the equipment may already be Available (e.g. the client already
+        // requested it) — that's not a reason to fail an otherwise-successful End.
+        await gymContextFacade.ReleaseEquipmentAsync(reservation.EquipmentId);
+
+        return Result<Reservation>.Success(reservation);
     }
 
     public async Task<Result<Reservation>> Handle(
         CreateStartReservationTimerCommand command, CancellationToken cancellationToken)
     {
-        var reservation = await reservationRepository.FindByIdAsync(command.ReservationId,
+        var reservation = await reservationRepository.FindByIdWithRequestAsync(command.ReservationId,
             cancellationToken);
         if (reservation is null)
             return Result<Reservation>.Failure(
@@ -188,13 +206,19 @@ public class ReservationCommandService(
 
         try
         {
-            reservation.StartTimer();
+            reservation.StartTimer(command.DurationMinutes);
         }
         catch (InvalidOperationException ex)
         {
             return Result<Reservation>.Failure(
                 ReservationsError.InvalidReservationStatus,
                 ex.Message);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.InvalidTimerDuration,
+                localizer[nameof(ReservationsError.InvalidTimerDuration)]);
         }
 
         try
@@ -220,7 +244,7 @@ public class ReservationCommandService(
     public async Task<Result<Reservation>> Handle(
         CreateRequestEquipmentStatusChangeToAvailableCommand command, CancellationToken cancellationToken)
     {
-        var reservation = await reservationRepository.FindByIdAsync(command.ReservationId,
+        var reservation = await reservationRepository.FindByIdWithRequestAsync(command.ReservationId,
             cancellationToken);
         if (reservation is null)
             return Result<Reservation>.Failure(
@@ -256,5 +280,39 @@ public class ReservationCommandService(
                 localizer[nameof(ReservationsError.EquipmentReleaseFailed)]);
 
         return Result<Reservation>.Success(reservation);
+    }
+
+    public async Task<Result<Reservation>> Handle(
+        CreateRequestAlternativeEquipmentCommand command, CancellationToken cancellationToken)
+    {
+        var reservation = await reservationRepository.FindByIdWithRequestAsync(command.ReservationId,
+            cancellationToken);
+        if (reservation is null)
+            return Result<Reservation>.Failure(
+                ReservationsError.ReservationNotFound,
+                localizer[nameof(ReservationsError.ReservationNotFound)]);
+
+        try
+        {
+            reservation.RequestAlternativeEquipment();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.InvalidReservationStatus,
+                ex.Message);
+        }
+
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Reservation>.Success(reservation);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Reservation>.Failure(
+                ReservationsError.DatabaseError,
+                localizer[nameof(ReservationsError.DatabaseError)]);
+        }
     }
 }

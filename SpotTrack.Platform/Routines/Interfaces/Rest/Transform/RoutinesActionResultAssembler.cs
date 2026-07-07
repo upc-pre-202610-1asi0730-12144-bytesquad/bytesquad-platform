@@ -12,11 +12,13 @@ public static class RoutinesActionResultAssembler
     {
         RoutinesError.RoutineNotFound
             or RoutinesError.RoutineSessionNotFound
-            or RoutinesError.ExerciseBlockNotFound  => StatusCodes.Status404NotFound,
+            or RoutinesError.ExerciseBlockNotFound
+            or RoutinesError.ClientNotFound          => StatusCodes.Status404NotFound,
+        RoutinesError.AccessDenied                   => StatusCodes.Status403Forbidden,
         RoutinesError.InvalidRoutineData
             or RoutinesError.InvalidExerciseData
-            or RoutinesError.InvalidSessionData     => StatusCodes.Status400BadRequest,
-        _                                           => StatusCodes.Status500InternalServerError
+            or RoutinesError.InvalidSessionData      => StatusCodes.Status400BadRequest,
+        _                                            => StatusCodes.Status500InternalServerError
     };
 
     public static IActionResult ToSuccessActionResult<TEntity, TResource>(

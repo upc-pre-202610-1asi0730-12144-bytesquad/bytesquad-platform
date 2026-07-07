@@ -11,5 +11,6 @@ public static class ReservationResourceFromEntityAssembler
             reservation.EquipmentId,
             reservation.StartDate,
             reservation.EndDate,
-            reservation.Status.ToString()); // enum → string, no magic strings
+            reservation.Status.ToString(), // enum → string, no magic strings
+            reservation.TimerExpiry);
 }

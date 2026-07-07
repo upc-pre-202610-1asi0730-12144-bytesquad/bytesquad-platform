@@ -18,6 +18,7 @@ public partial class Client
     public Client(RegisterClientCommand command)
     {
         UserId = command.UserId;
+        Email = new ValueObjects.EmailAddress(command.Email);
     }
 
     public Client(CreateClientCommand command)
@@ -33,8 +34,10 @@ public partial class Client
     {
         Name = new PersonName(command.FirstName, command.LastName);
         Phone = new PhoneNumber(command.PhoneNumber);
+        Dni = new ValueObjects.Dni(command.Dni);
     }
 
     public string FullName => Name?.FullName ?? string.Empty;
     public string EmailAddress => Email?.Address ?? string.Empty;
+    public bool IsProfileComplete() => Name is not null && Dni is not null;
 }

@@ -10,6 +10,9 @@ public static class MaintenanceLogErrors
     public static Error TicketNotResolved(string message) =>
         new($"{nameof(MaintenanceLogError)}.{nameof(MaintenanceLogError.TicketNotResolved)}", message);
 
+    public static Error LogAlreadyExists(string message) =>
+        new($"{nameof(MaintenanceLogError)}.{nameof(MaintenanceLogError.LogAlreadyExists)}", message);
+
     public static Error OperationCancelled(string message) =>
         new($"{nameof(MaintenanceLogError)}.{nameof(MaintenanceLogError.OperationCancelled)}", message);
 

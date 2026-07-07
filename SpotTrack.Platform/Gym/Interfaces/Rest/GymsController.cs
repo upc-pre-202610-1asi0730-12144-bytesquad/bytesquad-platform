@@ -1,10 +1,16 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpotTrack.Platform.Gyms.Domain.Model;
 using SpotTrack.Platform.Gyms.Domain.Model.Commands;
+using SpotTrack.Platform.Gyms.Domain.Model.Queries;
+using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Resources;
 using SpotTrack.Platform.Gyms.Interfaces.Rest.Transform;
+using SpotTrack.Platform.Gyms.Domain.Model.Aggregates;
+using SpotTrack.Platform.Iam.Domain.Model.Aggregates;
+using SpotTrack.Platform.Iam.Domain.Model.ValueObjects;
 using SpotTrack.Platform.Iam.Infrastructure.Pipeline.Middleware.Attributes;
 using SpotTrack.Platform.Shared.Interfaces.Rest.ProblemDetails;
 using Swashbuckle.AspNetCore.Annotations;
@@ -18,9 +24,103 @@ namespace SpotTrack.Platform.Gyms.Interfaces.Rest;
 [SwaggerTag("Gym management endpoints")]
 public class GymsController(
     IGymCommandService gymCommandService,
+    IGymQueryService gymQueryService,
+    IEquipmentQueryService equipmentQueryService,
+    IAuthorizedDniRepository authorizedDniRepository,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet]
+    [SwaggerOperation(
+        Summary = "List all gyms",
+        Description = "Returns all gyms registered on the platform. Accessible to any authenticated user.",
+        OperationId = "GetAllGyms")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of gyms", typeof(IEnumerable<GymResource>))]
+    public async Task<IActionResult> GetAllGyms(CancellationToken cancellationToken)
+    {
+        var gyms = await gymQueryService.Handle(new GetAllGymsQuery(), cancellationToken);
+        return Ok(gyms.Select(GymResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
+    [HttpGet("{gymId:int}/branches")]
+    [SwaggerOperation(
+        Summary = "Get branches by gym id",
+        Description = "Returns the branches of the given gym. Returns 404 if the gym is not found.",
+        OperationId = "GetBranchesByGymId")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of branches", typeof(IEnumerable<BranchResource>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    public async Task<IActionResult> GetBranchesByGymId(
+        [FromRoute] int gymId,
+        CancellationToken cancellationToken)
+    {
+        var branches = await gymQueryService.Handle(new GetBranchesByGymIdQuery(gymId), cancellationToken);
+        if (branches is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+        return Ok(branches.Select(BranchResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
+    [HttpGet("{gymId:int}/zones")]
+    [SwaggerOperation(
+        Summary = "Get zones by gym id",
+        Description = "Returns the zones across all branches of the given gym. Returns 404 if the gym is not found.",
+        OperationId = "GetZonesByGymId")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of zones", typeof(IEnumerable<ZoneResource>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    public async Task<IActionResult> GetZonesByGymId(
+        [FromRoute] int gymId,
+        CancellationToken cancellationToken)
+    {
+        var zones = await gymQueryService.Handle(new GetZonesByGymIdQuery(gymId), cancellationToken);
+        if (zones is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+        return Ok(zones.Select(ZoneResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
+    [HttpGet("{gymId:int}/equipments")]
+    [SwaggerOperation(
+        Summary = "Get equipments by gym id",
+        Description = "Returns the equipment across all zones of the given gym. Returns 404 if the gym is not found.",
+        OperationId = "GetEquipmentsByGymId")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of equipment", typeof(IEnumerable<EquipmentResource>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    public async Task<IActionResult> GetEquipmentsByGymId(
+        [FromRoute] int gymId,
+        CancellationToken cancellationToken)
+    {
+        var equipment = await gymQueryService.Handle(new GetEquipmentsByGymIdQuery(gymId), cancellationToken);
+        if (equipment is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+        return Ok(equipment.Select(EquipmentResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
+    [HttpGet("by-admin/{adminId:int}")]
+    [SwaggerOperation(
+        Summary = "Get gym by admin",
+        OperationId = "GetGymByAdmin")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Gym found", typeof(GymResource))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Access denied")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "No gym found for this admin")]
+    public async Task<IActionResult> GetGymByAdmin(
+        [FromRoute] int adminId,
+        CancellationToken cancellationToken)
+    {
+        var authenticatedAdminId = ((User)HttpContext.Items["User"]!).Id;
+        if (adminId != authenticatedAdminId) return Forbid();
+
+        var gym = await gymQueryService.Handle(new GetGymByAdminIdQuery(adminId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(
+                this, StatusCodes.Status404NotFound, GymError.GymNotFound, "No gym found for this admin.");
+        return Ok(GymResourceFromEntityAssembler.ToResourceFromEntity(gym));
+    }
+
     [HttpPost]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Create a new gym",
         Description = "Creates a new gym with the given name and address. Requires Admin authentication.",
@@ -32,7 +132,8 @@ public class GymsController(
         [FromBody] CreateGymResource resource,
         CancellationToken cancellationToken)
     {
-        var command = CreateGymCommandFromResourceAssembler.ToCommandFromResource(resource);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = CreateGymCommandFromResourceAssembler.ToCommandFromResource(adminId, resource);
         var result = await gymCommandService.Handle(command, cancellationToken);
         if (result.IsFailure)
             return GymsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
@@ -43,7 +144,35 @@ public class GymsController(
             this);
     }
 
+    [HttpGet("{gymId:int}/branches/{branchId:int}/zones")]
+    [SwaggerOperation(
+        Summary = "Get zones of a branch",
+        Description = "Returns all zones belonging to the given branch. Admin must own the gym.",
+        OperationId = "GetZones")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of zones", typeof(IEnumerable<ZoneResource>))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym or branch not found")]
+    public async Task<IActionResult> GetZones(
+        [FromRoute] int gymId,
+        [FromRoute] int branchId,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymWithBranchesByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var branch = gym.Branches.FirstOrDefault(b => b.Id == branchId);
+        if (branch is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, BranchError.BranchNotFound, "Branch not found.");
+
+        return Ok(branch.Zones.Select(ZoneResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpPost("{gymId:int}/branches")]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Add a branch to a gym",
         Description = "Adds a new branch to an existing gym. Returns 404 if the gym is not found, 400 if the branch data is invalid.",
@@ -57,7 +186,8 @@ public class GymsController(
         [FromBody] CreateBranchResource resource,
         CancellationToken cancellationToken)
     {
-        var command = CreateBranchCommandFromResourceAssembler.ToCommandFromResource(gymId, resource);
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        var command = CreateBranchCommandFromResourceAssembler.ToCommandFromResource(gymId, adminId, resource);
         var result = await gymCommandService.Handle(command, cancellationToken);
         if (result.IsFailure)
             return GymsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
@@ -69,6 +199,7 @@ public class GymsController(
     }
 
     [HttpPost("{gymId:int}/branches/{branchId:int}/zones")]
+    [Authorize(UserRole.Admin)]
     [SwaggerOperation(
         Summary = "Add a zone to a branch",
         Description = "Adds a new zone to an existing branch within a gym. Returns 404 if the gym or branch is not found, 400 if the zone data is invalid.",
@@ -92,5 +223,86 @@ public class GymsController(
             ZoneResourceFromEntityAssembler.ToResourceFromEntity,
             StatusCodes.Status201Created,
             this);
+    }
+
+    [HttpGet("{gymId:int}/authorized-dnis")]
+    [SwaggerOperation(
+        Summary = "List authorised DNIs for a gym",
+        Description = "Returns all DNIs on the whitelist for the given gym. Admin must own the gym.",
+        OperationId = "GetAuthorizedDnis")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of authorised DNIs", typeof(IEnumerable<AuthorizedDniResource>))]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    public async Task<IActionResult> GetAuthorizedDnis(
+        [FromRoute] int gymId,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var entries = await authorizedDniRepository.FindAllByGymIdAsync(gymId, cancellationToken);
+        return Ok(entries.Select(AuthorizedDniResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
+    [HttpPost("{gymId:int}/authorized-dnis")]
+    [SwaggerOperation(
+        Summary = "Add a DNI to a gym whitelist",
+        Description = "Adds a DNI to the authorised list for the given gym. Admin must own the gym.",
+        OperationId = "AddAuthorizedDni")]
+    [SwaggerResponse(StatusCodes.Status201Created, "DNI added to whitelist", typeof(AuthorizedDniResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid DNI format")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym not found")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "DNI already on whitelist")]
+    public async Task<IActionResult> AddAuthorizedDni(
+        [FromRoute] int gymId,
+        [FromBody] AddAuthorizedDniResource resource,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var result = await gymCommandService.Handle(new AddAuthorizedDniCommand(gymId, resource.Dni), cancellationToken);
+        if (result.IsFailure)
+            return GymsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return GymsActionResultAssembler.ToSuccessActionResult(
+            result.Value!,
+            AuthorizedDniResourceFromEntityAssembler.ToResourceFromEntity,
+            StatusCodes.Status201Created,
+            this);
+    }
+
+    [HttpDelete("{gymId:int}/authorized-dnis/{dni}")]
+    [SwaggerOperation(
+        Summary = "Remove a DNI from a gym whitelist",
+        Description = "Removes a DNI from the authorised list. Triggers cascade deactivation of any client associations that depended on that DNI.",
+        OperationId = "RemoveAuthorizedDni")]
+    [SwaggerResponse(StatusCodes.Status204NoContent, "DNI removed from whitelist")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "You do not own this gym")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Gym or DNI not found")]
+    public async Task<IActionResult> RemoveAuthorizedDni(
+        [FromRoute] int gymId,
+        [FromRoute] string dni,
+        CancellationToken cancellationToken)
+    {
+        var gym = await gymQueryService.Handle(new GetGymByIdQuery(gymId), cancellationToken);
+        if (gym is null)
+            return problemDetailsFactory.CreateProblemDetails(this, StatusCodes.Status404NotFound, GymError.GymNotFound, "Gym not found.");
+
+        var adminId = ((User)HttpContext.Items["User"]!).Id;
+        if (gym.AdminId != adminId) return Forbid();
+
+        var result = await gymCommandService.Handle(new RemoveAuthorizedDniCommand(gymId, dni), cancellationToken);
+        if (result.IsFailure)
+            return GymsActionResultAssembler.ToFailureActionResult(result, this, problemDetailsFactory);
+        return NoContent();
     }
 }

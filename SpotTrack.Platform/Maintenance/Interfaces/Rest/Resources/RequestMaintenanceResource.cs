@@ -1,3 +1,3 @@
 namespace SpotTrack.Platform.Maintenances.Interfaces.Rest.Resources;
 
-public record RequestMaintenanceResource(int EquipmentId, int RequestedByAdminId, string Reason);
+public record RequestMaintenanceResource(int EquipmentId, string Reason, string Priority, string Type);

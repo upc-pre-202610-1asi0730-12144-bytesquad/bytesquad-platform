@@ -2,6 +2,7 @@ using SpotTrack.Platform.Profiles.Application.CommandServices;
 using SpotTrack.Platform.Profiles.Application.QueryServices;
 using SpotTrack.Platform.Profiles.Domain.Model.Commands;
 using SpotTrack.Platform.Profiles.Domain.Model.Queries;
+using SpotTrack.Platform.Profiles.Domain.Repositories;
 using SpotTrack.Platform.Profiles.Interfaces.Acl;
 
 namespace SpotTrack.Platform.Profiles.Application.Acl;
@@ -10,7 +11,9 @@ public class ProfilesContextFacade(
     IClientCommandService clientCommandService,
     IAdminCommandService adminCommandService,
     IClientQueryService clientQueryService,
-    IAdminQueryService adminQueryService)
+    IAdminQueryService adminQueryService,
+    IBusinessCommandService businessCommandService,
+    IClientGymAssociationRepository clientGymAssociationRepository)
     : IProfilesContextFacade
 {
     public async Task<int> CreateClientAsync(int userId, string email, string firstName,
@@ -29,9 +32,9 @@ public class ProfilesContextFacade(
         return result.IsFailure ? 0 : result.Value!.Id;
     }
 
-    public async Task<int> RegisterClientAsync(int userId)
+    public async Task<int> RegisterClientAsync(int userId, string email)
     {
-        var command = new RegisterClientCommand(userId);
+        var command = new RegisterClientCommand(userId, email);
         var result = await clientCommandService.Handle(command, CancellationToken.None);
         return result.IsFailure ? 0 : result.Value!.Id;
     }
@@ -50,10 +53,34 @@ public class ProfilesContextFacade(
         return client?.Id ?? 0;
     }
 
+    public async Task<int> FetchClientIdByUserIdAsync(int userId)
+    {
+        var client = await clientQueryService.Handle(
+            new GetClientByUserIdQuery(userId), CancellationToken.None);
+        return client?.Id ?? 0;
+    }
+
     public async Task<int> FetchAdminIdByEmailAsync(string email)
     {
         var admin = await adminQueryService.Handle(
             new GetAdminByEmailQuery(email), CancellationToken.None);
         return admin?.Id ?? 0;
+    }
+
+    public async Task<int> ProvisionBusinessAsync(int adminId, string companyName, string ruc,
+        string legalStructure, string companyPhone, string companyEmail)
+    {
+        var command = new ProvisionBusinessCommand(adminId, companyName, ruc, legalStructure, companyPhone, companyEmail);
+        var result = await businessCommandService.Handle(command, CancellationToken.None);
+        return result.IsFailure ? 0 : result.Value!.Id;
+    }
+
+    public async Task<int> GetActiveGymIdForClientAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        var client = await clientQueryService.Handle(new GetClientByUserIdQuery(userId), cancellationToken);
+        if (client is null) return 0;
+
+        var active = await clientGymAssociationRepository.FindActiveByClientIdAsync(client.Id, cancellationToken);
+        return active.FirstOrDefault()?.GymId ?? 0;
     }
 }

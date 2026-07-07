@@ -9,17 +9,28 @@ public partial class Equipment
 
     public EquipmentName Name { get; private set; } = null!;
 
+    public string Model { get; private set; } = null!;
+
     public ZoneId ZoneId { get; private set; } = null!;
 
     public EquipmentStatus Status { get; private set; }
+
+    public int? MaintenanceThreshold { get; private set; }
+
+    public decimal? PurchasePrice { get; private set; }
 
     private Equipment() { }
 
     public Equipment(RegisterEquipmentCommand command)
     {
+        if (string.IsNullOrWhiteSpace(command.Model))
+            throw new ArgumentException("Model cannot be null or whitespace.", nameof(command.Model));
+
         Name = new EquipmentName(command.Name);
+        Model = command.Model;
         ZoneId = new ZoneId(command.ZoneId);
         Status = EquipmentStatus.Available;
+        PurchasePrice = command.PurchasePrice;
     }
 
     public void Occupy()
@@ -56,5 +67,39 @@ public partial class Equipment
                 $"Cannot mark equipment available from '{Status}' status.");
 
         Status = EquipmentStatus.Available;
+    }
+
+    public void SetStatus(EquipmentStatus newStatus)
+    {
+        if (Status == EquipmentStatus.Decommissioned)
+            throw new InvalidOperationException("Cannot change status of a decommissioned equipment.");
+        if (newStatus == EquipmentStatus.Decommissioned)
+            throw new InvalidOperationException("Use Decommission() to decommission equipment.");
+
+        Status = newStatus;
+    }
+
+    public void Decommission()
+    {
+        if (Status == EquipmentStatus.Decommissioned)
+            throw new InvalidOperationException("Equipment is already decommissioned.");
+
+        Status = EquipmentStatus.Decommissioned;
+    }
+
+    public void Relocate(int newZoneId)
+    {
+        if (Status == EquipmentStatus.Decommissioned)
+            throw new InvalidOperationException("Cannot relocate decommissioned equipment.");
+
+        ZoneId = new ZoneId(newZoneId);
+    }
+
+    public void SetMaintenanceThreshold(int usageCount)
+    {
+        if (usageCount <= 0)
+            throw new ArgumentException("Maintenance threshold must be greater than zero.", nameof(usageCount));
+
+        MaintenanceThreshold = usageCount;
     }
 }
