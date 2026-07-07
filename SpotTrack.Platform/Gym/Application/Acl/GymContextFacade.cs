@@ -3,15 +3,13 @@ using SpotTrack.Platform.Gyms.Domain.Model.Commands;
 using SpotTrack.Platform.Gyms.Domain.Repositories;
 using SpotTrack.Platform.Gyms.Domain.Services;
 using SpotTrack.Platform.Gyms.Interfaces.Acl;
-using SpotTrack.Platform.Shared.Domain.Repositories;
 
 namespace SpotTrack.Platform.Gyms.Application.Acl;
 
 public class GymContextFacade(
     IEquipmentCommandService equipmentCommandService,
     IEquipmentRepository equipmentRepository,
-    IGymRepository gymRepository,
-    IUnitOfWork unitOfWork)
+    IGymRepository gymRepository)
     : IGymContextFacade
 {
     public async Task<bool> OccupyEquipmentAsync(int equipmentId)
@@ -63,25 +61,4 @@ public class GymContextFacade(
         CancellationToken cancellationToken = default)
         => await gymRepository.FindAllEquipmentIdsByAdminIdAsync(adminId, cancellationToken);
 
-    public async Task<int> CreateGymWithBranchAsync(
-        int adminId, string gymName, string branchName,
-        string street, string district, string city,
-        CancellationToken cancellationToken = default)
-    {
-        if (await gymRepository.ExistsByAdminIdAsync(adminId, cancellationToken))
-            return 0;
-
-        var gym = new Gym(new CreateGymCommand(adminId, gymName));
-        await gymRepository.AddAsync(gym, cancellationToken);
-        await unitOfWork.CompleteAsync(cancellationToken);
-
-        // Branch seeding bypasses GymCommandService to avoid the branch-limit check,
-        // which would fail here because the membership is not yet activated at this
-        // point in the PaymentConfirmedEventHandler cascade.
-        gym.AddBranch(branchName, street, district, city);
-        gymRepository.Update(gym);
-        await unitOfWork.CompleteAsync(cancellationToken);
-
-        return gym.Id;
-    }
 }
