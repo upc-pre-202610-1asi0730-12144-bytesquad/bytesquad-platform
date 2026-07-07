@@ -262,6 +262,7 @@ builder.Services.AddScoped<ISessionTrackerCommandService, SessionTrackerCommandS
 builder.Services.AddScoped<IAnomalyCommandService, AnomalyCommandService>();
 builder.Services.AddScoped<ISensorQueryService, SensorQueryService>();
 builder.Services.AddScoped<ISessionTrackerQueryService, SessionTrackerQueryService>();
+builder.Services.AddScoped<IAnomalyQueryService, AnomalyQueryService>();
 
 // IAM Bounded Context
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
