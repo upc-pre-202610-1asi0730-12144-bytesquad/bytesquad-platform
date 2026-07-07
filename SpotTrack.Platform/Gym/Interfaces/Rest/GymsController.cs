@@ -27,6 +27,19 @@ public class GymsController(
     IAuthorizedDniRepository authorizedDniRepository,
     ProblemDetailsFactory problemDetailsFactory) : ControllerBase
 {
+    [HttpGet]
+    [Authorize]
+    [SwaggerOperation(
+        Summary = "List all gyms",
+        Description = "Returns all gyms registered on the platform. Accessible to any authenticated user.",
+        OperationId = "GetAllGyms")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of gyms", typeof(IEnumerable<GymResource>))]
+    public async Task<IActionResult> GetAllGyms(CancellationToken cancellationToken)
+    {
+        var gyms = await gymQueryService.Handle(new GetAllGymsQuery(), cancellationToken);
+        return Ok(gyms.Select(GymResourceFromEntityAssembler.ToResourceFromEntity));
+    }
+
     [HttpGet("by-admin/{adminId:int}")]
     [SwaggerOperation(
         Summary = "Get gym by admin",
