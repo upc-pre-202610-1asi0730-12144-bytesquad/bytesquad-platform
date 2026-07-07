@@ -5,4 +5,5 @@ namespace SpotTrack.Platform.Gyms.Domain.Repositories;
 
 public interface IEquipmentRepository : IBaseRepository<Equipment>
 {
+    Task<IEnumerable<Equipment>> FindAllByAdminIdAsync(int adminId, CancellationToken cancellationToken = default);
 }
