@@ -4,4 +4,4 @@ public record UpdateClientProfileResource(
     string FirstName,
     string LastName,
     string PhoneNumber,
-    string? Dni = null);
+    string Dni);

@@ -29,15 +29,14 @@ public class GymsController(
 {
     [HttpGet]
     [SwaggerOperation(
-        Summary = "Get all gyms",
-        Description = "Returns a summary (id and name) of every gym registered on the platform.",
+        Summary = "List all gyms",
+        Description = "Returns all gyms registered on the platform. Accessible to any authenticated user.",
         OperationId = "GetAllGyms")]
-    [SwaggerResponse(StatusCodes.Status200OK, "List of gyms", typeof(IEnumerable<GymSummaryResource>))]
-    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized")]
+    [SwaggerResponse(StatusCodes.Status200OK, "List of gyms", typeof(IEnumerable<GymResource>))]
     public async Task<IActionResult> GetAllGyms(CancellationToken cancellationToken)
     {
         var gyms = await gymQueryService.Handle(new GetAllGymsQuery(), cancellationToken);
-        return Ok(gyms.Select(GymSummaryResourceFromEntityAssembler.ToResourceFromEntity));
+        return Ok(gyms.Select(GymResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     [HttpGet("{gymId:int}/branches")]

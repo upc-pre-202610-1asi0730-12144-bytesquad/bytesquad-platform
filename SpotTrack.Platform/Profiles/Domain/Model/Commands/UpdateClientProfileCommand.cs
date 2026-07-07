@@ -5,4 +5,4 @@ public record UpdateClientProfileCommand(
     string FirstName,
     string LastName,
     string PhoneNumber,
-    string? Dni = null);
+    string Dni);

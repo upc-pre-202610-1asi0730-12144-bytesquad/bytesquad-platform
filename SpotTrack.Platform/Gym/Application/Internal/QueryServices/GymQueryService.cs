@@ -11,13 +11,6 @@ public class GymQueryService(
     IEquipmentRepository equipmentRepository)
     : IGymQueryService
 {
-    public async Task<IReadOnlyCollection<Gym>> Handle(
-        GetAllGymsQuery query, CancellationToken cancellationToken)
-    {
-        var gyms = await gymRepository.ListAsync(cancellationToken);
-        return gyms.ToList();
-    }
-
     public async Task<IReadOnlyCollection<Branch>?> Handle(
         GetBranchesByGymIdQuery query, CancellationToken cancellationToken)
     {
@@ -49,4 +42,7 @@ public class GymQueryService(
 
     public async Task<Gym?> Handle(GetGymByAdminIdQuery query, CancellationToken cancellationToken)
         => await gymRepository.FindByAdminIdAsync(query.AdminId, cancellationToken);
+
+    public async Task<IEnumerable<Gym>> Handle(GetAllGymsQuery query, CancellationToken cancellationToken)
+        => await gymRepository.ListAsync(cancellationToken);
 }
